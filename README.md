@@ -1,6 +1,11 @@
 frunner
 =======
 
+## OpenFaaS
+
+This is intended to be used with openfaas and can hopefully be used as a replacement for the fwatchdog.
+This is heavily inspired by openfaas/faas/watchdog and all credits for this are going to @alexellis. Thank you for your fantastic work :)
+
 ## Scope
 
 This provides an HTTP server which executes the configured binary with the input from the request and returns the result.
