@@ -46,12 +46,16 @@ func (c *ExecCallable) runCommand(input io.Reader, env env.Env, output io.Writer
 	errorChannel := make(chan *CallError)
 	c.cmd.Stdin = input
 	c.cmd.Stdout = output
+	err := c.cmd.Start()
+	if err != nil {
+		errorChannel <- &CallError{err, c.errorBuffer}
+		close(errorChannel)
+		return errorChannel
+	}
 	go func() {
-		err := c.cmd.Run()
+		err = c.cmd.Wait()
 		if err != nil {
 			errorChannel <- &CallError{err, c.errorBuffer}
-			close(errorChannel)
-			return
 		}
 		close(errorChannel)
 	}()
