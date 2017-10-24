@@ -1,0 +1,4 @@
+package: github.com/trusch/frunner
+import:
+- package: github.com/spf13/pflag
+  version: ^1.0.0
