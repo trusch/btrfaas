@@ -14,6 +14,7 @@ import (
 var (
 	httpAddr         *string
 	callTimeout      *time.Duration
+	readLimit        *int64
 	httpReadTimeout  *time.Duration
 	httpWriteTimeout *time.Duration
 )
@@ -24,6 +25,7 @@ func initFlags() {
 	httpReadTimeout = flags.DurationP("http-read-timeout", "r", 5*time.Second, "http read timeout")
 	httpWriteTimeout = flags.DurationP("http-write-timeout", "w", 5*time.Second, "http write timeout")
 	callTimeout = flags.DurationP("call-timeout", "t", 5*time.Second, "call timeout")
+	readLimit = flags.Int64("read-limit", 1048576, "read limit")
 }
 
 func applyEnvironmentConfig() {
@@ -64,6 +66,6 @@ func main() {
 	if err := env.ReadOSEnvironment(); err != nil {
 		log.Fatal(err)
 	}
-	server := http.NewServer(tCmd, env, *httpAddr, *httpReadTimeout, *httpWriteTimeout)
+	server := http.NewServer(tCmd, env, *httpAddr, *httpReadTimeout, *httpWriteTimeout, *readLimit)
 	log.Fatal(server.ListenAndServe())
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,6 +18,7 @@ var (
 	callTimeout      *time.Duration
 	httpReadTimeout  *time.Duration
 	httpWriteTimeout *time.Duration
+	readLimit        *int64
 	binary           string
 	binaryArgs       []string
 )
@@ -27,6 +29,7 @@ func initFlags() {
 	httpReadTimeout = flags.DurationP("http-read-timeout", "r", 5*time.Second, "http read timeout")
 	httpWriteTimeout = flags.DurationP("http-write-timeout", "w", 5*time.Second, "http write timeout")
 	callTimeout = flags.DurationP("call-timeout", "t", 5*time.Second, "call timeout")
+	readLimit = flags.Int64("read-limit", 1048576, "read limit")
 	dashDashIndex := -1
 	for idx, val := range os.Args {
 		if val == "--" {
@@ -82,6 +85,13 @@ func applyEnvironmentConfig() {
 		}
 		callTimeout = &d
 	}
+	if val, ok := env["read_limit"]; ok {
+		d, err := strconv.ParseInt(val, 10, 64)
+		if err != nil {
+			log.Fatal(err)
+		}
+		readLimit = &d
+	}
 }
 
 func main() {
@@ -93,6 +103,6 @@ func main() {
 	if err := env.ReadOSEnvironment(); err != nil {
 		log.Fatal(err)
 	}
-	server := http.NewServer(tCmd, env, *httpAddr, *httpReadTimeout, *httpWriteTimeout)
+	server := http.NewServer(tCmd, env, *httpAddr, *httpReadTimeout, *httpWriteTimeout, *readLimit)
 	log.Fatal(server.ListenAndServe())
 }
