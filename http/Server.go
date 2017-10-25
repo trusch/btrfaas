@@ -46,11 +46,19 @@ func (server *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	env.AddFromHTTPRequest(r)
 
 	// call the callable
-	errorChannel := cmd.Call(io.LimitReader(r.Body, server.readLimit), env, w)
+	var reader io.Reader
+	reader = r.Body
+	if server.readLimit > 0 {
+		reader = io.LimitReader(reader, server.readLimit)
+	}
+	errorChannel := cmd.Call(reader, env, w)
 	if err := <-errorChannel; err != nil {
 		log.Print("error while calling: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		_, e := w.Write([]byte(err.Error()))
+		if e != nil {
+			log.Print("failed to write error to client: ", e)
+		}
 	}
 }
 
