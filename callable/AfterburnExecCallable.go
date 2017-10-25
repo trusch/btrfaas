@@ -2,6 +2,7 @@ package callable
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"log"
 	"os/exec"
@@ -78,7 +79,10 @@ func (c *AfterburnExecCallable) Call(input io.Reader, env env.Env, output io.Wri
 
 // Stop stops the process
 func (c *AfterburnExecCallable) Stop() error {
-	return nil // do not stop the afterburn xD
+	if c.cmd == nil || c.cmd.Process == nil {
+		return errors.New("process not running")
+	}
+	return c.cmd.Process.Kill()
 }
 
 // Copy returns a new copy of this callable
