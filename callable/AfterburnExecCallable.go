@@ -40,19 +40,21 @@ func NewAfterburnExecCallable(framer framer.Framer, bin string, args ...string) 
 // stderr will be part of the error message
 func (c *AfterburnExecCallable) Call(input io.Reader, env env.Env, output io.Writer) chan *CallError {
 	c.feedEnv(env)
-	errorChannel := c.runCommand(input, env, output)
 	if !c.running {
 		if err := c.cmd.Start(); err != nil {
-			errorChannel <- &CallError{err, nil}
-			return errorChannel
+			ch := make(chan *CallError, 1)
+			ch <- &CallError{err, nil}
+			return ch
 		}
+		c.running = true
 		go func() {
 			if err := c.cmd.Wait(); err != nil {
-				log.Print("command exited")
+				log.Print("command exited with error: ", err)
 			}
 			c.running = false
 		}()
 	}
+	errorChannel := c.runCommand(input, env, output)
 	return errorChannel
 }
 
@@ -72,7 +74,16 @@ func (c *AfterburnExecCallable) Stop() error {
 
 // Copy returns a new copy of this callable
 func (c *AfterburnExecCallable) Copy() Callable {
-	return NewAfterburnExecCallable(c.framer, c.bin, c.args...)
+	return &AfterburnExecCallable{
+		bin:           c.bin,
+		args:          c.args,
+		cmd:           c.cmd,
+		running:       c.running,
+		framer:        c.framer,
+		errorBuffer:   c.errorBuffer,
+		inPipeWriter:  c.inPipeWriter,
+		outPipeReader: c.outPipeReader,
+	}
 }
 
 func (c *AfterburnExecCallable) runCommand(input io.Reader, env env.Env, output io.Writer) chan *CallError {
