@@ -22,6 +22,9 @@ type CallError struct {
 }
 
 func (e *CallError) Error() string {
-	bs, _ := ioutil.ReadAll(e.Stderr)
+	bs := []byte{}
+	if e.Stderr != nil {
+		bs, _ = ioutil.ReadAll(e.Stderr)
+	}
 	return fmt.Sprintf("%v: %v", e.Err, string(bs))
 }

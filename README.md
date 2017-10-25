@@ -18,9 +18,12 @@ Additionally a interface is provided to enable developers to create customized v
 frunner --help
 Usage of frunner:
   -t, --call-timeout duration         call timeout (default 5s)
+  -f, --framer string                 framer to use: line, json or http (default "http")
   -l, --http-addr string              http listen address (default ":8080")
   -r, --http-read-timeout duration    http read timeout (default 5s)
   -w, --http-write-timeout duration   http write timeout (default 5s)
+  -m, --mode string                   operation mode: buffer, pipe or afterburn (default "buffer")
+      --read-limit int                read limit (default 1048576)
 ```
 
 A typical call would look like this:

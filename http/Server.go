@@ -48,6 +48,7 @@ func (server *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// call the callable
 	errorChannel := cmd.Call(io.LimitReader(r.Body, server.readLimit), env, w)
 	if err := <-errorChannel; err != nil {
+		log.Print("error while calling: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 	}

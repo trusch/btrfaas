@@ -1,6 +1,9 @@
-SRC=$(shell find ./callable ./cmd ./env ./http ./config -type f -name "*.go")
+SRC=$(shell find ./callable ./cmd ./env ./http ./config ./framer -type f -name "*.go")
 
 all: fmt vet test cmd/frunner/frunner docker
+
+install: cmd/frunner/frunner
+	cp cmd/frunner/frunner $(GOPATH)/bin/
 
 cmd/frunner/frunner: $(SRC) vendor
 	docker run \

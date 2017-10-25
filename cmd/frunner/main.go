@@ -70,10 +70,13 @@ func main() {
 	}
 	log.Printf("Listen Address: %v", *cfg.HTTPAddr)
 	log.Printf("Mode: %v\n", *cfg.Mode)
-	log.Printf("Timeouts:\n\tCall: %v\n\tRead: %v\n\tWrite: %v\n", *cfg.CallTimeout, *cfg.HTTPReadTimeout, *cfg.HTTPWriteTimeout)
+	if *cfg.Mode == "afterburn" {
+		log.Printf("Afterburn framer: %v\n", *cfg.Framer)
+	}
 	log.Printf("Read Limit: %v\n", *cfg.ReadLimit)
 	log.Printf("Command: %v\n", binary)
 	log.Printf("Arguments: %v\n", binaryArgs)
+	log.Printf("Timeouts:\n\tCall: %v\n\tRead: %v\n\tWrite: %v\n", *cfg.CallTimeout, *cfg.HTTPReadTimeout, *cfg.HTTPWriteTimeout)
 	var cmd callable.Callable
 	switch *cfg.Mode {
 	case "pipe":
