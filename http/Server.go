@@ -2,10 +2,11 @@ package http
 
 import (
 	"io"
+	"log"
 	"net/http"
-	"time"
 
 	"github.com/trusch/frunner/callable"
+	"github.com/trusch/frunner/config"
 	"github.com/trusch/frunner/env"
 )
 
@@ -18,15 +19,21 @@ type Server struct {
 }
 
 // NewServer creates a new HTTP server for a given Callable
-func NewServer(cmd callable.Callable, env env.Env, addr string, readTimeout, writeTimeout time.Duration, readLimit int64) *Server {
+func NewServer(cmd callable.Callable, cfg *config.Config) *Server {
 	srv := &http.Server{
-		Addr:           addr,
-		ReadTimeout:    readTimeout,
-		WriteTimeout:   writeTimeout,
+		Addr:           *cfg.HTTPAddr,
+		ReadTimeout:    *cfg.HTTPReadTimeout,
+		WriteTimeout:   *cfg.HTTPWriteTimeout,
 		MaxHeaderBytes: 1 << 20, // Max header of 1MB
 	}
-	server := &Server{srv, cmd, env, readLimit}
+	server := &Server{srv, cmd, make(env.Env), *cfg.ReadLimit}
 	server.srv.Handler = server
+	if *cfg.CallTimeout > 0 {
+		server.cmd = callable.NewTimeoutCallable(cmd, *cfg.CallTimeout)
+	}
+	if err := server.env.ReadOSEnvironment(); err != nil {
+		log.Fatal(err)
+	}
 	return server
 }
 

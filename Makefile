@@ -1,4 +1,4 @@
-SRC=$(shell find ./callable ./cmd ./env ./http -type f -name "*.go")
+SRC=$(shell find ./callable ./cmd ./env ./http ./config -type f -name "*.go")
 
 all: fmt vet test cmd/frunner/frunner docker
 

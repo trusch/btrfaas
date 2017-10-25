@@ -13,7 +13,7 @@ import (
 
 var _ = Describe("TimeoutCallable", func() {
 	It("should be possible to specify a timeout in a TimeoutCallable", func() {
-		c := NewTimeoutCallable(NewExecCallable("tail", "-f", "/dev/null"), 100*time.Millisecond)
+		c := NewTimeoutCallable(NewPipingExecCallable("tail", "-f", "/dev/null"), 100*time.Millisecond)
 		input := &bytes.Buffer{}
 		output := &bytes.Buffer{}
 		env := make(env.Env)
@@ -23,7 +23,7 @@ var _ = Describe("TimeoutCallable", func() {
 	}, 0.2)
 
 	It("should be possible to stop an TimeoutCallable", func() {
-		c := NewTimeoutCallable(NewExecCallable("tail", "-f", "/dev/null"), 100*time.Millisecond)
+		c := NewTimeoutCallable(NewPipingExecCallable("tail", "-f", "/dev/null"), 100*time.Millisecond)
 		input := &bytes.Buffer{}
 		output := &bytes.Buffer{}
 		env := make(env.Env)
@@ -34,7 +34,7 @@ var _ = Describe("TimeoutCallable", func() {
 	}, 0.2)
 
 	It("should be possible to copy an TimeoutCallable", func() {
-		c := NewTimeoutCallable(NewExecCallable("cat", "-"), 100*time.Millisecond)
+		c := NewTimeoutCallable(NewPipingExecCallable("cat", "-"), 100*time.Millisecond)
 		input := bytes.NewBufferString("foobar")
 		output := &bytes.Buffer{}
 		env := make(env.Env)

@@ -1,2 +1,4 @@
 cmd/frunner/frunner
 vendor
+watchdog-memory-issue.md
+cmd/example/example
