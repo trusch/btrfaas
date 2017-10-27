@@ -89,6 +89,7 @@ func getBinaryAndArgs() error {
 			"fprocess",
 			"faas_cmd",
 			"fwatchdog_cmd",
+			"fwatch_cmd",
 		}
 		for _, key := range validProcessKeys {
 			if val, ok := env[key]; ok {
