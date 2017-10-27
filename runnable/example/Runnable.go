@@ -19,6 +19,13 @@ func (r *Runnable) Run(ctx context.Context, input io.Reader, output io.Writer) (
 			{
 				bs, err := input.Read(buf[:])
 				if err != nil {
+					if err == io.EOF {
+						_, err = output.Write(buf[:bs])
+						if err != nil {
+							return err
+						}
+						return nil
+					}
 					return err
 				}
 				_, err = output.Write(buf[:bs])
