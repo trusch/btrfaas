@@ -1,4 +1,4 @@
-package callable_test
+package afterburn_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestCallable(t *testing.T) {
+func TestExec(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Callable Suite")
+	RunSpecs(t, "Exec Suite")
 }

@@ -1,36 +1,33 @@
 package http
 
 import (
+	"context"
 	"io"
 	"log"
 	"net/http"
 
-	"github.com/trusch/frunner/callable"
 	"github.com/trusch/frunner/config"
 	"github.com/trusch/frunner/env"
+	"github.com/trusch/frunner/runnable"
 )
 
 // Server serves HTTP requests and calls the given callable
 type Server struct {
-	srv       *http.Server
-	cmd       callable.Callable
-	env       env.Env
-	readLimit int64
+	srv *http.Server
+	cmd runnable.Runnable
+	env env.Env
+	cfg *config.Config
 }
 
 // NewServer creates a new HTTP server for a given Callable
-func NewServer(cmd callable.Callable, cfg *config.Config) *Server {
+func NewServer(cmd runnable.Runnable, cfg *config.Config) *Server {
 	srv := &http.Server{
-		Addr:           *cfg.HTTPAddr,
-		ReadTimeout:    *cfg.HTTPReadTimeout,
-		WriteTimeout:   *cfg.HTTPWriteTimeout,
-		MaxHeaderBytes: 1 << 20, // Max header of 1MB
+		Addr:              *cfg.HTTPAddr,
+		ReadHeaderTimeout: *cfg.HTTPReadHeaderTimeout,
+		MaxHeaderBytes:    1 << 20, // Max header of 1MB
 	}
-	server := &Server{srv, cmd, make(env.Env), *cfg.ReadLimit}
+	server := &Server{srv, cmd, make(env.Env), cfg}
 	server.srv.Handler = server
-	if *cfg.CallTimeout > 0 {
-		server.cmd = callable.NewTimeoutCallable(cmd, *cfg.CallTimeout)
-	}
 	if err := server.env.ReadOSEnvironment(); err != nil {
 		log.Fatal(err)
 	}
@@ -38,27 +35,31 @@ func NewServer(cmd callable.Callable, cfg *config.Config) *Server {
 }
 
 func (server *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// clean copy of callable
-	cmd := server.cmd.Copy()
-
 	// prepare environment
-	env := server.env.Copy()
-	env.AddFromHTTPRequest(r)
+	environment := server.env.Copy()
+	environment.AddFromHTTPRequest(r)
 
-	// call the callable
-	var reader io.Reader
-	reader = r.Body
-	if server.readLimit > 0 {
-		reader = io.LimitReader(reader, server.readLimit)
+	// prepare input data
+	var input io.Reader = r.Body
+	if *server.cfg.ReadLimit > 0 {
+		input = io.LimitReader(input, *server.cfg.ReadLimit)
 	}
-	errorChannel := cmd.Call(reader, env, w)
-	if err := <-errorChannel; err != nil {
+
+	// create context
+	ctx := context.Background()
+	ctx = env.NewContext(ctx, environment)
+	if *server.cfg.CallTimeout > 0 {
+		c, cancel := context.WithTimeout(ctx, *server.cfg.CallTimeout)
+		ctx = c
+		defer cancel()
+	}
+
+	// call the function
+	err := server.cmd.Run(ctx, input, w)
+	if err != nil {
 		log.Print("error while calling: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		_, e := w.Write([]byte(err.Error()))
-		if e != nil {
-			log.Print("failed to write error to client: ", e)
-		}
+		w.Write([]byte(err.Error()))
 	}
 }
 

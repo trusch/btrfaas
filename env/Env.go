@@ -48,3 +48,14 @@ func (env Env) Copy() Env {
 	}
 	return res
 }
+
+// ToSlice returns a env slice usable in exec.Cmd
+func (env Env) ToSlice() []string {
+	res := make([]string, len(env))
+	i := 0
+	for k, v := range env {
+		res[i] = k + "=" + v
+		i++
+	}
+	return res
+}
