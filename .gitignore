@@ -2,3 +2,4 @@ cmd/frunner/frunner
 vendor
 watchdog-memory-issue.md
 cmd/example/example
+grpc/test/client/client
