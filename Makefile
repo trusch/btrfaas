@@ -1,4 +1,4 @@
-SRC=$(shell find ./cmd ./config ./env ./framer ./http ./runnable -type f -name "*.go")
+SRC=$(shell find ./cmd ./config ./env ./framer ./http ./runnable ./grpc -type f -name "*.go") grpc/frunner.pb.go
 
 all: fmt vet test cmd/frunner/frunner docker
 
@@ -56,6 +56,9 @@ fmt: vendor
 
 docker: cmd/frunner/frunner cmd/frunner/Dockerfile
 	cd cmd/frunner && docker build -t trusch/frunner .
+
+grpc/frunner.pb.go: grpc/frunner.proto
+	cd grpc && protoc --go_out=plugins=grpc:. frunner.proto
 
 clean:
 	rm -rf frunner vendor

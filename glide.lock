@@ -1,6 +1,14 @@
-hash: e93344a8f5f0156a412598378b6e52bf76a6477c9c4733b57f010cad3929dddd
-updated: 2017-10-24T11:20:23.823105783Z
+hash: 51af2c7488ac17ec0550810a258bdf6d5c3f6cba88400f7f861a0d4d877c0d4c
+updated: 2017-11-01T10:08:19.485223772Z
 imports:
+- name: github.com/golang/protobuf
+  version: 1643683e1b54a9e88ad26d98f81400c8c9d9f4f9
+  subpackages:
+  - proto
+  - ptypes
+  - ptypes/any
+  - ptypes/duration
+  - ptypes/timestamp
 - name: github.com/onsi/ginkgo
   version: 9eda700730cba42af70d53180f9dcce9266bc2bc
   subpackages:
@@ -37,19 +45,21 @@ imports:
   - types
 - name: github.com/spf13/pflag
   version: e57e3eeb33f795204c1ca35f56c44f83227c6e66
-testImports:
 - name: golang.org/x/net
-  version: 92447d55896d6f92b4a0d4fd83bd078b0374e8fa
+  version: c73622c77280266305273cb545f54516ced95b93
   subpackages:
+  - context
   - html
   - html/atom
   - html/charset
-- name: golang.org/x/sys
-  version: a1a1f1746d156bbc9954f29134b20ed4ce2752f1
-  subpackages:
-  - unix
+  - http2
+  - http2/hpack
+  - idna
+  - internal/timeseries
+  - lex/httplex
+  - trace
 - name: golang.org/x/text
-  version: c01e4764d870b77f8abe5096ee19ad20d80e8075
+  version: 3cfc6c0d6bf80d724d98c26c4822f4a35d37598e
   subpackages:
   - encoding
   - encoding/charmap
@@ -65,6 +75,41 @@ testImports:
   - internal/utf8internal
   - language
   - runes
+  - secure/bidirule
   - transform
+  - unicode/bidi
+  - unicode/norm
+- name: google.golang.org/genproto
+  version: 03951f3b52582ecab79e5a37a86b5a20c5f64df7
+  subpackages:
+  - googleapis/rpc/status
+- name: google.golang.org/grpc
+  version: fb4b2b29e49d653547f46f004953aed4dc3c3249
+  subpackages:
+  - balancer
+  - balancer/roundrobin
+  - codes
+  - connectivity
+  - credentials
+  - encoding
+  - grpclb/grpc_lb_v1/messages
+  - grpclog
+  - internal
+  - keepalive
+  - metadata
+  - naming
+  - peer
+  - resolver
+  - resolver/dns
+  - resolver/passthrough
+  - stats
+  - status
+  - tap
+  - transport
 - name: gopkg.in/yaml.v2
   version: eb3733d160e74a9c7e442f435eb3bea458e1d19f
+testImports:
+- name: golang.org/x/sys
+  version: 95c6576299259db960f6c5b9b69ea52422860fce
+  subpackages:
+  - unix

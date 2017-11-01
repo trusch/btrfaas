@@ -9,6 +9,7 @@ import (
 	"github.com/trusch/frunner/config"
 	"github.com/trusch/frunner/env"
 	"github.com/trusch/frunner/framer"
+	"github.com/trusch/frunner/grpc"
 	"github.com/trusch/frunner/http"
 	"github.com/trusch/frunner/runnable"
 	"github.com/trusch/frunner/runnable/afterburn"
@@ -28,12 +29,8 @@ func main() {
 	if err = getBinaryAndArgs(); err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Listen Address: %v", *cfg.HTTPAddr)
-	log.Printf("Read Limit: %v\n", *cfg.ReadLimit)
-	log.Printf("Command: %v\n", binary)
-	log.Printf("Arguments: %v\n", binaryArgs)
-	log.Printf("Call timeout: %v\n", *cfg.CallTimeout)
-	log.Printf("Buffer: %v\n", *cfg.Buffer)
+
+	cfg.Print()
 
 	var cmd runnable.Runnable
 	switch *cfg.Framer {
@@ -51,9 +48,19 @@ func main() {
 	case "http":
 		cmd = afterburn.NewRunnable(&framer.HTTPFramer{}, binary, binaryArgs...)
 	}
-	server := http.NewServer(cmd, cfg)
-	log.Print("start listening for requests...")
-	log.Fatal(server.ListenAndServe())
+
+	httpServer := http.NewServer(cmd, cfg)
+	log.Print("start listening for requests via http on ", *cfg.HTTPAddr)
+	go func() {
+		log.Fatal(httpServer.ListenAndServe())
+	}()
+
+	grpcServer := grpc.NewServer(cmd, cfg)
+	log.Print("start listening for requests via grpc on ", *cfg.GRPCAddr)
+	go func() {
+		log.Fatal(grpcServer.ListenAndServe())
+	}()
+	select {}
 }
 
 func getBinaryAndArgs() error {
