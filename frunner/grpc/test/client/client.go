@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/trusch/frunner/grpc"
+	"github.com/trusch/btrfaas/frunner/grpc"
 	g "google.golang.org/grpc"
 )
 

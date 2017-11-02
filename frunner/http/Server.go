@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/trusch/frunner/config"
-	"github.com/trusch/frunner/env"
-	"github.com/trusch/frunner/runnable"
+	"github.com/trusch/btrfaas/frunner/config"
+	"github.com/trusch/btrfaas/frunner/env"
+	"github.com/trusch/btrfaas/frunner/runnable"
 )
 
 // Server serves HTTP requests and calls the given callable

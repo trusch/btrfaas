@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"context"
 
-	"github.com/trusch/frunner/framer"
-	. "github.com/trusch/frunner/runnable/afterburn"
+	"github.com/trusch/btrfaas/frunner/framer"
+	. "github.com/trusch/btrfaas/frunner/runnable/afterburn"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

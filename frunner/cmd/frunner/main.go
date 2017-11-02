@@ -6,14 +6,14 @@ import (
 	"os"
 	"strings"
 
-	"github.com/trusch/frunner/config"
-	"github.com/trusch/frunner/env"
-	"github.com/trusch/frunner/framer"
-	"github.com/trusch/frunner/grpc"
-	"github.com/trusch/frunner/http"
-	"github.com/trusch/frunner/runnable"
-	"github.com/trusch/frunner/runnable/afterburn"
-	"github.com/trusch/frunner/runnable/exec"
+	"github.com/trusch/btrfaas/frunner/config"
+	"github.com/trusch/btrfaas/frunner/env"
+	"github.com/trusch/btrfaas/frunner/framer"
+	"github.com/trusch/btrfaas/frunner/grpc"
+	"github.com/trusch/btrfaas/frunner/http"
+	"github.com/trusch/btrfaas/frunner/runnable"
+	"github.com/trusch/btrfaas/frunner/runnable/afterburn"
+	"github.com/trusch/btrfaas/frunner/runnable/exec"
 )
 
 var (

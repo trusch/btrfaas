@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"context"
 
-	"github.com/trusch/frunner/env"
-	. "github.com/trusch/frunner/runnable/exec"
+	"github.com/trusch/btrfaas/frunner/env"
+	. "github.com/trusch/btrfaas/frunner/runnable/exec"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

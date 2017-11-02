@@ -5,9 +5,9 @@ import (
 	"io"
 	"log"
 
-	"github.com/trusch/frunner/framer"
-	"github.com/trusch/frunner/runnable"
-	"github.com/trusch/frunner/runnable/exec"
+	"github.com/trusch/btrfaas/frunner/framer"
+	"github.com/trusch/btrfaas/frunner/runnable"
+	"github.com/trusch/btrfaas/frunner/runnable/exec"
 )
 
 // Runnable implements the Runnable interface using exec.Cmd

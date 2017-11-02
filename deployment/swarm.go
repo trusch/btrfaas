@@ -31,7 +31,7 @@ func NewSwarmPlatform() (Platform, error) {
 // This should contain all one time setup like creating namespaces/networks etc.
 func (p *SwarmPlatform) PrepareEnvironment(ctx context.Context, options *PrepareEnvironmentOptions) error {
 	name := options.ID + "_network"
-	_, err := p.cli.NetworkInspect(ctx, name, types.NetworkInspectOptions{})
+	_, err := p.cli.NetworkInspect(ctx, name, false)
 	if err != nil {
 		log.Debug("network not found, creating new")
 		_, err = p.cli.NetworkCreate(ctx, name, types.NetworkCreate{
@@ -61,7 +61,7 @@ func (p *SwarmPlatform) DeployService(ctx context.Context, options *DeployServic
 			Labels: options.Labels,
 		},
 		TaskTemplate: swarm.TaskSpec{
-			ContainerSpec: &swarm.ContainerSpec{
+			ContainerSpec: swarm.ContainerSpec{
 				Image:   options.Image,
 				Labels:  options.Labels,
 				Command: options.Cmd,

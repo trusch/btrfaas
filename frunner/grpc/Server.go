@@ -8,8 +8,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/trusch/frunner/config"
-	"github.com/trusch/frunner/runnable"
+	"github.com/trusch/btrfaas/frunner/config"
+	"github.com/trusch/btrfaas/frunner/runnable"
 )
 
 type Server struct {

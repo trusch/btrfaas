@@ -9,7 +9,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/spf13/pflag"
-	"github.com/trusch/frunner/env"
+	"github.com/trusch/btrfaas/frunner/env"
 )
 
 // Config contains the common config for frunner

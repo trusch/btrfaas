@@ -1,0 +1,32 @@
+package: github.com/trusch/btrfaas
+import:
+- package: github.com/docker/docker
+  version: ^17.5.0-ce-rc3
+  subpackages:
+  - api/types
+  - api/types/filters
+  - api/types/swarm
+  - client
+- package: github.com/golang/protobuf
+  subpackages:
+  - proto
+- package: github.com/mitchellh/go-homedir
+- package: github.com/sirupsen/logrus
+  version: ^1.0.3
+- package: github.com/spf13/cobra
+  version: ^0.0.1
+- package: github.com/spf13/pflag
+  version: ^1.0.0
+- package: github.com/spf13/viper
+  version: ^1.0.0
+- package: golang.org/x/net
+  subpackages:
+  - context
+- package: google.golang.org/grpc
+  version: ^1.7.1
+- package: gopkg.in/yaml.v2
+testImport:
+- package: github.com/onsi/ginkgo
+  version: ^1.4.0
+- package: github.com/onsi/gomega
+  version: ^1.2.0

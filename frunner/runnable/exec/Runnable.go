@@ -8,7 +8,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/trusch/frunner/env"
+	"github.com/trusch/btrfaas/frunner/env"
 )
 
 // Runnable implements the Runnable interface using exec.Cmd

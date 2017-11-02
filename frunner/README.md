@@ -1,7 +1,6 @@
 frunner
 =======
 
-
 ## Scope
 
 This provides an HTTP server which executes the configured binary with the input from the request and returns the result.
@@ -16,8 +15,8 @@ This is heavily inspired by openfaas/faas/watchdog and all credits for this are 
 
 ## Install
 ```bash
-go get -d github.com/trusch/frunner/cmd/frunner
-cd ${GOPATH}/github.com/trusch/frunner
+go get -d github.com/trusch/btrfaas/frunner/cmd/frunner
+cd ${GOPATH}/github.com/trusch/btrfaas/frunner
 make all
 make install
 ```

@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 
-	"github.com/trusch/frunner/config"
-	"github.com/trusch/frunner/grpc"
-	"github.com/trusch/frunner/http"
-	"github.com/trusch/frunner/runnable/example"
+	"github.com/trusch/btrfaas/frunner/config"
+	"github.com/trusch/btrfaas/frunner/grpc"
+	"github.com/trusch/btrfaas/frunner/http"
+	"github.com/trusch/btrfaas/frunner/runnable/example"
 )
 
 func main() {
