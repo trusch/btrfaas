@@ -1,0 +1,6 @@
+---
+id: "with-env"
+image: "debian"
+cmd: ["tail","-f","/dev/null"]
+env:
+  VARIABLE: "VALUE"

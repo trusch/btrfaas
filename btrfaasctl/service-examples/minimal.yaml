@@ -1,0 +1,4 @@
+---
+id: "minimal"
+image: "debian"
+cmd: ["tail","-f","/dev/null"]
