@@ -1,0 +1,6 @@
+---
+id: "with-labels"
+image: "debian"
+cmd: ["tail","-f","/dev/null"]
+labels:
+  deployment: test

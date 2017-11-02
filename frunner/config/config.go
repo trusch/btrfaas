@@ -14,7 +14,7 @@ import (
 
 // Config contains the common config for frunner
 type Config struct {
-	glags                 *pflag.FlagSet
+	flags                 *pflag.FlagSet
 	HTTPAddr              *string
 	GRPCAddr              *string
 	HTTPReadHeaderTimeout *time.Duration
@@ -28,7 +28,7 @@ type Config struct {
 func New() (*Config, error) {
 	flags := pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
 	cfg := &Config{
-		glags:                 flags,
+		flags:                 flags,
 		HTTPAddr:              flags.StringP("http-addr", "l", ":8080", "http listen address"),
 		GRPCAddr:              flags.StringP("grpc-addr", "g", ":2424", "grpc listen address"),
 		HTTPReadHeaderTimeout: flags.DurationP("http-timeout", "h", 1*time.Second, "http timeout for reading request headers"),
@@ -48,7 +48,7 @@ func New() (*Config, error) {
 
 // parseCommandline parses os.Args and fills the config entries
 func (cfg *Config) parseCommandline() error {
-	return cfg.glags.Parse(stripEverythingAfterDoubleDash(os.Args))
+	return cfg.flags.Parse(stripEverythingAfterDoubleDash(os.Args))
 }
 
 // parseEnvironment parses the environment for config entries
