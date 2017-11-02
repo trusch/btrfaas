@@ -5,3 +5,4 @@ cmd/example/example
 grpc/test/client/client
 btrfaasctl/btrfaasctl
 frunner/cmd/frunner/frunner
+fgateway/fgateway
