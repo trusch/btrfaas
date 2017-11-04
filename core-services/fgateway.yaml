@@ -3,3 +3,4 @@ id: "fgateway"
 image: "trusch/fgateway"
 ports:
   8080: 8080
+  2424: 2424

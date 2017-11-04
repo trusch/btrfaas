@@ -275,6 +275,7 @@ func createPortConfigs(portmap map[uint16]uint16) []swarm.PortConfig {
 			PublishedPort: uint32(hostPort),
 			PublishMode:   swarm.PortConfigPublishModeIngress,
 		}
+		i++
 	}
 	return res
 }

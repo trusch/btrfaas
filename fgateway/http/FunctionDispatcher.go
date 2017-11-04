@@ -7,17 +7,18 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/trusch/btrfaas/frunner/grpc"
-	g "google.golang.org/grpc"
+	"github.com/trusch/btrfaas/fgateway/forwarder"
 )
 
 // FunctionDispatcher is an HTTP handler which dispatch function calls
 // accepts something like this: /api/v0/invoke/<my-function-id>
-type FunctionDispatcher struct{}
+type FunctionDispatcher struct {
+	DefaultPort uint16
+}
 
 // NewFunctionDispatcher returns a new http handler
-func NewFunctionDispatcher() http.Handler {
-	return &FunctionDispatcher{}
+func NewFunctionDispatcher(defaultPort uint16) http.Handler {
+	return &FunctionDispatcher{defaultPort}
 }
 
 func (d *FunctionDispatcher) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -36,13 +37,6 @@ func (d *FunctionDispatcher) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		functionID := parts[4]
-		function, err := grpc.NewClient(functionID+":2424", g.WithInsecure())
-		if err != nil {
-			log.Errorf("connecting function service %v: %v", functionID, err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
 		ctx := context.Background()
 		if timeout := r.URL.Query().Get("timeout"); timeout != "" {
 			t, e := time.ParseDuration(timeout)
@@ -53,9 +47,15 @@ func (d *FunctionDispatcher) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			defer cancel()
 			ctx = c
 		}
-
-		if err := function.Run(ctx, r.Body, w); err != nil {
-			log.Errorf("error running function: %v", err)
+		err := forwarder.Forward(ctx, &forwarder.Options{
+			Transport: forwarder.GRPC,
+			Host:      functionID,
+			Port:      d.DefaultPort,
+			Input:     r.Body,
+			Output:    w,
+		})
+		if err != nil {
+			log.Errorf("error forwarding function call: %v", err)
 		}
 		log.Info("finished request")
 		return

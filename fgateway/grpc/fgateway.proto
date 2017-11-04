@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package grpc;
+
+message GWInputData {
+  // functionID to call, only needed in first packet
+  string functionID = 1;
+  // input data packet
+  bytes data = 3;
+}
+
+message GWOutputData {
+  // if true -> last OutputData packet
+  bool ready = 1;
+  // false if error while execution
+  bool success = 2;
+  // eventually error message in case of !success
+  string errorMessage = 3;
+
+  // streaming output data (stdout)
+  bytes output = 4;
+  // streaming error data (stderr)
+  bytes errors = 5;
+}
+
+service FunctionRunner {
+  rpc Run(stream InputData) returns (stream OutputData) {}
+}
