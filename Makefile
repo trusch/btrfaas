@@ -5,7 +5,7 @@ SRC=$(shell find ./btrfaasctl ./deployment ./fgateway ./frunner -type f -name "*
 
 all: vendor fmt vet test frunner btrfaasctl fgateway docker
 
-docker: docker/frunner docker/fgateway
+docker: docker/frunner docker/fgateway echo-examples
 
 install: btrfaasctl
 	cp btrfaasctl/btrfaasctl $(GOPATH)/bin/
@@ -97,3 +97,7 @@ fmt: vendor
 		-e GOARCH=$(GOARCH) \
 		golang:1.9 \
 			go fmt github.com/trusch/btrfaas/...
+
+echo-examples:
+	cd examples/functions/native-go-echo && docker build -t trusch/go-echo .
+	cd examples/functions/native-python-echo && docker build -t trusch/python-echo .

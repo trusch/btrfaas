@@ -1,5 +1,5 @@
 hash: a844a86730d541dffdd1c4ab527649d1c21eb054e2687f98793ebd18bfce46d9
-updated: 2017-11-02T13:42:30.807182427Z
+updated: 2017-11-06T12:15:57.879862221Z
 imports:
 - name: github.com/docker/distribution
   version: 3800056b8832cf6075e78b282ac010131d8687bc
@@ -95,11 +95,11 @@ imports:
 - name: github.com/spf13/viper
   version: 25b30aa063fc18e48662b86996252eabdcf2f0c7
 - name: golang.org/x/crypto
-  version: bd6f299fb381e4c3393d1c4b1f0b94f5e77650c8
+  version: ca1fcd4ab4c10bc58852a894bcf195fab2229efe
   subpackages:
   - ssh/terminal
 - name: golang.org/x/net
-  version: ea0da6f35caf3ff91581c800469e22eef75076f4
+  version: 01c190206fbdffa42f334f4b2bf2220f50e64920
   subpackages:
   - context
   - context/ctxhttp
@@ -114,12 +114,12 @@ imports:
   - proxy
   - trace
 - name: golang.org/x/sys
-  version: 95c6576299259db960f6c5b9b69ea52422860fce
+  version: 8eb05f94d449fdf134ec24630ce69ada5b469c1c
   subpackages:
   - unix
   - windows
 - name: golang.org/x/text
-  version: 7d4e23b25beca3bc3b804ab134f0b12b4ca909d1
+  version: 88f656faf3f37f690df1a32515b479415e1a6769
   subpackages:
   - encoding
   - encoding/charmap
@@ -140,11 +140,11 @@ imports:
   - unicode/bidi
   - unicode/norm
 - name: google.golang.org/genproto
-  version: 03951f3b52582ecab79e5a37a86b5a20c5f64df7
+  version: 11c7f9e547da6db876260ce49ea7536985904c9b
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 61d37c5d657a47e4404fd6823bd598341a2595de
+  version: 5ffe3083946d5603a0578721101dc8165b1d5b5f
   subpackages:
   - balancer
   - codes
