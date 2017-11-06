@@ -1,0 +1,5 @@
+---
+id: to-lower
+image: trusch/frunner
+env:
+  FRUNNER_PROCESS: "tr [:upper:] [:lower:]"
