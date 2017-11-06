@@ -26,7 +26,7 @@ btrfaasctl/btrfaasctl: vendor $(SRC)
 	docker run \
 		-v $(shell pwd):/go/src/github.com/trusch/btrfaas \
 		-w /go/src/github.com/trusch/btrfaas/btrfaasctl \
-		-u $(shell stat -c '%u:%g' .) \
+		-u $(shell ls -n .|tail -1|tr -s ' '|awk '{print $$3 ":" $$4}') \
 		-e CGO_ENABLED=0 \
 		-e GOOS=$(GOOS) \
 		-e GOARCH=$(GOARCH) \
@@ -37,7 +37,7 @@ fgateway/fgateway: vendor $(SRC)
 	docker run \
 		-v $(shell pwd):/go/src/github.com/trusch/btrfaas \
 		-w /go/src/github.com/trusch/btrfaas/fgateway \
-		-u $(shell stat -c '%u:%g' .) \
+		-u $(shell ls -n .|tail -1|tr -s ' '|awk '{print $$3 ":" $$4}') \
 		-e CGO_ENABLED=0 \
 		-e GOOS=$(GOOS) \
 		-e GOARCH=$(GOARCH) \
@@ -49,7 +49,7 @@ frunner/cmd/frunner/frunner: vendor $(SRC)
 	docker run \
 		-v $(shell pwd):/go/src/github.com/trusch/btrfaas \
 		-w /go/src/github.com/trusch/btrfaas/frunner/cmd/frunner \
-		-u $(shell stat -c '%u:%g' .) \
+		-u $(shell ls -n .|tail -1|tr -s ' '|awk '{print $$3 ":" $$4}') \
 		-e CGO_ENABLED=0 \
 		-e GOOS=$(GOOS) \
 		-e GOARCH=$(GOARCH) \
@@ -60,7 +60,7 @@ vendor: glide.yaml
 	docker run \
 		-v $(shell pwd):/go/src/github.com/trusch/btrfaas \
 		-w /go/src/github.com/trusch/btrfaas \
-		-u $(shell stat -c '%u:%g' .) \
+		-u $(shell ls -n .|tail -1|tr -s ' '|awk '{print $$3 ":" $$4}') \
 		-e CGO_ENABLED=0 \
 		-e GOOS=$(GOOS) \
 		-e GOARCH=$(GOARCH) \
@@ -71,7 +71,7 @@ test: vendor
 	docker run \
 		-v $(shell pwd):/go/src/github.com/trusch/btrfaas \
 		-w /go/src/github.com/trusch/btrfaas \
-		-u $(shell stat -c '%u:%g' .) \
+		-u $(shell ls -n .|tail -1|tr -s ' '|awk '{print $$3 ":" $$4}') \
 		-e CGO_ENABLED=0 \
 		-e GOOS=$(GOOS) \
 		-e GOARCH=$(GOARCH) \
@@ -81,7 +81,7 @@ test: vendor
 vet: vendor
 	docker run \
 		-v $(shell pwd):/go/src/github.com/trusch/btrfaas \
-		-u $(shell stat -c '%u:%g' .) \
+		-u $(shell ls -n .|tail -1|tr -s ' '|awk '{print $$3 ":" $$4}') \
 		-e CGO_ENABLED=0 \
 		-e GOOS=$(GOOS) \
 		-e GOARCH=$(GOARCH) \
@@ -91,7 +91,7 @@ vet: vendor
 fmt: vendor
 	docker run \
 		-v $(shell pwd):/go/src/github.com/trusch/btrfaas \
-		-u $(shell stat -c '%u:%g' .) \
+		-u $(shell ls -n .|tail -1|tr -s ' '|awk '{print $$3 ":" $$4}') \
 		-e CGO_ENABLED=0 \
 		-e GOOS=$(GOOS) \
 		-e GOARCH=$(GOARCH) \
