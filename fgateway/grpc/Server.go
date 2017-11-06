@@ -3,6 +3,7 @@ package grpc
 import (
 	"io"
 	"net"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 
@@ -11,16 +12,19 @@ import (
 	"google.golang.org/grpc"
 )
 
+// Server represents a gRPC based function dispatcher
 type Server struct {
 	addr        string
 	defaultPort uint16
 	grpcOpts    []grpc.ServerOption
 }
 
+// NewServer creates a gRPC based function dispatcher
 func NewServer(addr string, defaultPort uint16, opts ...grpc.ServerOption) *Server {
 	return &Server{addr, defaultPort, opts}
 }
 
+// ListenAndServe starts listening for connections
 func (s *Server) ListenAndServe() error {
 	lis, err := net.Listen("tcp", s.addr)
 	if err != nil {
@@ -32,6 +36,7 @@ func (s *Server) ListenAndServe() error {
 	return grpcServer.Serve(lis)
 }
 
+// Run implements the gRPC interface
 func (s *Server) Run(stream FunctionRunner_RunServer) (err error) {
 	log.Info("new gRPC request")
 	ctx := stream.Context()
@@ -51,11 +56,9 @@ func (s *Server) Run(stream FunctionRunner_RunServer) (err error) {
 	go func() {
 		log.Info("forward to function service ", firstPacket.FunctionID)
 		err := forwarder.Forward(ctx, &forwarder.Options{
-			Transport: forwarder.GRPC,
-			Host:      firstPacket.FunctionID,
-			Port:      s.defaultPort,
-			Input:     input,
-			Output:    outputWriter,
+			Hosts:  s.createHostConfigs(strings.Split(firstPacket.FunctionID, "|")),
+			Input:  input,
+			Output: outputWriter,
 		})
 		if err != nil {
 			log.Errorf("error forwarding function call: %v", err)
@@ -74,6 +77,18 @@ func (s *Server) Run(stream FunctionRunner_RunServer) (err error) {
 			return ctx.Err()
 		}
 	}
+}
+
+func (s *Server) createHostConfigs(functionIDs []string) []*forwarder.HostConfig {
+	cfgs := make([]*forwarder.HostConfig, len(functionIDs))
+	for i, id := range functionIDs {
+		cfgs[i] = &forwarder.HostConfig{
+			Transport: forwarder.GRPC,
+			Host:      strings.Trim(id, " \t"),
+			Port:      s.defaultPort,
+		}
+	}
+	return cfgs
 }
 
 func (s *Server) shovelInputData(stream FunctionRunner_RunServer, input io.WriteCloser) error {

@@ -6,17 +6,26 @@ import (
 	"fmt"
 	"io"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/trusch/btrfaas/frunner/grpc"
+	"github.com/trusch/btrfaas/frunner/runnable"
+	"github.com/trusch/btrfaas/frunner/runnable/chain"
 	g "google.golang.org/grpc"
 )
 
 // Options are the options for the forwarding
 type Options struct {
+	Hosts  []*HostConfig
+	Input  io.Reader
+	Output io.Writer
+}
+
+// HostConfig specifies one function service
+type HostConfig struct {
 	Transport TransportProtocol
 	Host      string
 	Port      uint16
-	Input     io.Reader
-	Output    io.Writer
 }
 
 // TransportProtocol is the type of the transport, currently only GRPC is supported
@@ -31,13 +40,22 @@ const (
 
 // Forward forwards a function call
 func Forward(ctx context.Context, options *Options) error {
-	if options.Transport == GRPC {
-		uri := fmt.Sprintf("%v:%v", options.Host, options.Port)
-		function, err := grpc.NewClient(uri, g.WithInsecure())
-		if err != nil {
-			return err
+	log.Info("construct forwarding pipeline")
+	runnables := make([]runnable.Runnable, len(options.Hosts))
+	for i, host := range options.Hosts {
+		if host.Transport == GRPC {
+			uri := fmt.Sprintf("%v:%v", host.Host, host.Port)
+			fn, err := grpc.NewClient(uri, g.WithInsecure())
+			if err != nil {
+				return err
+			}
+			runnables[i] = fn
+			log.Infof("added grpc://%v to the pipeline", uri)
+			continue
 		}
-		return function.Run(ctx, options.Input, options.Output)
+		return errors.New("transport not implemented")
 	}
-	return errors.New("transport protocol not implemented")
+	cmd := chain.New(runnables...)
+	log.Info("finished constructing pipeline, kickoff...")
+	return cmd.Run(ctx, options.Input, options.Output)
 }

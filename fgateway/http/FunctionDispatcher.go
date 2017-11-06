@@ -48,11 +48,15 @@ func (d *FunctionDispatcher) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			ctx = c
 		}
 		err := forwarder.Forward(ctx, &forwarder.Options{
-			Transport: forwarder.GRPC,
-			Host:      functionID,
-			Port:      d.DefaultPort,
-			Input:     r.Body,
-			Output:    w,
+			Hosts: []*forwarder.HostConfig{
+				&forwarder.HostConfig{
+					Transport: forwarder.GRPC,
+					Host:      functionID,
+					Port:      d.DefaultPort,
+				},
+			},
+			Input:  r.Body,
+			Output: w,
 		})
 		if err != nil {
 			log.Errorf("error forwarding function call: %v", err)
