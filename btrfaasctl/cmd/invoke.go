@@ -54,7 +54,7 @@ var invokeCmd = &cobra.Command{
 
 func init() {
 	functionCmd.AddCommand(invokeCmd)
-	invokeCmd.Flags().String("gateway", "localhost:2424", "fgatway address")
+	invokeCmd.Flags().String("gateway", "127.0.0.1:2424", "fgatway address")
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
