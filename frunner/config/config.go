@@ -20,7 +20,6 @@ type Config struct {
 	HTTPReadHeaderTimeout *time.Duration
 	CallTimeout           *time.Duration
 	ReadLimit             *int64
-	Framer                *string
 	Buffer                *bool
 }
 
@@ -34,7 +33,6 @@ func New() (*Config, error) {
 		HTTPReadHeaderTimeout: flags.DurationP("http-timeout", "h", 1*time.Second, "http timeout for reading request headers"),
 		CallTimeout:           flags.DurationP("call-timeout", "t", 0*time.Second, "function call timeout"),
 		ReadLimit:             flags.Int64("read-limit", -1, "limit the amount of data which can be contained in a requests body"),
-		Framer:                flags.StringP("framer", "f", "", "afterburn framer to use: line, json or http"),
 		Buffer:                flags.BoolP("buffer", "b", false, "buffer output before writing"),
 	}
 	if err := cfg.parseCommandline(); err != nil {
@@ -78,9 +76,6 @@ func (cfg *Config) parseEnvironment() error {
 		}
 		cfg.ReadLimit = &d
 	}
-	if val, ok := env["FRUNNER_FRAMER"]; ok {
-		cfg.Framer = &val
-	}
 	if val, ok := env["FRUNNER_HTTP_ADDRESS"]; ok {
 		cfg.HTTPAddr = &val
 	}
@@ -108,6 +103,7 @@ func stripEverythingAfterDoubleDash(args []string) []string {
 	return args
 }
 
+// Print prints the config to stdout using yaml
 func (cfg *Config) Print() {
 	bs, _ := yaml.Marshal(cfg)
 	fmt.Println(string(bs))

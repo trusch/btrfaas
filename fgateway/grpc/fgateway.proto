@@ -2,14 +2,20 @@ syntax = "proto3";
 
 package grpc;
 
-message GWInputData {
-  // functionID to call, only needed in first packet
-  string functionID = 1;
+message FgatewayInputData {
+  // chain to call, only needed in first packet
+  string chain = 1;
+  // options for the call
+  map<string,FunctionOptions> options = 2;
   // input data packet
   bytes data = 3;
 }
 
-message GWOutputData {
+message FunctionOptions {
+  map<string,string> options = 1;
+}
+
+message FgatewayOutputData {
   // if true -> last OutputData packet
   bool ready = 1;
   // false if error while execution
@@ -24,5 +30,5 @@ message GWOutputData {
 }
 
 service FunctionRunner {
-  rpc Run(stream InputData) returns (stream OutputData) {}
+  rpc Run(stream FgatewayInputData) returns (stream FgatewayOutputData) {}
 }

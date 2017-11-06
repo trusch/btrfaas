@@ -9,7 +9,7 @@ import (
 type Runnable struct{}
 
 // Run implements the runnable.Runnable interface
-func (r *Runnable) Run(ctx context.Context, input io.Reader, output io.Writer) (err error) {
+func (r *Runnable) Run(ctx context.Context, options map[string]string, input io.Reader, output io.Writer) (err error) {
 	buf := make([]byte, 1<<10)
 	for {
 		select {

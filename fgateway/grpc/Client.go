@@ -22,7 +22,7 @@ func NewClient(gateway string, opts ...grpc.DialOption) (*Client, error) {
 	return &Client{conn, client}, nil
 }
 
-func (c *Client) Run(ctx context.Context, functionID string, input io.Reader, output io.Writer) error {
+func (c *Client) Run(ctx context.Context, chain string, options map[string]map[string]string, input io.Reader, output io.Writer) error {
 	cli, err := c.client.Run(ctx)
 	if err != nil {
 		return err
@@ -34,12 +34,16 @@ func (c *Client) Run(ctx context.Context, functionID string, input io.Reader, ou
 		readError error
 	)
 
-	if err := cli.Send(&GWInputData{FunctionID: functionID}); err != nil {
+	opts := make(map[string]*FunctionOptions)
+	for k, v := range options {
+		opts[k] = &FunctionOptions{v}
+	}
+	if err := cli.Send(&FgatewayInputData{Chain: chain, Options: opts}); err != nil {
 		return err
 	}
 
 	go func() {
-		sendError = c.shovelGWInputData(cli, input)
+		sendError = c.shovelFgatewayInputData(cli, input)
 	}()
 
 	go func() {
@@ -61,7 +65,7 @@ func (c *Client) Run(ctx context.Context, functionID string, input io.Reader, ou
 	}
 }
 
-func (c *Client) shovelGWInputData(cli FunctionRunner_RunClient, input io.Reader) error {
+func (c *Client) shovelFgatewayInputData(cli FunctionRunner_RunClient, input io.Reader) error {
 	inputBuffer := make([]byte, 4096)
 	defer cli.CloseSend()
 	ctx := cli.Context()
@@ -78,7 +82,7 @@ func (c *Client) shovelGWInputData(cli FunctionRunner_RunClient, input io.Reader
 					return err
 				}
 				if bs > 0 {
-					e := cli.Send(&GWInputData{Data: inputBuffer[:bs]})
+					e := cli.Send(&FgatewayInputData{Data: inputBuffer[:bs]})
 					if e != nil {
 						return err
 					}

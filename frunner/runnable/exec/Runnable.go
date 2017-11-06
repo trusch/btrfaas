@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"log"
-	"os"
 	"os/exec"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/trusch/btrfaas/frunner/env"
 )
@@ -28,11 +28,12 @@ func NewRunnable(bin string, args ...string) *Runnable {
 }
 
 // Run implements the Runnable interface
-func (r *Runnable) Run(ctx context.Context, input io.Reader, output io.Writer) (err error) {
-	r.cmd = exec.Command(r.bin, r.args...)
+func (r *Runnable) Run(ctx context.Context, options map[string]string, input io.Reader, output io.Writer) error {
+	args := append(r.args, constructArgsFromOptions(options)...)
+	r.cmd = exec.Command(r.bin, args...)
 	r.cmd.Stdin = input
 	r.cmd.Stdout = output
-	r.cmd.Stderr = os.Stderr
+	r.cmd.Stderr = output
 	if r.bufferOutput {
 		buf := &bytes.Buffer{}
 		r.cmd.Stdout = buf
@@ -40,18 +41,18 @@ func (r *Runnable) Run(ctx context.Context, input io.Reader, output io.Writer) (
 	if env, err := env.FromContext(ctx); err == nil {
 		r.cmd.Env = env.ToSlice()
 	}
-	done := make(chan struct{}, 1)
+	done := make(chan error)
 	go func() {
-		err = r.cmd.Run()
-		close(done)
+		done <- r.cmd.Run()
 	}()
 	select {
-	case <-done:
+	case err := <-done:
 		{
 			if err == nil && r.bufferOutput {
 				_, err = io.Copy(output, r.cmd.Stdout.(*bytes.Buffer))
 			}
-			return
+			log.Error(err)
+			return err
 		}
 	case <-ctx.Done():
 		{
@@ -67,4 +68,16 @@ func (r *Runnable) Run(ctx context.Context, input io.Reader, output io.Writer) (
 // EnableOutputBuffering ensures that nothing is written to the output in case of an error
 func (r *Runnable) EnableOutputBuffering() {
 	r.bufferOutput = true
+}
+
+func constructArgsFromOptions(options map[string]string) []string {
+	res := make([]string, 0, 2*len(options))
+	for k, v := range options {
+		if len(k) == 1 {
+			res = append(res, "-"+k, v)
+		} else {
+			res = append(res, "--"+k, v)
+		}
+	}
+	return res
 }

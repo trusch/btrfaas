@@ -2,11 +2,12 @@ syntax = "proto3";
 
 package grpc;
 
-message InputData {
+message FrunnerInputData {
   bytes data = 1;
+  map<string,string> options = 2;
 }
 
-message OutputData {
+message FrunnerOutputData {
   // if true -> last OutputData packet
   bool ready = 1;
   // false if error while execution
@@ -16,10 +17,8 @@ message OutputData {
 
   // streaming output data (stdout)
   bytes output = 4;
-  // streaming error data (stderr)
-  bytes errors = 5;
 }
 
 service FunctionRunner {
-  rpc Run(stream InputData) returns (stream OutputData) {}
+  rpc Run(stream FrunnerInputData) returns (stream FrunnerOutputData) {}
 }

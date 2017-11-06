@@ -3,8 +3,9 @@ package grpc
 import (
 	"context"
 	"io"
-	"log"
 	"net"
+
+	log "github.com/sirupsen/logrus"
 
 	"google.golang.org/grpc"
 
@@ -44,25 +45,55 @@ func (s *Server) Run(stream FunctionRunner_RunServer) (err error) {
 	inputReader, inputWriter := io.Pipe()
 	outputReader, outputWriter := io.Pipe()
 	defer inputWriter.Close()
-	defer outputWriter.Close()
-	done := make(chan struct{})
+	done := make(chan error)
 
 	var input io.Reader = inputReader
 	if *s.cfg.ReadLimit > 0 {
 		input = io.LimitReader(input, *s.cfg.ReadLimit)
 	}
 
+	firstPacket, err := stream.Recv()
+	if err != nil {
+		return err
+	}
+	options := firstPacket.GetOptions()
 	go func() {
-		err = s.cmd.Run(ctx, input, outputWriter)
-		close(done)
+		defer outputWriter.Close()
+		err = s.cmd.Run(ctx, options, input, outputWriter)
+		if err != nil {
+			log.Error("error executing runnable: ", err)
+			done <- err
+		}
 	}()
+	if len(firstPacket.Data) > 0 {
+		if _, err = inputWriter.Write(firstPacket.Data); err != nil {
+			return err
+		}
+	}
 
 	go s.shovelInputData(stream, inputWriter)
-	go s.shovelOutputData(stream, outputReader)
-	select {
-	case <-done:
-		{
+	go func() {
+		defer close(done)
+		e := s.shovelOutputData(stream, outputReader)
+		if e != nil {
+			done <- e
 			return
+		}
+	}()
+	select {
+	case err, ok := <-done:
+		{
+			if ok && err != nil {
+				return stream.Send(&FrunnerOutputData{
+					Ready:        true,
+					Success:      false,
+					ErrorMessage: err.Error(),
+				})
+			}
+			return stream.Send(&FrunnerOutputData{
+				Ready:   true,
+				Success: true,
+			})
 		}
 	case <-ctx.Done():
 		{
@@ -73,6 +104,8 @@ func (s *Server) Run(stream FunctionRunner_RunServer) (err error) {
 
 func (s *Server) shovelInputData(stream FunctionRunner_RunServer, input io.WriteCloser) error {
 	ctx := stream.Context()
+	defer input.Close()
+	defer log.Print("frunner finished shoveling input data")
 	for {
 		select {
 		case <-ctx.Done():
@@ -84,7 +117,6 @@ func (s *Server) shovelInputData(stream FunctionRunner_RunServer, input io.Write
 				data, err := stream.Recv()
 				if err != nil {
 					if err == io.EOF {
-						input.Close()
 						return nil
 					}
 					return err
@@ -98,6 +130,7 @@ func (s *Server) shovelInputData(stream FunctionRunner_RunServer, input io.Write
 }
 
 func (s *Server) shovelOutputData(stream FunctionRunner_RunServer, output io.Reader) error {
+	defer log.Print("frunner finished shoveling output data")
 	ctx := stream.Context()
 	buf := make([]byte, 4096)
 	for {
@@ -110,12 +143,12 @@ func (s *Server) shovelOutputData(stream FunctionRunner_RunServer, output io.Rea
 			{
 				bs, err := output.Read(buf[:])
 				if err == io.EOF {
-					return stream.Send(&OutputData{Output: buf[:bs]})
+					return stream.Send(&FrunnerOutputData{Output: buf[:bs]})
 				}
 				if err != nil {
 					return err
 				}
-				if err = stream.Send(&OutputData{Output: buf[:bs]}); err != nil {
+				if err = stream.Send(&FrunnerOutputData{Output: buf[:bs]}); err != nil {
 					return err
 				}
 			}

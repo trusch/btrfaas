@@ -8,11 +8,8 @@ import (
 
 	"github.com/trusch/btrfaas/frunner/config"
 	"github.com/trusch/btrfaas/frunner/env"
-	"github.com/trusch/btrfaas/frunner/framer"
 	"github.com/trusch/btrfaas/frunner/grpc"
 	"github.com/trusch/btrfaas/frunner/http"
-	"github.com/trusch/btrfaas/frunner/runnable"
-	"github.com/trusch/btrfaas/frunner/runnable/afterburn"
 	"github.com/trusch/btrfaas/frunner/runnable/exec"
 )
 
@@ -32,21 +29,9 @@ func main() {
 
 	cfg.Print()
 
-	var cmd runnable.Runnable
-	switch *cfg.Framer {
-	case "":
-		{
-			cmd = exec.NewRunnable(binary, binaryArgs...)
-			if *cfg.Buffer {
-				cmd.(*exec.Runnable).EnableOutputBuffering()
-			}
-		}
-	case "line":
-		cmd = afterburn.NewRunnable(&framer.LineFramer{}, binary, binaryArgs...)
-	case "json":
-		cmd = afterburn.NewRunnable(&framer.JSONFramer{}, binary, binaryArgs...)
-	case "http":
-		cmd = afterburn.NewRunnable(&framer.HTTPFramer{}, binary, binaryArgs...)
+	cmd := exec.NewRunnable(binary, binaryArgs...)
+	if *cfg.Buffer {
+		cmd.EnableOutputBuffering()
 	}
 
 	httpServer := http.NewServer(cmd, cfg)

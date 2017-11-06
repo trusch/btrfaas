@@ -38,6 +38,13 @@ func (s *Server) ListenAndServe() error {
 
 // Run implements the gRPC interface
 func (s *Server) Run(stream FunctionRunner_RunServer) (err error) {
+	defer func() {
+		if err != nil {
+			log.Error(err)
+			return
+		}
+		log.Info("finished gRPC request successfully")
+	}()
 	log.Info("new gRPC request")
 	ctx := stream.Context()
 	inputReader, inputWriter := io.Pipe()
@@ -52,11 +59,10 @@ func (s *Server) Run(stream FunctionRunner_RunServer) (err error) {
 	if err != nil {
 		return err
 	}
-
 	go func() {
-		log.Info("forward to function service ", firstPacket.FunctionID)
-		err := forwarder.Forward(ctx, &forwarder.Options{
-			Hosts:  s.createHostConfigs(strings.Split(firstPacket.FunctionID, "|")),
+		log.Info("forward to function service ", firstPacket.Chain)
+		err = forwarder.Forward(ctx, &forwarder.Options{
+			Hosts:  s.createHostConfigs(strings.Split(firstPacket.Chain, "|"), firstPacket.Options),
 			Input:  input,
 			Output: outputWriter,
 		})
@@ -65,8 +71,8 @@ func (s *Server) Run(stream FunctionRunner_RunServer) (err error) {
 		}
 		close(done)
 	}()
-	go s.shovelInputData(stream, inputWriter)
-	go s.shovelOutputData(stream, outputReader)
+	go func() { err = s.shovelInputData(stream, inputWriter) }()
+	go func() { err = s.shovelOutputData(stream, outputReader) }()
 	select {
 	case <-done:
 		{
@@ -79,19 +85,21 @@ func (s *Server) Run(stream FunctionRunner_RunServer) (err error) {
 	}
 }
 
-func (s *Server) createHostConfigs(functionIDs []string) []*forwarder.HostConfig {
+func (s *Server) createHostConfigs(functionIDs []string, opts map[string]*FunctionOptions) []*forwarder.HostConfig {
 	cfgs := make([]*forwarder.HostConfig, len(functionIDs))
 	for i, id := range functionIDs {
 		cfgs[i] = &forwarder.HostConfig{
-			Transport: forwarder.GRPC,
-			Host:      strings.Trim(id, " \t"),
-			Port:      s.defaultPort,
+			Transport:   forwarder.GRPC,
+			Host:        strings.Trim(id, " \t"),
+			Port:        s.defaultPort,
+			CallOptions: opts[id].Options,
 		}
 	}
 	return cfgs
 }
 
 func (s *Server) shovelInputData(stream FunctionRunner_RunServer, input io.WriteCloser) error {
+	defer input.Close()
 	ctx := stream.Context()
 	for {
 		select {
@@ -104,7 +112,6 @@ func (s *Server) shovelInputData(stream FunctionRunner_RunServer, input io.Write
 				data, err := stream.Recv()
 				if err != nil {
 					if err == io.EOF {
-						input.Close()
 						return nil
 					}
 					return err
@@ -130,12 +137,12 @@ func (s *Server) shovelOutputData(stream FunctionRunner_RunServer, output io.Rea
 			{
 				bs, err := output.Read(buf[:])
 				if err == io.EOF {
-					return stream.Send(&GWOutputData{Output: buf[:bs]})
+					return stream.Send(&FgatewayOutputData{Output: buf[:bs]})
 				}
 				if err != nil {
 					return err
 				}
-				if err = stream.Send(&GWOutputData{Output: buf[:bs]}); err != nil {
+				if err = stream.Send(&FgatewayOutputData{Output: buf[:bs]}); err != nil {
 					return err
 				}
 			}

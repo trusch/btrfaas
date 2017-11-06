@@ -17,7 +17,7 @@ func main() {
 	}
 	input := bytes.NewBufferString("foobar")
 	output := &bytes.Buffer{}
-	err = cli.Run(context.Background(), input, output)
+	err = cli.Run(context.Background(), nil, input, output)
 	if err != nil {
 		log.Fatal(err)
 	}

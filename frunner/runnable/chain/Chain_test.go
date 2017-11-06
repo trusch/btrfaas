@@ -18,7 +18,7 @@ var _ = Describe("Chain", func() {
 		chainedRunnable := New(echo, toUpper)
 		input := bytes.NewBufferString("foobar")
 		output := &bytes.Buffer{}
-		Expect(chainedRunnable.Run(context.Background(), input, output)).To(Succeed())
+		Expect(chainedRunnable.Run(context.Background(), nil, input, output)).To(Succeed())
 		Expect(output.String()).To(Equal("FOOBAR"))
 	})
 })

@@ -13,12 +13,12 @@ type Chain struct {
 }
 
 // New creates a new chain from a number of runnables
-func New(cmd ...runnable.Runnable) runnable.Runnable {
+func New(cmd ...runnable.Runnable) *Chain {
 	return &Chain{cmd}
 }
 
 // Run implements the runnable.Runnable interface
-func (c *Chain) Run(ctx context.Context, input io.Reader, output io.Writer) error {
+func (c *Chain) Run(ctx context.Context, options []map[string]string, input io.Reader, output io.Writer) error {
 	var currentReader = input
 
 	// cancel everything when something goes wrong
@@ -28,7 +28,11 @@ func (c *Chain) Run(ctx context.Context, input io.Reader, output io.Writer) erro
 
 	// kick of runnables and chain via io.Pipe
 	for i := 0; i < len(c.runnables); i++ {
-		currentReader = runChained(ctx, c.runnables[i], currentReader, done)
+		var opts map[string]string
+		if i < len(options) {
+			opts = options[i]
+		}
+		currentReader = runChained(ctx, c.runnables[i], opts, currentReader, done)
 	}
 
 	// shovel last output to the output of this runnable
@@ -48,12 +52,12 @@ func (c *Chain) Run(ctx context.Context, input io.Reader, output io.Writer) erro
 	return nil
 }
 
-func runChained(ctx context.Context, cmd runnable.Runnable, input io.Reader, done chan error) io.Reader {
+func runChained(ctx context.Context, cmd runnable.Runnable, options map[string]string, input io.Reader, done chan error) io.Reader {
 	pipeReader, pipeWriter := io.Pipe()
 	go func() {
 		// IMPORTANT: pipes need to be closed to send EOF
 		defer pipeWriter.Close()
-		done <- cmd.Run(ctx, input, pipeWriter)
+		done <- cmd.Run(ctx, options, input, pipeWriter)
 	}()
 	return pipeReader
 }

@@ -23,9 +23,10 @@ type Options struct {
 
 // HostConfig specifies one function service
 type HostConfig struct {
-	Transport TransportProtocol
-	Host      string
-	Port      uint16
+	Transport   TransportProtocol
+	Host        string
+	Port        uint16
+	CallOptions map[string]string
 }
 
 // TransportProtocol is the type of the transport, currently only GRPC is supported
@@ -42,6 +43,7 @@ const (
 func Forward(ctx context.Context, options *Options) error {
 	log.Info("construct forwarding pipeline")
 	runnables := make([]runnable.Runnable, len(options.Hosts))
+	optSlice := make([]map[string]string, len(options.Hosts))
 	for i, host := range options.Hosts {
 		if host.Transport == GRPC {
 			uri := fmt.Sprintf("%v:%v", host.Host, host.Port)
@@ -50,6 +52,7 @@ func Forward(ctx context.Context, options *Options) error {
 				return err
 			}
 			runnables[i] = fn
+			optSlice[i] = host.CallOptions
 			log.Infof("added grpc://%v to the pipeline", uri)
 			continue
 		}
@@ -57,5 +60,5 @@ func Forward(ctx context.Context, options *Options) error {
 	}
 	cmd := chain.New(runnables...)
 	log.Info("finished constructing pipeline, kickoff...")
-	return cmd.Run(ctx, options.Input, options.Output)
+	return cmd.Run(ctx, optSlice, options.Input, options.Output)
 }

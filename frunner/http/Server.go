@@ -55,7 +55,7 @@ func (server *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// call the function
-	err := server.cmd.Run(ctx, input, w)
+	err := server.cmd.Run(ctx, nil, input, w)
 	if err != nil {
 		log.Print("error while calling: ", err)
 		w.WriteHeader(http.StatusInternalServerError)

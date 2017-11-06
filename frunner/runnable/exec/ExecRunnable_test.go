@@ -17,7 +17,7 @@ var _ = Describe("Runnable", func() {
 		cmd := NewRunnable("cat", "-")
 		input := bytes.NewBufferString("foobar")
 		output := &bytes.Buffer{}
-		Expect(cmd.Run(context.Background(), input, output)).To(Succeed())
+		Expect(cmd.Run(context.Background(), nil, input, output)).To(Succeed())
 		Expect(output.String()).To(Equal("foobar"))
 	})
 
@@ -26,7 +26,7 @@ var _ = Describe("Runnable", func() {
 		for i := 0; i < 10; i++ {
 			input := bytes.NewBufferString("foobar")
 			output := &bytes.Buffer{}
-			Expect(cmd.Run(context.Background(), input, output)).To(Succeed())
+			Expect(cmd.Run(context.Background(), nil, input, output)).To(Succeed())
 			Expect(output.String()).To(Equal("foobar"))
 		}
 	})
@@ -35,7 +35,7 @@ var _ = Describe("Runnable", func() {
 		cmd := NewRunnable("sleep", "5")
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
-		Expect(cmd.Run(ctx, nil, nil)).NotTo(Succeed())
+		Expect(cmd.Run(ctx, nil, nil, nil)).NotTo(Succeed())
 	}, 0.5)
 
 	It("should be possible to pass environment variables in context", func() {
@@ -44,7 +44,7 @@ var _ = Describe("Runnable", func() {
 		ctx := env.NewContext(context.Background(), environment)
 		cmd := NewRunnable("sh", "-c", "echo -n $FOO")
 		output := &bytes.Buffer{}
-		Expect(cmd.Run(ctx, nil, output)).To(Succeed())
+		Expect(cmd.Run(ctx, nil, nil, output)).To(Succeed())
 		Expect(output.String()).To(Equal("bar"))
 	})
 

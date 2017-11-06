@@ -1,0 +1,5 @@
+---
+id: sed
+image: trusch/frunner
+env:
+  FRUNNER_PROCESS: "sed"

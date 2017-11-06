@@ -22,12 +22,14 @@ func NewClient(target string, opts ...grpc.DialOption) (*Client, error) {
 	return &Client{conn, client}, nil
 }
 
-func (c *Client) Run(ctx context.Context, input io.Reader, output io.Writer) error {
+func (c *Client) Run(ctx context.Context, options map[string]string, input io.Reader, output io.Writer) error {
 	cli, err := c.client.Run(ctx)
 	if err != nil {
 		return err
 	}
-
+	cli.Send(&FrunnerInputData{
+		Options: options,
+	})
 	var (
 		readDone  = make(chan struct{})
 		sendError error
@@ -74,9 +76,9 @@ func (c *Client) shovelInputData(cli FunctionRunner_RunClient, input io.Reader) 
 					return err
 				}
 				if bs > 0 {
-					e := cli.Send(&InputData{inputBuffer[:bs]})
+					e := cli.Send(&FrunnerInputData{Data: inputBuffer[:bs]})
 					if e != nil {
-						return err
+						return e
 					}
 				}
 				if err == io.EOF {
@@ -110,9 +112,8 @@ func (c *Client) shovelOutputData(cli FunctionRunner_RunClient, output io.Writer
 					if data.Ready {
 						if data.Success {
 							return nil
-						} else {
-							return errors.New(data.ErrorMessage)
 						}
+						return errors.New(data.ErrorMessage)
 					}
 					// @TODO: handle data.Errors stream
 				}

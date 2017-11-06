@@ -22,8 +22,10 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/trusch/btrfaas/fgateway/grpc"
@@ -32,7 +34,7 @@ import (
 
 // invokeCmd represents the invoke command
 var invokeCmd = &cobra.Command{
-	Use:   "invoke <function id>",
+	Use:   "invoke <function expression>",
 	Short: "invoke a function",
 	Long:  `invoke a function`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -40,13 +42,17 @@ var invokeCmd = &cobra.Command{
 			cmd.Help()
 			os.Exit(1)
 		}
-		fn := args[0]
+		expr := args[0]
 		gw, _ := cmd.Flags().GetString("gateway")
 		cli, err := grpc.NewClient(gw, g.WithInsecure())
 		if err != nil {
 			log.Fatal(err)
 		}
-		if err = cli.Run(context.Background(), fn, os.Stdin, os.Stdout); err != nil {
+		chain, opts, err := createCallRequest(expr)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if err = cli.Run(context.Background(), chain, opts, os.Stdin, os.Stdout); err != nil {
 			log.Fatal(err)
 		}
 	},
@@ -64,4 +70,27 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// invokeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func createCallRequest(expr string) (chain string, opts map[string]map[string]string, err error) {
+	fnExpressions := strings.Split(expr, "|")
+	opts = make(map[string]map[string]string)
+	for _, fnExpression := range fnExpressions {
+		parts := strings.Split(strings.Trim(fnExpression, " "), " ")
+		if len(parts) < 1 {
+			return "", nil, errors.New("malformed expression: ")
+		}
+		fn := strings.Trim(parts[0], " ")
+		chain += "|" + fn
+		fnOpts := make(map[string]string)
+		for i := 1; i < len(parts); i++ {
+			pairSlice := strings.Split(parts[i], "=")
+			if len(pairSlice) < 2 {
+				return "", nil, errors.New("malformed expression")
+			}
+			fnOpts[pairSlice[0]] = pairSlice[1]
+		}
+		opts[fn] = fnOpts
+	}
+	return chain[1:], opts, nil
 }
