@@ -44,26 +44,28 @@ var serviceDeployCmd = &cobra.Command{
 			cmd.Help()
 			os.Exit(1)
 		}
-		bs, err := ioutil.ReadFile(args[0])
-		if err != nil {
-			log.Fatal(err)
-		}
-		opts := deployment.DeployServiceOptions{}
-		if err = yaml.Unmarshal(bs, &opts); err != nil {
-			log.Fatal(err)
-		}
 		env, _ := cmd.Flags().GetString("env")
 		cli, err := deployment.NewSwarmPlatform()
 		if err != nil {
 			log.Fatal(err)
 		}
-		opts.EnvironmentID = env
-		ctx := context.Background()
-		err = cli.DeployService(ctx, &opts)
-		if err != nil {
-			log.Fatal(err)
+		for _, arg := range args {
+			bs, err := ioutil.ReadFile(arg)
+			if err != nil {
+				log.Fatal(err)
+			}
+			opts := deployment.DeployServiceOptions{}
+			if err = yaml.Unmarshal(bs, &opts); err != nil {
+				log.Fatal(err)
+			}
+			opts.EnvironmentID = env
+			ctx := context.Background()
+			err = cli.DeployService(ctx, &opts)
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Info("successfully deployed service ", opts.ID)
 		}
-		log.Info("successfully deployed service ", opts.ID)
 	},
 }
 

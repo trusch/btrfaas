@@ -1,5 +1,0 @@
----
-id: echo-frunner
-image: trusch/frunner
-env:
-  FRUNNER_PROCESS: "cat -"

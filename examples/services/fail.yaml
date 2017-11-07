@@ -1,5 +1,5 @@
 ---
 id: fail
-image: trusch/frunner
+image: btrfaas/frunner
 env:
   FRUNNER_PROCESS: "false"

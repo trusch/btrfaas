@@ -1,0 +1,5 @@
+---
+id: echo-shell
+image: btrfaas/frunner
+env:
+  FRUNNER_PROCESS: "cat -"

@@ -1,5 +1,5 @@
 ---
 id: to-lower
-image: trusch/frunner
+image: btrfaas/frunner
 env:
   FRUNNER_PROCESS: "tr [:upper:] [:lower:]"

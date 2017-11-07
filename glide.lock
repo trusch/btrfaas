@@ -1,5 +1,5 @@
 hash: a844a86730d541dffdd1c4ab527649d1c21eb054e2687f98793ebd18bfce46d9
-updated: 2017-11-06T12:15:57.879862221Z
+updated: 2017-11-07T08:13:23.14343876Z
 imports:
 - name: github.com/docker/distribution
   version: 3800056b8832cf6075e78b282ac010131d8687bc
@@ -95,7 +95,7 @@ imports:
 - name: github.com/spf13/viper
   version: 25b30aa063fc18e48662b86996252eabdcf2f0c7
 - name: golang.org/x/crypto
-  version: ca1fcd4ab4c10bc58852a894bcf195fab2229efe
+  version: 687d4b818545e443c8ba223cbef20b1721afd4db
   subpackages:
   - ssh/terminal
 - name: golang.org/x/net
@@ -114,7 +114,7 @@ imports:
   - proxy
   - trace
 - name: golang.org/x/sys
-  version: 8eb05f94d449fdf134ec24630ce69ada5b469c1c
+  version: d4266bc12aae0b4128952c889b769442fce5d2f1
   subpackages:
   - unix
   - windows

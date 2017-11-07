@@ -28,13 +28,11 @@ This is heavily inspired by the architecture of [OpenFaaS](https://github.com/op
 > btrfaasctl service deploy core-services/fgateway.yaml
 > btrfaasctl service deploy examples/services/sed.yaml
 > btrfaasctl service deploy examples/services/to-upper.yaml
-> btrfaasctl service deploy examples/services/echo/native-go.yaml
-> btrfaasctl service deploy examples/services/echo/native-python.yaml
-> btrfaasctl service deploy examples/services/echo/with-frunner.yaml
+> btrfaasctl service deploy examples/services/echo/*
 
 # test it
 > echo "I hate this" | btrfaasctl function invoke "sed e=s/hate/love/ | to-upper"
 I LOVE THIS
-> echo "foobar" | btrfaasctl function invoke "echo-go | echo-python | echo-frunner"
+> echo "foobar" | btrfaasctl function invoke "echo-go | echo-node | echo-python | echo-shell"
 foobar
 ```

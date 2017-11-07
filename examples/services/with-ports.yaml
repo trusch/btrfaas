@@ -1,6 +1,6 @@
 ---
-id: "echo"
-image: "trusch/http-echo"
-cmd: ["http-echo"]
+id: "with-ports"
+image: "debian"
+cmd: ["nc","-l","1234"]
 ports:
-  8888: 80 # host port 8888 is mapped to container port 80
+  8888: 1234 # host port 8888 is mapped to container port 1234

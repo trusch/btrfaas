@@ -1,6 +1,6 @@
 # try calling this with options: `btrfaasctl function invoke "sed e=s/foo/bar/g"`
 ---
 id: sed
-image: trusch/frunner
+image: btrfaas/frunner
 env:
   FRUNNER_PROCESS: "sed"

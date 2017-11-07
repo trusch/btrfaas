@@ -41,21 +41,22 @@ var serviceUndeployCmd = &cobra.Command{
 			cmd.Help()
 			os.Exit(1)
 		}
-		id := args[0]
 		env, _ := cmd.Flags().GetString("env")
 		cli, err := deployment.NewSwarmPlatform()
 		if err != nil {
 			log.Fatal(err)
 		}
-		ctx := context.Background()
-		err = cli.UndeployService(ctx, &deployment.UndeployServiceOptions{
-			EnvironmentID: env,
-			ID:            id,
-		})
-		if err != nil {
-			log.Fatal(err)
+		for _, id := range args {
+			ctx := context.Background()
+			err = cli.UndeployService(ctx, &deployment.UndeployServiceOptions{
+				EnvironmentID: env,
+				ID:            id,
+			})
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Info("successfully undeployed service ", id)
 		}
-		log.Info("successfully undeployed service ", id)
 	},
 }
 
