@@ -1,3 +1,4 @@
+# try calling this with options: `btrfaasctl function invoke "sed e=s/foo/bar/g"`
 ---
 id: sed
 image: trusch/frunner
