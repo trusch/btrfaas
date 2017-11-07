@@ -1,0 +1,15 @@
+{
+  "name": "native-node-echo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Tino Rusch",
+  "license": "MIT",
+  "dependencies": {
+    "grpc": "^1.7.1"
+  }
+}
