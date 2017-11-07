@@ -101,3 +101,4 @@ fmt: vendor
 echo-examples:
 	cd examples/functions/native-go-echo && docker build -t trusch/go-echo .
 	cd examples/functions/native-python-echo && docker build -t trusch/python-echo .
+	cd examples/functions/native-node-echo && docker build -t trusch/node-echo .
