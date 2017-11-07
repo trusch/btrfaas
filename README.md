@@ -20,9 +20,9 @@ This is heavily inspired by the architecture of [OpenFaaS](https://github.com/op
 
 ## Walk Through
 ```bash
-> make all        # build everything (frunner, fgateway, btrfaasctl + docker images)
-> make install    # install btrfaasctl to $GOPATH/bin
-> btrfaasctl init # init deployment
+> make all GOOS=linux # build everything (frunner, fgateway, btrfaasctl + docker images)
+> make install        # install btrfaasctl to $GOPATH/bin
+> btrfaasctl init     # init deployment
 
 # deploy function gateway + example function
 > btrfaasctl service deploy core-services/fgateway.yaml
