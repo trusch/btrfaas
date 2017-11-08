@@ -1,5 +1,5 @@
-hash: a844a86730d541dffdd1c4ab527649d1c21eb054e2687f98793ebd18bfce46d9
-updated: 2017-11-07T08:13:23.14343876Z
+hash: f4b42492359896d5dab69ac7937b8852bc3b4e9e83c45e91b9577dc390ddcb45
+updated: 2017-11-08T11:08:49.612049986Z
 imports:
 - name: github.com/docker/distribution
   version: 3800056b8832cf6075e78b282ac010131d8687bc
@@ -77,8 +77,6 @@ imports:
 - name: github.com/pkg/errors
   version: f15c970de5b76fac0b59abb32d62c17cc7bed265
 - name: github.com/Sirupsen/logrus
-  version: 89742aefa4b206dcf400792f3bd35b542998eb3b
-- name: github.com/sirupsen/logrus
   version: f006c2ac4710855cf0f916dd6b77acf6b048dc6e
 - name: github.com/spf13/afero
   version: 5660eeed305fe5f69c8fc6cf899132a459a97064
@@ -95,11 +93,11 @@ imports:
 - name: github.com/spf13/viper
   version: 25b30aa063fc18e48662b86996252eabdcf2f0c7
 - name: golang.org/x/crypto
-  version: 687d4b818545e443c8ba223cbef20b1721afd4db
+  version: 6a293f2d4b14b8e6d3f0539e383f6d0d30fce3fd
   subpackages:
   - ssh/terminal
 - name: golang.org/x/net
-  version: 01c190206fbdffa42f334f4b2bf2220f50e64920
+  version: a337091b0525af65de94df2eb7e98bd9962dcbe2
   subpackages:
   - context
   - context/ctxhttp
@@ -114,7 +112,7 @@ imports:
   - proxy
   - trace
 - name: golang.org/x/sys
-  version: d4266bc12aae0b4128952c889b769442fce5d2f1
+  version: 75813c647272dd855bda156405bf844a5414f5bf
   subpackages:
   - unix
   - windows

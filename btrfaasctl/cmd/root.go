@@ -21,12 +21,15 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
+	"log"
 	"os"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/trusch/btrfaas/deployment"
 )
 
 var cfgFile string
@@ -57,6 +60,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	RootCmd.PersistentFlags().StringP("env", "e", "btrfaas_default", "environment to use")
+	RootCmd.PersistentFlags().String("platform", "swarm", "deployment platform (docker, swarm)")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -83,4 +87,24 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+}
+
+func getDeploymentPlatform(cmd *cobra.Command) deployment.Platform {
+	platformID, err := cmd.Flags().GetString("platform")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var platform deployment.Platform
+	switch platformID {
+	case "docker":
+		platform, err = deployment.NewDockerPlatform()
+	case "swarm":
+		platform, err = deployment.NewSwarmPlatform()
+	default:
+		err = errors.New("deployment platform unsupported")
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
+	return platform
 }

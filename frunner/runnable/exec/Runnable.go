@@ -6,7 +6,7 @@ import (
 	"io"
 	"os/exec"
 
-	log "github.com/sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 
 	"github.com/trusch/btrfaas/frunner/env"
 )

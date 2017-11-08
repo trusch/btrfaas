@@ -25,7 +25,7 @@ import (
 	"os"
 	"strconv"
 
-	log "github.com/sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 	"github.com/trusch/btrfaas/deployment"
@@ -37,10 +37,7 @@ var scaleServiceCmd = &cobra.Command{
 	Short: "scale a service",
 	Long:  `scale a service`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cli, err := deployment.NewSwarmPlatform()
-		if err != nil {
-			log.Fatal(err)
-		}
+		cli := getDeploymentPlatform(cmd)
 		if len(args) != 2 {
 			cmd.Help()
 			os.Exit(1)

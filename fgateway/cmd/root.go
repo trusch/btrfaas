@@ -25,7 +25,7 @@ import (
 	"net/http"
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"

@@ -68,7 +68,7 @@ vendor: glide.yaml
 		-e GOOS=$(GOOS) \
 		-e GOARCH=$(GOARCH) \
 		golang:1.9 bash -c \
-			"(curl https://glide.sh/get | sh) && glide --home /tmp update"
+			"(curl https://glide.sh/get | sh) && glide --home /tmp update -v"
 
 test: vendor
 	docker run \

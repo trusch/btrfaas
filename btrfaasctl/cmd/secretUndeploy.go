@@ -24,7 +24,7 @@ import (
 	"context"
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 	"github.com/trusch/btrfaas/deployment"
@@ -43,12 +43,9 @@ var secretUndeployCmd = &cobra.Command{
 		}
 		id := args[0]
 		env, _ := cmd.Flags().GetString("env")
-		cli, err := deployment.NewSwarmPlatform()
-		if err != nil {
-			log.Fatal(err)
-		}
+		cli := getDeploymentPlatform(cmd)
 		ctx := context.Background()
-		err = cli.UndeploySecret(ctx, &deployment.UndeploySecretOptions{
+		err := cli.UndeploySecret(ctx, &deployment.UndeploySecretOptions{
 			EnvironmentID: env,
 			ID:            id,
 		})

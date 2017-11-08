@@ -23,7 +23,7 @@ package cmd
 import (
 	"context"
 
-	log "github.com/sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/trusch/btrfaas/deployment"
 )
@@ -34,13 +34,10 @@ var teardownCmd = &cobra.Command{
 	Short: "teardown an environment",
 	Long:  `teardown an environment`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cli, err := deployment.NewSwarmPlatform()
-		if err != nil {
-			log.Fatal(err)
-		}
+		cli := getDeploymentPlatform(cmd)
 		env, _ := cmd.Flags().GetString("env")
 		ctx := context.Background()
-		err = cli.TeardownEnvironment(ctx, &deployment.TeardownEnvironmentOptions{
+		err := cli.TeardownEnvironment(ctx, &deployment.TeardownEnvironmentOptions{
 			ID: env,
 		})
 		if err != nil {

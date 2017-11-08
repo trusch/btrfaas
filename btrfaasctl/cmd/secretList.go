@@ -26,7 +26,7 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
-	log "github.com/sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 	"github.com/trusch/btrfaas/deployment"
@@ -40,10 +40,7 @@ var secretListCmd = &cobra.Command{
 	Long:    `list deployed secrets`,
 	Run: func(cmd *cobra.Command, args []string) {
 		env, _ := cmd.Flags().GetString("env")
-		cli, err := deployment.NewSwarmPlatform()
-		if err != nil {
-			log.Fatal(err)
-		}
+		cli := getDeploymentPlatform(cmd)
 		ctx := context.Background()
 		secrets, err := cli.ListSecrets(ctx, &deployment.ListSecretsOptions{
 			EnvironmentID: env,

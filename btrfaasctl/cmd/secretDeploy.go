@@ -25,7 +25,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"github.com/trusch/btrfaas/deployment"
 
 	"github.com/spf13/cobra"
@@ -40,12 +40,9 @@ var secretDeployCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		secretID, secretValue := getIDAndValue(cmd, args)
 		env, _ := cmd.Flags().GetString("env")
-		cli, err := deployment.NewSwarmPlatform()
-		if err != nil {
-			log.Fatal(err)
-		}
+		cli := getDeploymentPlatform(cmd)
 		ctx := context.Background()
-		err = cli.DeploySecret(ctx, &deployment.DeploySecretOptions{
+		err := cli.DeploySecret(ctx, &deployment.DeploySecretOptions{
 			EnvironmentID: env,
 			ID:            secretID,
 			Value:         secretValue,

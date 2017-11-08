@@ -24,7 +24,7 @@ import (
 	"context"
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 	"github.com/trusch/btrfaas/deployment"
@@ -42,13 +42,10 @@ var serviceUndeployCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		env, _ := cmd.Flags().GetString("env")
-		cli, err := deployment.NewSwarmPlatform()
-		if err != nil {
-			log.Fatal(err)
-		}
+		cli := getDeploymentPlatform(cmd)
 		for _, id := range args {
 			ctx := context.Background()
-			err = cli.UndeployService(ctx, &deployment.UndeployServiceOptions{
+			err := cli.UndeployService(ctx, &deployment.UndeployServiceOptions{
 				EnvironmentID: env,
 				ID:            id,
 			})

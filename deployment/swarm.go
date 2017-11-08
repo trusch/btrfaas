@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/trusch/btrfaas/frunner/env"
 
 	"github.com/docker/docker/api/types"
@@ -33,7 +32,6 @@ func (p *SwarmPlatform) PrepareEnvironment(ctx context.Context, options *Prepare
 	name := options.ID + "_network"
 	_, err := p.cli.NetworkInspect(ctx, name, false)
 	if err != nil {
-		log.Debug("network not found, creating new")
 		_, err = p.cli.NetworkCreate(ctx, name, types.NetworkCreate{
 			Driver:     "overlay",
 			Attachable: true,

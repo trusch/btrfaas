@@ -23,7 +23,7 @@ package cmd
 import (
 	"context"
 
-	log "github.com/sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 	"github.com/trusch/btrfaas/deployment"
@@ -35,13 +35,10 @@ var initCmd = &cobra.Command{
 	Short: "init your cluster",
 	Long:  `init your cluster`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cli, err := deployment.NewSwarmPlatform()
-		if err != nil {
-			log.Fatal(err)
-		}
+		cli := getDeploymentPlatform(cmd)
 		env, _ := cmd.Flags().GetString("env")
 		ctx := context.Background()
-		err = cli.PrepareEnvironment(ctx, &deployment.PrepareEnvironmentOptions{
+		err := cli.PrepareEnvironment(ctx, &deployment.PrepareEnvironmentOptions{
 			ID: env,
 		})
 		if err != nil {

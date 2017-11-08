@@ -25,7 +25,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 
 	yaml "gopkg.in/yaml.v2"
 
@@ -45,10 +45,7 @@ var serviceDeployCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		env, _ := cmd.Flags().GetString("env")
-		cli, err := deployment.NewSwarmPlatform()
-		if err != nil {
-			log.Fatal(err)
-		}
+		cli := getDeploymentPlatform(cmd)
 		for _, arg := range args {
 			bs, err := ioutil.ReadFile(arg)
 			if err != nil {
