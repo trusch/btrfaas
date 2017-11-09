@@ -1,5 +1,5 @@
 hash: f4b42492359896d5dab69ac7937b8852bc3b4e9e83c45e91b9577dc390ddcb45
-updated: 2017-11-08T11:08:49.612049986Z
+updated: 2017-11-09T10:35:11.913057641Z
 imports:
 - name: github.com/docker/distribution
   version: 3800056b8832cf6075e78b282ac010131d8687bc
@@ -112,7 +112,7 @@ imports:
   - proxy
   - trace
 - name: golang.org/x/sys
-  version: 75813c647272dd855bda156405bf844a5414f5bf
+  version: 4b45465282a4624cf39876842a017334f13b8aff
   subpackages:
   - unix
   - windows

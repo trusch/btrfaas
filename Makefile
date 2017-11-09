@@ -3,7 +3,7 @@ GOARCH=amd64
 
 SRC=$(shell find ./btrfaasctl ./deployment ./fgateway ./frunner -type f -name "*.go")
 
-all: vendor fmt vet test frunner btrfaasctl fgateway docker
+all: vendor fmt vet unit-tests frunner btrfaasctl fgateway docker install integration-tests
 
 docker: docker/frunner docker/fgateway echo-examples
 
