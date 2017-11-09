@@ -25,6 +25,7 @@ func runScript(script string) (res string) {
 			if i == retries-1 {
 				Fail(fmt.Sprintf("%v: %v", err.Error(), buf.String()))
 			} else {
+				time.Sleep(retryDelay)
 				continue
 			}
 		}
