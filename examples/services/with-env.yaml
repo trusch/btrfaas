@@ -1,0 +1,6 @@
+---
+id: "with-env"
+image: "trusch/frunner"
+cmd: ["/bin/frunner", "--", "/bin/sh", "-c", "echo -n $EXAMPLE"]
+env:
+  EXAMPLE: "VALUE"

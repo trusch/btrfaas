@@ -70,7 +70,7 @@ vendor: glide.yaml
 		golang:1.9 bash -c \
 			"(curl https://glide.sh/get | sh) && glide --home /tmp update -v"
 
-test: vendor
+unit-tests: vendor
 	docker run \
 		-v $(shell pwd):/go/src/github.com/trusch/btrfaas \
 		-w /go/src/github.com/trusch/btrfaas \
@@ -79,7 +79,10 @@ test: vendor
 		-e GOOS=$(GOOS) \
 		-e GOARCH=$(GOARCH) \
 		golang:1.9 \
-			go test -v -cover ./...
+			go test -v -cover ./deployment/... ./fgateway/... ./frunner/...
+
+integration-tests: install
+	cd integration-tests && ginkgo -r -v --slowSpecThreshold 20
 
 vet: vendor
 	docker run \

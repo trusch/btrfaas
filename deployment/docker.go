@@ -91,7 +91,10 @@ func (p *DockerPlatform) DeployService(ctx context.Context, options *DeployServi
 	if err != nil {
 		return err
 	}
-	return p.cli.ContainerStart(ctx, createResp.ID, types.ContainerStartOptions{})
+	if err = p.cli.ContainerStart(ctx, createResp.ID, types.ContainerStartOptions{}); err != nil {
+		return err
+	}
+	return nil
 }
 
 // UndeployService unddeploys a service from an environment
@@ -223,7 +226,6 @@ func constructPortMap(ports map[uint16]uint16) (nat.PortMap, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("portmap: %+v", res)
 	return res, nil
 }
 

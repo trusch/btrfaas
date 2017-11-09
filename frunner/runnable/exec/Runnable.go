@@ -51,7 +51,6 @@ func (r *Runnable) Run(ctx context.Context, options map[string]string, input io.
 			if err == nil && r.bufferOutput {
 				_, err = io.Copy(output, r.cmd.Stdout.(*bytes.Buffer))
 			}
-			log.Error(err)
 			return err
 		}
 	case <-ctx.Done():
