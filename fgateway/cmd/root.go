@@ -30,8 +30,8 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	grpcServer "github.com/trusch/btrfaas/fgateway/grpc"
-	httpServer "github.com/trusch/btrfaas/fgateway/http"
+	"github.com/trusch/btrfaas/fgateway/grpc"
+	"github.com/trusch/btrfaas/fgateway/metrics"
 )
 
 var cfgFile string
@@ -42,25 +42,24 @@ var RootCmd = &cobra.Command{
 	Short: "a gateway to your functions",
 	Long:  `a gateway to your functions`,
 	Run: func(cmd *cobra.Command, args []string) {
-		go runHTTPServer(cmd)
+		go runMetricsServer(cmd)
 		go runGRPCServer(cmd)
 		select {}
 	},
 }
 
-func runHTTPServer(cmd *cobra.Command) {
+func runMetricsServer(cmd *cobra.Command) {
 	httpAddr, _ := cmd.Flags().GetString("http-address")
-	grpcPort, _ := cmd.Flags().GetUint16("grpc-default-port")
-	handler := httpServer.NewFunctionDispatcher(grpcPort)
-	log.Infof("start listening for HTTP requests on %v", httpAddr)
+	handler := metrics.Handler()
+	log.Infof("start serving prometheus metrics on %v", httpAddr)
 	log.Fatal(http.ListenAndServe(httpAddr, handler))
 }
 
 func runGRPCServer(cmd *cobra.Command) {
 	grpcAddr, _ := cmd.Flags().GetString("grpc-address")
 	grpcPort, _ := cmd.Flags().GetUint16("grpc-default-port")
-	grpcServer := grpcServer.NewServer(grpcAddr, grpcPort)
-	log.Fatal(grpcServer.ListenAndServe())
+	server := grpc.NewServer(grpcAddr, grpcPort)
+	log.Fatal(server.ListenAndServe())
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

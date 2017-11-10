@@ -4,10 +4,12 @@ import (
 	"io"
 	"net"
 	"strings"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 
 	"github.com/trusch/btrfaas/fgateway/forwarder"
+	"github.com/trusch/btrfaas/fgateway/metrics"
 
 	"google.golang.org/grpc"
 )
@@ -38,6 +40,7 @@ func (s *Server) ListenAndServe() error {
 
 // Run implements the gRPC interface
 func (s *Server) Run(stream FunctionRunner_RunServer) (err error) {
+	start := time.Now()
 	defer func() {
 		if err != nil {
 			log.Error(err)
@@ -59,10 +62,18 @@ func (s *Server) Run(stream FunctionRunner_RunServer) (err error) {
 	if err != nil {
 		return err
 	}
+	hosts := s.createHostConfigs(strings.Split(firstPacket.Chain, "|"), firstPacket.Options)
+	defer func() {
+		end := time.Now()
+		duration := end.Sub(start)
+		for _, host := range hosts {
+			metrics.Observe(host.Host, err != nil, duration)
+		}
+	}()
 	go func() {
 		log.Info("forward to function service ", firstPacket.Chain)
 		err = forwarder.Forward(ctx, &forwarder.Options{
-			Hosts:  s.createHostConfigs(strings.Split(firstPacket.Chain, "|"), firstPacket.Options),
+			Hosts:  hosts,
 			Input:  input,
 			Output: outputWriter,
 		})
