@@ -46,7 +46,6 @@ func (p *DockerPlatform) PrepareEnvironment(ctx context.Context, options *Prepar
 	name := options.ID + "_network"
 	_, err := p.cli.NetworkInspect(ctx, name, false)
 	if err != nil {
-		log.Print("create network")
 		_, err = p.cli.NetworkCreate(ctx, name, types.NetworkCreate{
 			Driver:     "bridge",
 			Attachable: true,

@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	// Create a summary to track fictional interservice RPC latencies for three
+	// Create a summary to track interservice RPC latencies for three
 	// distinct services with different latency distributions. These services are
 	// differentiated via a "service" label.
 	rpcDurations = prometheus.NewSummaryVec(
@@ -30,7 +30,7 @@ var (
 	normMean              = 0.00001
 	rpcDurationsHistogram = prometheus.NewHistogram(prometheus.HistogramOpts{
 		Name:    "rpc_durations_histogram_seconds",
-		Help:    "RPC latency distributions.",
+		Help:    "RPC latency histogram.",
 		Buckets: prometheus.LinearBuckets(normMean-5*normDomain, .5*normDomain, 20),
 	})
 )

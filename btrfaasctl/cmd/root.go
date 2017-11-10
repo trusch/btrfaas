@@ -60,7 +60,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	RootCmd.PersistentFlags().StringP("env", "e", "btrfaas_default", "environment to use")
-	RootCmd.PersistentFlags().String("platform", "swarm", "deployment platform (docker, swarm)")
+	RootCmd.PersistentFlags().String("platform", "docker", "deployment platform (docker, swarm)")
 }
 
 // initConfig reads in config file and ENV variables if set.
