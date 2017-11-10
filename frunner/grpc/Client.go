@@ -2,10 +2,10 @@ package grpc
 
 import (
 	"context"
-	"errors"
 	"io"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 type Client struct {
@@ -23,13 +23,14 @@ func NewClient(target string, opts ...grpc.DialOption) (*Client, error) {
 }
 
 func (c *Client) Run(ctx context.Context, options map[string]string, input io.Reader, output io.Writer) error {
+	ctx = metadata.NewOutgoingContext(ctx, metadata.MD{
+		"options": buildOptionsForMetadata(options),
+	})
 	cli, err := c.client.Run(ctx)
 	if err != nil {
 		return err
 	}
-	cli.Send(&FrunnerInputData{
-		Options: options,
-	})
+
 	var (
 		readDone  = make(chan struct{})
 		sendError error
@@ -76,7 +77,7 @@ func (c *Client) shovelInputData(cli FunctionRunner_RunClient, input io.Reader) 
 					return err
 				}
 				if bs > 0 {
-					e := cli.Send(&FrunnerInputData{Data: inputBuffer[:bs]})
+					e := cli.Send(&Data{Data: inputBuffer[:bs]})
 					if e != nil {
 						return e
 					}
@@ -104,18 +105,11 @@ func (c *Client) shovelOutputData(cli FunctionRunner_RunClient, output io.Writer
 					return err
 				}
 				if data != nil {
-					if len(data.Output) > 0 {
-						if _, e := output.Write(data.Output); e != nil {
+					if len(data.Data) > 0 {
+						if _, e := output.Write(data.Data); e != nil {
 							return e
 						}
 					}
-					if data.Ready {
-						if data.Success {
-							return nil
-						}
-						return errors.New(data.ErrorMessage)
-					}
-					// @TODO: handle data.Errors stream
 				}
 				if err == io.EOF {
 					return nil
@@ -123,4 +117,11 @@ func (c *Client) shovelOutputData(cli FunctionRunner_RunClient, output io.Writer
 			}
 		}
 	}
+}
+
+func buildOptionsForMetadata(options map[string]string) (res []string) {
+	for k, v := range options {
+		res = append(res, k+"="+v)
+	}
+	return
 }

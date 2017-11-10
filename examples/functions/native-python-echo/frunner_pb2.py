@@ -19,122 +19,26 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='frunner.proto',
   package='grpc',
   syntax='proto3',
-  serialized_pb=_b('\n\rfrunner.proto\x12\x04grpc\"\x86\x01\n\x10\x46runnerInputData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12\x34\n\x07options\x18\x02 \x03(\x0b\x32#.grpc.FrunnerInputData.OptionsEntry\x1a.\n\x0cOptionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"Y\n\x11\x46runnerOutputData\x12\r\n\x05ready\x18\x01 \x01(\x08\x12\x0f\n\x07success\x18\x02 \x01(\x08\x12\x14\n\x0c\x65rrorMessage\x18\x03 \x01(\t\x12\x0e\n\x06output\x18\x04 \x01(\x0c\x32N\n\x0e\x46unctionRunner\x12<\n\x03Run\x12\x16.grpc.FrunnerInputData\x1a\x17.grpc.FrunnerOutputData\"\x00(\x01\x30\x01\x62\x06proto3')
+  serialized_pb=_b('\n\rfrunner.proto\x12\x04grpc\"\x14\n\x04\x44\x61ta\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x32\x35\n\x0e\x46unctionRunner\x12#\n\x03Run\x12\n.grpc.Data\x1a\n.grpc.Data\"\x00(\x01\x30\x01\x62\x06proto3')
 )
 
 
 
 
-_FRUNNERINPUTDATA_OPTIONSENTRY = _descriptor.Descriptor(
-  name='OptionsEntry',
-  full_name='grpc.FrunnerInputData.OptionsEntry',
+_DATA = _descriptor.Descriptor(
+  name='Data',
+  full_name='grpc.Data',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='key', full_name='grpc.FrunnerInputData.OptionsEntry.key', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='value', full_name='grpc.FrunnerInputData.OptionsEntry.value', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=_descriptor._ParseOptions(descriptor_pb2.MessageOptions(), _b('8\001')),
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=112,
-  serialized_end=158,
-)
-
-_FRUNNERINPUTDATA = _descriptor.Descriptor(
-  name='FrunnerInputData',
-  full_name='grpc.FrunnerInputData',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='data', full_name='grpc.FrunnerInputData.data', index=0,
+      name='data', full_name='grpc.Data.data', index=0,
       number=1, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
-    _descriptor.FieldDescriptor(
-      name='options', full_name='grpc.FrunnerInputData.options', index=1,
-      number=2, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[_FRUNNERINPUTDATA_OPTIONSENTRY, ],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=24,
-  serialized_end=158,
-)
-
-
-_FRUNNEROUTPUTDATA = _descriptor.Descriptor(
-  name='FrunnerOutputData',
-  full_name='grpc.FrunnerOutputData',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='ready', full_name='grpc.FrunnerOutputData.ready', index=0,
-      number=1, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='success', full_name='grpc.FrunnerOutputData.success', index=1,
-      number=2, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='errorMessage', full_name='grpc.FrunnerOutputData.errorMessage', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='output', full_name='grpc.FrunnerOutputData.output', index=3,
-      number=4, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b(""),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
   ],
   extensions=[
   ],
@@ -147,41 +51,21 @@ _FRUNNEROUTPUTDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=160,
-  serialized_end=249,
+  serialized_start=23,
+  serialized_end=43,
 )
 
-_FRUNNERINPUTDATA_OPTIONSENTRY.containing_type = _FRUNNERINPUTDATA
-_FRUNNERINPUTDATA.fields_by_name['options'].message_type = _FRUNNERINPUTDATA_OPTIONSENTRY
-DESCRIPTOR.message_types_by_name['FrunnerInputData'] = _FRUNNERINPUTDATA
-DESCRIPTOR.message_types_by_name['FrunnerOutputData'] = _FRUNNEROUTPUTDATA
+DESCRIPTOR.message_types_by_name['Data'] = _DATA
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-FrunnerInputData = _reflection.GeneratedProtocolMessageType('FrunnerInputData', (_message.Message,), dict(
-
-  OptionsEntry = _reflection.GeneratedProtocolMessageType('OptionsEntry', (_message.Message,), dict(
-    DESCRIPTOR = _FRUNNERINPUTDATA_OPTIONSENTRY,
-    __module__ = 'frunner_pb2'
-    # @@protoc_insertion_point(class_scope:grpc.FrunnerInputData.OptionsEntry)
-    ))
-  ,
-  DESCRIPTOR = _FRUNNERINPUTDATA,
+Data = _reflection.GeneratedProtocolMessageType('Data', (_message.Message,), dict(
+  DESCRIPTOR = _DATA,
   __module__ = 'frunner_pb2'
-  # @@protoc_insertion_point(class_scope:grpc.FrunnerInputData)
+  # @@protoc_insertion_point(class_scope:grpc.Data)
   ))
-_sym_db.RegisterMessage(FrunnerInputData)
-_sym_db.RegisterMessage(FrunnerInputData.OptionsEntry)
-
-FrunnerOutputData = _reflection.GeneratedProtocolMessageType('FrunnerOutputData', (_message.Message,), dict(
-  DESCRIPTOR = _FRUNNEROUTPUTDATA,
-  __module__ = 'frunner_pb2'
-  # @@protoc_insertion_point(class_scope:grpc.FrunnerOutputData)
-  ))
-_sym_db.RegisterMessage(FrunnerOutputData)
+_sym_db.RegisterMessage(Data)
 
 
-_FRUNNERINPUTDATA_OPTIONSENTRY.has_options = True
-_FRUNNERINPUTDATA_OPTIONSENTRY._options = _descriptor._ParseOptions(descriptor_pb2.MessageOptions(), _b('8\001'))
 
 _FUNCTIONRUNNER = _descriptor.ServiceDescriptor(
   name='FunctionRunner',
@@ -189,16 +73,16 @@ _FUNCTIONRUNNER = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=251,
-  serialized_end=329,
+  serialized_start=45,
+  serialized_end=98,
   methods=[
   _descriptor.MethodDescriptor(
     name='Run',
     full_name='grpc.FunctionRunner.Run',
     index=0,
     containing_service=None,
-    input_type=_FRUNNERINPUTDATA,
-    output_type=_FRUNNEROUTPUTDATA,
+    input_type=_DATA,
+    output_type=_DATA,
     options=None,
   ),
 ])

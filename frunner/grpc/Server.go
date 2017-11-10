@@ -4,10 +4,12 @@ import (
 	"context"
 	"io"
 	"net"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 
 	"github.com/trusch/btrfaas/frunner/config"
 	"github.com/trusch/btrfaas/frunner/runnable"
@@ -52,11 +54,8 @@ func (s *Server) Run(stream FunctionRunner_RunServer) (err error) {
 		input = io.LimitReader(input, *s.cfg.ReadLimit)
 	}
 
-	firstPacket, err := stream.Recv()
-	if err != nil {
-		return err
-	}
-	options := firstPacket.GetOptions()
+	options := getOptionsFromStream(stream)
+
 	go func() {
 		defer outputWriter.Close()
 		err = s.cmd.Run(ctx, options, input, outputWriter)
@@ -65,11 +64,6 @@ func (s *Server) Run(stream FunctionRunner_RunServer) (err error) {
 			done <- err
 		}
 	}()
-	if len(firstPacket.Data) > 0 {
-		if _, err = inputWriter.Write(firstPacket.Data); err != nil {
-			return err
-		}
-	}
 
 	go s.shovelInputData(stream, inputWriter)
 	go func() {
@@ -81,19 +75,9 @@ func (s *Server) Run(stream FunctionRunner_RunServer) (err error) {
 		}
 	}()
 	select {
-	case err, ok := <-done:
+	case err := <-done:
 		{
-			if ok && err != nil {
-				return stream.Send(&FrunnerOutputData{
-					Ready:        true,
-					Success:      false,
-					ErrorMessage: err.Error(),
-				})
-			}
-			return stream.Send(&FrunnerOutputData{
-				Ready:   true,
-				Success: true,
-			})
+			return err
 		}
 	case <-ctx.Done():
 		{
@@ -143,15 +127,34 @@ func (s *Server) shovelOutputData(stream FunctionRunner_RunServer, output io.Rea
 			{
 				bs, err := output.Read(buf[:])
 				if err == io.EOF {
-					return stream.Send(&FrunnerOutputData{Output: buf[:bs]})
+					return stream.Send(&Data{Data: buf[:bs]})
 				}
 				if err != nil {
 					return err
 				}
-				if err = stream.Send(&FrunnerOutputData{Output: buf[:bs]}); err != nil {
+				if err = stream.Send(&Data{Data: buf[:bs]}); err != nil {
 					return err
 				}
 			}
 		}
 	}
+}
+
+func getOptionsFromStream(stream FunctionRunner_RunServer) map[string]string {
+	res := make(map[string]string)
+	md, ok := metadata.FromIncomingContext(stream.Context())
+	if !ok {
+		return res
+	}
+	optionsList, ok := md["options"]
+	if !ok {
+		return res
+	}
+	for _, pair := range optionsList {
+		slice := strings.Split(pair, "=")
+		if len(slice) == 2 {
+			res[slice[0]] = slice[1]
+		}
+	}
+	return res
 }

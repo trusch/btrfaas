@@ -24,7 +24,7 @@ var frunner = grpc.load('./frunner.proto').grpc;
 
 function run(call) {
   call.on('data', function(inputData) {
-    call.write({output: inputData.data});
+    call.write({data: inputData.data});
   });
   call.on('end', function() {
     call.end();

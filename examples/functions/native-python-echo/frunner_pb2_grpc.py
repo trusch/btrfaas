@@ -16,8 +16,8 @@ class FunctionRunnerStub(object):
     """
     self.Run = channel.stream_stream(
         '/grpc.FunctionRunner/Run',
-        request_serializer=frunner__pb2.FrunnerInputData.SerializeToString,
-        response_deserializer=frunner__pb2.FrunnerOutputData.FromString,
+        request_serializer=frunner__pb2.Data.SerializeToString,
+        response_deserializer=frunner__pb2.Data.FromString,
         )
 
 
@@ -37,8 +37,8 @@ def add_FunctionRunnerServicer_to_server(servicer, server):
   rpc_method_handlers = {
       'Run': grpc.stream_stream_rpc_method_handler(
           servicer.Run,
-          request_deserializer=frunner__pb2.FrunnerInputData.FromString,
-          response_serializer=frunner__pb2.FrunnerOutputData.SerializeToString,
+          request_deserializer=frunner__pb2.Data.FromString,
+          response_serializer=frunner__pb2.Data.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

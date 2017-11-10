@@ -6,3 +6,5 @@ grpc/test/client/client
 btrfaasctl/btrfaasctl
 frunner/cmd/frunner/frunner
 fgateway/fgateway
+examples/functions/native-node-echo/frunner.proto
+examples/functions/native-python-echo/frunner.proto

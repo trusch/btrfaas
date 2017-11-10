@@ -20,10 +20,10 @@ btrfaasctl: btrfaasctl/btrfaasctl
 fgateway: fgateway/fgateway
 
 docker/frunner: frunner
-	cd frunner/cmd/frunner && docker build -t btrfaas/frunner .
+	cd frunner/cmd/frunner && docker build --no-cache -t btrfaas/frunner .
 
 docker/fgateway: fgateway
-	cd fgateway && docker build -t btrfaas/fgateway .
+	cd fgateway && docker build --no-cache -t btrfaas/fgateway .
 
 btrfaasctl/btrfaasctl: vendor $(SRC)
 	docker run \
@@ -105,6 +105,9 @@ fmt: vendor
 			go fmt github.com/trusch/btrfaas/...
 
 echo-examples:
-	cd examples/functions/native-go-echo && docker build -t btrfaas/functions/echo-go .
-	cd examples/functions/native-python-echo && docker build -t btrfaas/functions/echo-python .
-	cd examples/functions/native-node-echo && docker build -t btrfaas/functions/echo-node .
+	cd examples/functions/native-go-echo && docker build --no-cache -t btrfaas/functions/echo-go .
+	cp frunner/grpc/frunner.proto examples/functions/native-python-echo
+	cd examples/functions/native-python-echo && python -m grpc_tools.protoc -I . --python_out=. --grpc_python_out=. frunner.proto
+	cd examples/functions/native-python-echo && docker build --no-cache -t btrfaas/functions/echo-python .
+	cp frunner/grpc/frunner.proto examples/functions/native-node-echo
+	cd examples/functions/native-node-echo && docker build --no-cache -t btrfaas/functions/echo-node .

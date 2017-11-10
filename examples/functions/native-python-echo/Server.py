@@ -29,8 +29,8 @@ class Server(frunner_pb2_grpc.FunctionRunnerServicer):
 
     def Run(self, request_iterator, context):
         for inputData in request_iterator:
-            output = frunner_pb2.FrunnerOutputData()
-            output.output = inputData.data
+            output = frunner_pb2.Data()
+            output.data = inputData.data
             yield output
 
 
