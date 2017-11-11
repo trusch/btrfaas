@@ -8,6 +8,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 
+	btrfaasgrpc "github.com/trusch/btrfaas/grpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
@@ -32,11 +33,11 @@ func (s *Server) ListenAndServe() error {
 	}
 	var opts []grpc.ServerOption
 	grpcServer := grpc.NewServer(opts...)
-	RegisterFunctionRunnerServer(grpcServer, s)
+	btrfaasgrpc.RegisterFunctionRunnerServer(grpcServer, s)
 	return grpcServer.Serve(lis)
 }
 
-func (s *Server) Run(stream FunctionRunner_RunServer) (err error) {
+func (s *Server) Run(stream btrfaasgrpc.FunctionRunner_RunServer) (err error) {
 	ctx := stream.Context()
 	if *s.cfg.CallTimeout > 0 {
 		log.Print("set timeout of ", *s.cfg.CallTimeout, " to context")
@@ -86,7 +87,7 @@ func (s *Server) Run(stream FunctionRunner_RunServer) (err error) {
 	}
 }
 
-func (s *Server) shovelInputData(stream FunctionRunner_RunServer, input io.WriteCloser) error {
+func (s *Server) shovelInputData(stream btrfaasgrpc.FunctionRunner_RunServer, input io.WriteCloser) error {
 	ctx := stream.Context()
 	defer input.Close()
 	defer log.Print("frunner finished shoveling input data")
@@ -113,7 +114,7 @@ func (s *Server) shovelInputData(stream FunctionRunner_RunServer, input io.Write
 	}
 }
 
-func (s *Server) shovelOutputData(stream FunctionRunner_RunServer, output io.Reader) error {
+func (s *Server) shovelOutputData(stream btrfaasgrpc.FunctionRunner_RunServer, output io.Reader) error {
 	defer log.Print("frunner finished shoveling output data")
 	ctx := stream.Context()
 	buf := make([]byte, 4096)
@@ -127,12 +128,12 @@ func (s *Server) shovelOutputData(stream FunctionRunner_RunServer, output io.Rea
 			{
 				bs, err := output.Read(buf[:])
 				if err == io.EOF {
-					return stream.Send(&Data{Data: buf[:bs]})
+					return stream.Send(&btrfaasgrpc.Data{Data: buf[:bs]})
 				}
 				if err != nil {
 					return err
 				}
-				if err = stream.Send(&Data{Data: buf[:bs]}); err != nil {
+				if err = stream.Send(&btrfaasgrpc.Data{Data: buf[:bs]}); err != nil {
 					return err
 				}
 			}
@@ -140,7 +141,7 @@ func (s *Server) shovelOutputData(stream FunctionRunner_RunServer, output io.Rea
 	}
 }
 
-func getOptionsFromStream(stream FunctionRunner_RunServer) map[string]string {
+func getOptionsFromStream(stream btrfaasgrpc.FunctionRunner_RunServer) map[string]string {
 	res := make(map[string]string)
 	md, ok := metadata.FromIncomingContext(stream.Context())
 	if !ok {

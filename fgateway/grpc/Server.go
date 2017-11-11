@@ -1,6 +1,9 @@
 package grpc
 
 import (
+	"context"
+	"encoding/json"
+	"errors"
 	"io"
 	"net"
 	"strings"
@@ -10,8 +13,10 @@ import (
 
 	"github.com/trusch/btrfaas/fgateway/forwarder"
 	"github.com/trusch/btrfaas/fgateway/metrics"
+	btrfaasgrpc "github.com/trusch/btrfaas/grpc"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 // Server represents a gRPC based function dispatcher
@@ -34,129 +39,109 @@ func (s *Server) ListenAndServe() error {
 	}
 	var opts []grpc.ServerOption
 	grpcServer := grpc.NewServer(opts...)
-	RegisterFunctionRunnerServer(grpcServer, s)
+	btrfaasgrpc.RegisterFunctionRunnerServer(grpcServer, s)
 	return grpcServer.Serve(lis)
 }
 
 // Run implements the gRPC interface
-func (s *Server) Run(stream FunctionRunner_RunServer) (err error) {
-	start := time.Now()
-	defer func() {
-		if err != nil {
-			log.Error(err)
-			return
-		}
-		log.Info("finished gRPC request successfully")
-	}()
+func (s *Server) Run(stream btrfaasgrpc.FunctionRunner_RunServer) (err error) {
 	log.Info("new gRPC request")
-	ctx := stream.Context()
-	inputReader, inputWriter := io.Pipe()
-	outputReader, outputWriter := io.Pipe()
-	defer inputWriter.Close()
-	defer outputWriter.Close()
-	done := make(chan struct{})
+	ctx, cancel := context.WithCancel(stream.Context())
+	defer cancel()
+	start := time.Now()
 
-	var input io.Reader = inputReader
-
-	firstPacket, err := stream.Recv()
+	chain, options, err := getOptionsFromStream(stream)
 	if err != nil {
 		return err
 	}
-	hosts := s.createHostConfigs(strings.Split(firstPacket.Chain, "|"), firstPacket.Options)
+	hosts := s.createHostConfigs(chain, options)
+
 	defer func() {
 		end := time.Now()
 		duration := end.Sub(start)
+		log.Infof("finished gRPC request in %v", duration)
 		for _, host := range hosts {
 			metrics.Observe(host.Host, err != nil, duration)
 		}
 	}()
+
+	inputReader, inputWriter := io.Pipe()
+	outputReader, outputWriter := io.Pipe()
+
+	done := make(chan error, 5)
+
 	go func() {
-		log.Info("forward to function service ", firstPacket.Chain)
-		err = forwarder.Forward(ctx, &forwarder.Options{
+		log.Info("forward to function services ", chain)
+		done <- forwarder.Forward(stream.Context(), &forwarder.Options{
 			Hosts:  hosts,
-			Input:  input,
+			Input:  inputReader,
 			Output: outputWriter,
 		})
-		if err != nil {
-			log.Errorf("error forwarding function call: %v", err)
-		}
-		close(done)
+		done <- outputWriter.Close()
 	}()
-	go func() { err = s.shovelInputData(stream, inputWriter) }()
-	go func() { err = s.shovelOutputData(stream, outputReader) }()
-	select {
-	case <-done:
-		{
-			return
-		}
-	case <-ctx.Done():
-		{
+
+	go func() {
+		done <- btrfaasgrpc.CopyFromStream(ctx, stream, inputWriter)
+		done <- inputWriter.Close()
+	}()
+
+	go func() {
+		done <- btrfaasgrpc.CopyToStream(ctx, outputReader, stream)
+	}()
+
+	todo := 5
+	for {
+		select {
+		case <-ctx.Done():
 			return ctx.Err()
+		case err := <-done:
+			{
+				if err != nil {
+					return err
+				}
+				todo--
+				if todo == 0 {
+					return nil
+				}
+			}
 		}
 	}
 }
 
-func (s *Server) createHostConfigs(functionIDs []string, opts map[string]*FunctionOptions) []*forwarder.HostConfig {
+func getOptionsFromStream(stream btrfaasgrpc.FunctionRunner_RunServer) (chain []string, optionSlice []map[string]string, err error) {
+	md, ok := metadata.FromIncomingContext(stream.Context())
+	if !ok {
+		return nil, nil, errors.New("no metadata")
+	}
+	log.Print(md)
+	chain, ok = md["chain"]
+	if !ok {
+		return nil, nil, errors.New("no chain in metadata")
+	}
+	optionsList, ok := md["options"]
+	if !ok {
+		return chain, nil, nil
+	}
+	optionSlice = make([]map[string]string, len(optionsList))
+	for idx, objStr := range optionsList {
+		options := make(map[string]string)
+		if err := json.Unmarshal([]byte(objStr), &options); err != nil {
+			return chain, nil, err
+		}
+		optionSlice[idx] = options
+	}
+	return chain, optionSlice, nil
+}
+
+func (s *Server) createHostConfigs(functionIDs []string, opts []map[string]string) []*forwarder.HostConfig {
 	cfgs := make([]*forwarder.HostConfig, len(functionIDs))
 	for i, id := range functionIDs {
 		cfgs[i] = &forwarder.HostConfig{
 			Transport:   forwarder.GRPC,
 			Host:        strings.Trim(id, " \t"),
 			Port:        s.defaultPort,
-			CallOptions: opts[id].Options,
+			CallOptions: opts[i],
 		}
 	}
 	return cfgs
-}
-
-func (s *Server) shovelInputData(stream FunctionRunner_RunServer, input io.WriteCloser) error {
-	defer input.Close()
-	ctx := stream.Context()
-	for {
-		select {
-		case <-ctx.Done():
-			{
-				return ctx.Err()
-			}
-		default:
-			{
-				data, err := stream.Recv()
-				if err != nil {
-					if err == io.EOF {
-						return nil
-					}
-					return err
-				}
-				if _, err = input.Write(data.Data); err != nil {
-					return err
-				}
-			}
-		}
-	}
-}
-
-func (s *Server) shovelOutputData(stream FunctionRunner_RunServer, output io.Reader) error {
-	ctx := stream.Context()
-	buf := make([]byte, 4096)
-	for {
-		select {
-		case <-ctx.Done():
-			{
-				return ctx.Err()
-			}
-		default:
-			{
-				bs, err := output.Read(buf[:])
-				if err == io.EOF {
-					return stream.Send(&FgatewayOutputData{Output: buf[:bs]})
-				}
-				if err != nil {
-					return err
-				}
-				if err = stream.Send(&FgatewayOutputData{Output: buf[:bs]}); err != nil {
-					return err
-				}
-			}
-		}
-	}
 }

@@ -26,6 +26,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/trusch/btrfaas/fgateway/grpc"
@@ -42,7 +43,7 @@ var invokeCmd = &cobra.Command{
 			cmd.Help()
 			os.Exit(1)
 		}
-		expr := args[0]
+		expr := strings.Join(args, " ")
 		gw, _ := cmd.Flags().GetString("gateway")
 		cli, err := grpc.NewClient(gw, g.WithInsecure())
 		if err != nil {
@@ -52,7 +53,14 @@ var invokeCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		if err = cli.Run(context.Background(), chain, opts, os.Stdin, os.Stdout); err != nil {
+		ctx := context.Background()
+		if timeout, _ := cmd.Flags().GetDuration("timeout"); timeout != 0 {
+			c, cancel := context.WithTimeout(ctx, timeout)
+			defer cancel()
+			ctx = c
+		}
+
+		if err = cli.Run(ctx, chain, opts, os.Stdin, os.Stdout); err != nil {
 			log.Fatal(err)
 		}
 	},
@@ -61,6 +69,7 @@ var invokeCmd = &cobra.Command{
 func init() {
 	functionCmd.AddCommand(invokeCmd)
 	invokeCmd.Flags().String("gateway", "127.0.0.1:2424", "fgatway address")
+	invokeCmd.Flags().Duration("timeout", 0*time.Second, "specify a timeout for the call")
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
@@ -72,25 +81,26 @@ func init() {
 	// invokeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func createCallRequest(expr string) (chain string, opts map[string]map[string]string, err error) {
+func createCallRequest(expr string) (chain []string, opts []map[string]string, err error) {
 	fnExpressions := strings.Split(expr, "|")
-	opts = make(map[string]map[string]string)
-	for _, fnExpression := range fnExpressions {
+	chain = make([]string, len(fnExpressions))
+	opts = make([]map[string]string, len(fnExpressions))
+	for idx, fnExpression := range fnExpressions {
 		parts := strings.Split(strings.Trim(fnExpression, " "), " ")
 		if len(parts) < 1 {
-			return "", nil, errors.New("malformed expression: ")
+			return nil, nil, errors.New("malformed expression")
 		}
 		fn := strings.Trim(parts[0], " ")
-		chain += "|" + fn
+		chain[idx] = fn
 		fnOpts := make(map[string]string)
 		for i := 1; i < len(parts); i++ {
 			pairSlice := strings.Split(parts[i], "=")
 			if len(pairSlice) < 2 {
-				return "", nil, errors.New("malformed expression")
+				return nil, nil, errors.New("malformed expression")
 			}
 			fnOpts[pairSlice[0]] = pairSlice[1]
 		}
-		opts[fn] = fnOpts
+		opts[idx] = fnOpts
 	}
-	return chain[1:], opts, nil
+	return chain, opts, nil
 }

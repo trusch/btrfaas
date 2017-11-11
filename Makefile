@@ -106,8 +106,8 @@ fmt: vendor
 
 echo-examples:
 	cd examples/functions/native-go-echo && docker build --no-cache -t btrfaas/functions/echo-go .
-	cp frunner/grpc/frunner.proto examples/functions/native-python-echo
+	cp grpc/frunner.proto examples/functions/native-python-echo
 	cd examples/functions/native-python-echo && python -m grpc_tools.protoc -I . --python_out=. --grpc_python_out=. frunner.proto
 	cd examples/functions/native-python-echo && docker build --no-cache -t btrfaas/functions/echo-python .
-	cp frunner/grpc/frunner.proto examples/functions/native-node-echo
+	cp grpc/frunner.proto examples/functions/native-node-echo
 	cd examples/functions/native-node-echo && docker build --no-cache -t btrfaas/functions/echo-node .

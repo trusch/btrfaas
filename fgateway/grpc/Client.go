@@ -2,15 +2,17 @@ package grpc
 
 import (
 	"context"
-	"errors"
+	"encoding/json"
 	"io"
 
+	btrfaasgrpc "github.com/trusch/btrfaas/grpc"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 type Client struct {
 	conn   *grpc.ClientConn
-	client FunctionRunnerClient
+	client btrfaasgrpc.FunctionRunnerClient
 }
 
 func NewClient(gateway string, opts ...grpc.DialOption) (*Client, error) {
@@ -18,76 +20,45 @@ func NewClient(gateway string, opts ...grpc.DialOption) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	client := NewFunctionRunnerClient(conn)
+	client := btrfaasgrpc.NewFunctionRunnerClient(conn)
 	return &Client{conn, client}, nil
 }
 
-func (c *Client) Run(ctx context.Context, chain string, options map[string]map[string]string, input io.Reader, output io.Writer) error {
+func (c *Client) Run(ctx context.Context, chain []string, options []map[string]string, input io.Reader, output io.Writer) error {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	ctx = metadata.NewOutgoingContext(ctx, metadata.MD{
+		"chain":   chain,
+		"options": buildOptionsForMetadata(options),
+	})
 	cli, err := c.client.Run(ctx)
 	if err != nil {
 		return err
 	}
 
-	var (
-		readDone  = make(chan struct{})
-		sendError error
-		readError error
-	)
-
-	opts := make(map[string]*FunctionOptions)
-	for k, v := range options {
-		opts[k] = &FunctionOptions{v}
-	}
-	if err := cli.Send(&FgatewayInputData{Chain: chain, Options: opts}); err != nil {
-		return err
-	}
-
+	done := make(chan error, 3)
 	go func() {
-		sendError = c.shovelFgatewayInputData(cli, input)
+		done <- btrfaasgrpc.CopyToStream(ctx, input, cli)
+		done <- cli.CloseSend()
+	}()
+	go func() {
+		done <- btrfaasgrpc.CopyFromStream(ctx, cli, output)
 	}()
 
-	go func() {
-		defer close(readDone)
-		readError = c.shovelOutputData(cli, output)
-	}()
-
+	todo := 3 // send done, close-send done, read done
 	for {
 		select {
 		case <-ctx.Done():
 			{
 				return ctx.Err()
 			}
-		case <-readDone:
+		case err := <-done:
 			{
-				return readError
-			}
-		}
-	}
-}
-
-func (c *Client) shovelFgatewayInputData(cli FunctionRunner_RunClient, input io.Reader) error {
-	inputBuffer := make([]byte, 4096)
-	defer cli.CloseSend()
-	ctx := cli.Context()
-	for {
-		select {
-		case <-ctx.Done():
-			{
-				return ctx.Err()
-			}
-		default:
-			{
-				bs, err := input.Read(inputBuffer[:])
-				if err != nil && err != io.EOF {
+				if err != nil {
 					return err
 				}
-				if bs > 0 {
-					e := cli.Send(&FgatewayInputData{Data: inputBuffer[:bs]})
-					if e != nil {
-						return err
-					}
-				}
-				if err == io.EOF {
+				todo--
+				if todo == 0 {
 					return nil
 				}
 			}
@@ -95,38 +66,10 @@ func (c *Client) shovelFgatewayInputData(cli FunctionRunner_RunClient, input io.
 	}
 }
 
-func (c *Client) shovelOutputData(cli FunctionRunner_RunClient, output io.Writer) error {
-	ctx := cli.Context()
-	for {
-		select {
-		case <-ctx.Done():
-			{
-				return ctx.Err()
-			}
-		default:
-			{
-				data, err := cli.Recv()
-				if err != nil && err != io.EOF {
-					return err
-				}
-				if data != nil {
-					if len(data.Output) > 0 {
-						if _, e := output.Write(data.Output); e != nil {
-							return e
-						}
-					}
-					if data.Ready {
-						if data.Success {
-							return nil
-						}
-						return errors.New(data.ErrorMessage)
-					}
-					// @TODO: handle data.Errors stream
-				}
-				if err == io.EOF {
-					return nil
-				}
-			}
-		}
+func buildOptionsForMetadata(options []map[string]string) (res []string) {
+	for _, v := range options {
+		bs, _ := json.Marshal(v)
+		res = append(res, string(bs))
 	}
+	return
 }

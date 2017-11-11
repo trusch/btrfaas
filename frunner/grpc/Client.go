@@ -4,13 +4,14 @@ import (
 	"context"
 	"io"
 
+	btrfaasgrpc "github.com/trusch/btrfaas/grpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
 type Client struct {
 	conn   *grpc.ClientConn
-	client FunctionRunnerClient
+	client btrfaasgrpc.FunctionRunnerClient
 }
 
 func NewClient(target string, opts ...grpc.DialOption) (*Client, error) {
@@ -18,7 +19,7 @@ func NewClient(target string, opts ...grpc.DialOption) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	client := NewFunctionRunnerClient(conn)
+	client := btrfaasgrpc.NewFunctionRunnerClient(conn)
 	return &Client{conn, client}, nil
 }
 
@@ -60,7 +61,7 @@ func (c *Client) Run(ctx context.Context, options map[string]string, input io.Re
 	}
 }
 
-func (c *Client) shovelInputData(cli FunctionRunner_RunClient, input io.Reader) error {
+func (c *Client) shovelInputData(cli btrfaasgrpc.FunctionRunner_RunClient, input io.Reader) error {
 	inputBuffer := make([]byte, 4096)
 	defer cli.CloseSend()
 	ctx := cli.Context()
@@ -77,7 +78,7 @@ func (c *Client) shovelInputData(cli FunctionRunner_RunClient, input io.Reader) 
 					return err
 				}
 				if bs > 0 {
-					e := cli.Send(&Data{Data: inputBuffer[:bs]})
+					e := cli.Send(&btrfaasgrpc.Data{Data: inputBuffer[:bs]})
 					if e != nil {
 						return e
 					}
@@ -90,7 +91,7 @@ func (c *Client) shovelInputData(cli FunctionRunner_RunClient, input io.Reader) 
 	}
 }
 
-func (c *Client) shovelOutputData(cli FunctionRunner_RunClient, output io.Writer) error {
+func (c *Client) shovelOutputData(cli btrfaasgrpc.FunctionRunner_RunClient, output io.Writer) error {
 	ctx := cli.Context()
 	for {
 		select {
