@@ -74,10 +74,12 @@ func (p *DockerPlatform) DeployService(ctx context.Context, options *DeployServi
 	if err != nil {
 		return err
 	}
+	binds := constructSecretBinds(options.Secrets)
+	binds = append(binds, constructVolumeBinds(options.Volumes)...)
 	hostConfig := &container.HostConfig{
 		AutoRemove:   true,
 		PortBindings: ports,
-		Binds:        p.constructSecretBinds(options.Secrets),
+		Binds:        binds,
 	}
 
 	networkConfig := &network.NetworkingConfig{
@@ -162,7 +164,7 @@ func (p *DockerPlatform) ListSecrets(ctx context.Context, options *ListSecretsOp
 	return result, nil
 }
 
-func (p *DockerPlatform) constructSecretBinds(secrets LabelSet) []string {
+func constructSecretBinds(secrets LabelSet) []string {
 	res := make([]string, len(secrets))
 	idx := 0
 	for secretID, path := range secrets {
@@ -232,6 +234,16 @@ func constructExposedPorts(ports map[uint16]uint16) nat.PortSet {
 	res := make(nat.PortSet)
 	for _, containerPort := range ports {
 		res[nat.Port(fmt.Sprintf("%v/tcp", containerPort))] = struct{}{}
+	}
+	return res
+}
+
+func constructVolumeBinds(volumes []*VolumeConfig) []string {
+	var res []string
+	for _, cfg := range volumes {
+		if cfg.Type == "host" {
+			res = append(res, cfg.Source+":"+cfg.Target)
+		}
 	}
 	return res
 }

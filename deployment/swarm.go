@@ -8,6 +8,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/client"
 )
@@ -65,6 +66,7 @@ func (p *SwarmPlatform) DeployService(ctx context.Context, options *DeployServic
 				Command: options.Cmd,
 				Env:     env.Env(options.Env).ToSlice(),
 				Secrets: secrets,
+				Mounts:  createMounts(options.Volumes),
 			},
 			Networks: []swarm.NetworkAttachmentConfig{
 				swarm.NetworkAttachmentConfig{Target: netName},
@@ -276,4 +278,18 @@ func createPortConfigs(portmap map[uint16]uint16) []swarm.PortConfig {
 		i++
 	}
 	return res
+}
+
+func createMounts(volumes []*VolumeConfig) []mount.Mount {
+	var mounts []mount.Mount
+	for _, cfg := range volumes {
+		if cfg.Type == "host" {
+			mounts = append(mounts, mount.Mount{
+				Type:   mount.TypeBind,
+				Source: cfg.Source,
+				Target: cfg.Target,
+			})
+		}
+	}
+	return mounts
 }

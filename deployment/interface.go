@@ -59,6 +59,14 @@ type DeployServiceOptions struct {
 	Ports         map[uint16]uint16 // Host Port -> Container Port
 	Env           LabelSet          // Environment variables: key -> val mapping
 	Secrets       LabelSet          // Secrets: secret-id -> target-path mapping
+	Volumes       []*VolumeConfig
+}
+
+// VolumeConfig specifies a volume
+type VolumeConfig struct {
+	Type   string
+	Source string
+	Target string
 }
 
 // UndeployServiceOptions contains the options for the UndeployService call
