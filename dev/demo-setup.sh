@@ -1,8 +1,7 @@
 #!/bin/bash
 
 btrfaasctl init
-btrfaasctl service deploy core-services/fgateway.yaml
-btrfaasctl service deploy examples/services/echo/*
+btrfaasctl function deploy $(find examples/btrfaas -name "echo-*.yaml")
 
 bash core-services/prometheus/setup.sh
 
