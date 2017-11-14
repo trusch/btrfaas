@@ -5,7 +5,6 @@ import (
 
 	"github.com/trusch/btrfaas/frunner/config"
 	"github.com/trusch/btrfaas/frunner/grpc"
-	"github.com/trusch/btrfaas/frunner/http"
 )
 
 func main() {
@@ -15,11 +14,6 @@ func main() {
 	}
 
 	cmd := &Runnable{}
-
-	go func() {
-		httpServer := http.NewServer(cmd, cfg)
-		log.Fatal(httpServer.ListenAndServe())
-	}()
 
 	go func() {
 		grpcServer := grpc.NewServer(cmd, cfg)

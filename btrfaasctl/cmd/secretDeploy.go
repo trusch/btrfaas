@@ -27,6 +27,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/trusch/btrfaas/deployment"
+	"github.com/trusch/btrfaas/faas"
 
 	"github.com/spf13/cobra"
 )
@@ -40,12 +41,14 @@ var secretDeployCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		secretID, secretValue := getIDAndValue(cmd, args)
 		env, _ := cmd.Flags().GetString("env")
-		cli := getDeploymentPlatform(cmd)
+		cli := getFaaS(cmd)
 		ctx := context.Background()
-		err := cli.DeploySecret(ctx, &deployment.DeploySecretOptions{
-			EnvironmentID: env,
-			ID:            secretID,
-			Value:         secretValue,
+		err := cli.DeploySecret(ctx, &faas.DeploySecretOptions{
+			DeploySecretOptions: deployment.DeploySecretOptions{
+				EnvironmentID: env,
+				ID:            secretID,
+				Value:         secretValue,
+			},
 		})
 		if err != nil {
 			log.Fatal(err)

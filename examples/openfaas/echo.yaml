@@ -1,0 +1,5 @@
+---
+id: "echo"
+image: "functions/alpine"
+env:
+  fprocess: "/bin/cat"

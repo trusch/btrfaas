@@ -30,6 +30,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/trusch/btrfaas/deployment"
+	"github.com/trusch/btrfaas/deployment/docker"
+	"github.com/trusch/btrfaas/deployment/swarm"
+	"github.com/trusch/btrfaas/faas"
+	"github.com/trusch/btrfaas/faas/btrfaas"
+	"github.com/trusch/btrfaas/faas/openfaas"
 )
 
 var cfgFile string
@@ -61,6 +66,7 @@ func init() {
 	// will be global for your application.
 	RootCmd.PersistentFlags().StringP("env", "e", "btrfaas_default", "environment to use")
 	RootCmd.PersistentFlags().String("platform", "docker", "deployment platform (docker, swarm)")
+	RootCmd.PersistentFlags().String("faas-provider", "btrfaas", "faas provider (btrfaas, openfaas)")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -97,9 +103,9 @@ func getDeploymentPlatform(cmd *cobra.Command) deployment.Platform {
 	var platform deployment.Platform
 	switch platformID {
 	case "docker":
-		platform, err = deployment.NewDockerPlatform()
+		platform, err = docker.NewPlatform()
 	case "swarm":
-		platform, err = deployment.NewSwarmPlatform()
+		platform, err = swarm.NewPlatform()
 	default:
 		err = errors.New("deployment platform unsupported")
 	}
@@ -107,4 +113,24 @@ func getDeploymentPlatform(cmd *cobra.Command) deployment.Platform {
 		log.Fatal(err)
 	}
 	return platform
+}
+
+func getFaaS(cmd *cobra.Command) faas.FaaS {
+	faasID, err := cmd.Flags().GetString("faas-provider")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var result faas.FaaS
+	switch faasID {
+	case "btrfaas":
+		result = btrfaas.New(getDeploymentPlatform(cmd))
+	case "openfaas":
+		result = openfaas.New(getDeploymentPlatform(cmd))
+	default:
+		err = errors.New("faas provider unsupported")
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
+	return result
 }

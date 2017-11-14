@@ -38,26 +38,25 @@ func runScript(script string) (res string) {
 var _ = Describe("Smoke Test", func() {
 	It("should be possible to init btrfaas with --platform=swarm", func() {
 		runScript("btrfaasctl --platform=swarm init")
-		runScript("btrfaasctl --platform=swarm service deploy ../../core-services/fgateway.yaml")
 	})
 	It("should be possible to deploy and call the echo tests", func() {
-		runScript("btrfaasctl --platform swarm service deploy ../../examples/services/echo/*")
+		runScript(`btrfaasctl --platform swarm function deploy $(find ../../examples/btrfaas -name "echo-*.yaml")`)
 		res := runScript(`echo -n foobar | btrfaasctl function invoke "echo-go | echo-node | echo-python | echo-shell"`)
 		Expect(res).To(Equal("foobar"))
 	})
-	It("should be possible to deploy a service with an environement variable", func() {
-		runScript("btrfaasctl --platform swarm service deploy ../../examples/services/with-env.yaml")
+	It("should be possible to deploy a function with an environement variable", func() {
+		runScript("btrfaasctl --platform swarm function deploy ../../examples/btrfaas/with-env.yaml")
 		res := runScript(`btrfaasctl function invoke with-env`)
 		Expect(res).To(Equal("VALUE"))
 	})
 	It("should be possible to deploy and access a secret", func() {
 		runScript("btrfaasctl --platform swarm secret deploy example-secret secret-value")
-		runScript("btrfaasctl --platform swarm service deploy ../../examples/services/with-secret.yaml")
+		runScript("btrfaasctl --platform swarm function deploy ../../examples/btrfaas/with-secret.yaml")
 		res := runScript(`btrfaasctl function invoke with-secret`)
 		Expect(res).To(Equal("secret-value"))
 	})
 	It("should be possible to deploy and access a function with options", func() {
-		runScript("btrfaasctl --platform swarm service deploy ../../examples/services/sed.yaml")
+		runScript("btrfaasctl --platform swarm function deploy ../../examples/btrfaas/sed.yaml")
 		res := runScript(`echo -n foo | btrfaasctl function invoke "sed e=s/foo/bar/g"`)
 		Expect(res).To(Equal("bar"))
 	})

@@ -5,8 +5,16 @@ import frunner_pb2 as frunner__pb2
 
 
 class FunctionRunnerStub(object):
-  # missing associated documentation comment in .proto file
-  pass
+  """FunctionRunner is a service capable of running a function via the Run() method
+  the options for the function(s) are stored in the requests metadata under the key `options`
+  The `frunner` implementation expects the following metadata structure:
+  metadata = { options: [ "key1=val1", "key2=val2" ] }
+  The `fgateway` implementation expects this metadata structure:
+  metadata = {
+  chain: [ "function1", "function2"],
+  options: [ "json-string-string-map-1", "json-string-string-map-2"]
+  }
+  """
 
   def __init__(self, channel):
     """Constructor.
@@ -22,8 +30,16 @@ class FunctionRunnerStub(object):
 
 
 class FunctionRunnerServicer(object):
-  # missing associated documentation comment in .proto file
-  pass
+  """FunctionRunner is a service capable of running a function via the Run() method
+  the options for the function(s) are stored in the requests metadata under the key `options`
+  The `frunner` implementation expects the following metadata structure:
+  metadata = { options: [ "key1=val1", "key2=val2" ] }
+  The `fgateway` implementation expects this metadata structure:
+  metadata = {
+  chain: [ "function1", "function2"],
+  options: [ "json-string-string-map-1", "json-string-string-map-2"]
+  }
+  """
 
   def Run(self, request_iterator, context):
     # missing associated documentation comment in .proto file

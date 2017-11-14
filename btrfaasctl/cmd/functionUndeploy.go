@@ -22,52 +22,52 @@ package cmd
 
 import (
 	"context"
-	"fmt"
-
-	yaml "gopkg.in/yaml.v2"
+	"os"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/spf13/cobra"
 	"github.com/trusch/btrfaas/deployment"
 	"github.com/trusch/btrfaas/faas"
-
-	"github.com/spf13/cobra"
 )
 
-// secretListCmd represents the secretList command
-var secretListCmd = &cobra.Command{
-	Use:     "list",
-	Aliases: []string{"ls"},
-	Short:   "list deployed secrets",
-	Long:    `list deployed secrets`,
+// functionUndeployCmd represents the functionUndeploy command
+var functionUndeployCmd = &cobra.Command{
+	Use:   "undeploy [<function id>]",
+	Short: "undeploy a function",
+	Long:  `undeploy a function`,
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			cmd.Help()
+			os.Exit(1)
+		}
 		env, _ := cmd.Flags().GetString("env")
 		cli := getFaaS(cmd)
-		ctx := context.Background()
-		secrets, err := cli.ListSecrets(ctx, &faas.ListSecretsOptions{
-			ListSecretsOptions: deployment.ListSecretsOptions{EnvironmentID: env},
-		})
-		if err != nil {
-			log.Fatal(err)
-		}
-		if len(secrets) == 0 {
-			log.Info("no secrets are deployed")
-		} else {
-			bs, _ := yaml.Marshal(secrets)
-			fmt.Print(string(bs))
+		for _, id := range args {
+			ctx := context.Background()
+			err := cli.UndeployFunction(ctx, &faas.UndeployFunctionOptions{
+				UndeployServiceOptions: deployment.UndeployServiceOptions{
+					EnvironmentID: env,
+					ID:            id,
+				},
+			})
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Info("successfully undeployed function ", id)
 		}
 	},
 }
 
 func init() {
-	secretCmd.AddCommand(secretListCmd)
+	functionCmd.AddCommand(functionUndeployCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// secretListCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// functionUndeployCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// secretListCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// functionUndeployCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

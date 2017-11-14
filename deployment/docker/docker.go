@@ -1,4 +1,4 @@
-package deployment
+package docker
 
 import (
 	"context"
@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/trusch/btrfaas/deployment"
 	"github.com/trusch/btrfaas/frunner/env"
 
 	"github.com/docker/docker/api/types"
@@ -28,8 +29,8 @@ type DockerPlatform struct {
 	cli *client.Client
 }
 
-// NewDockerPlatform creates a new Platform instance for local docker development
-func NewDockerPlatform() (Platform, error) {
+// NewPlatform creates a new Platform instance for local docker development
+func NewPlatform() (deployment.Platform, error) {
 	cli, err := client.NewEnvClient()
 	if err != nil {
 		return nil, err
@@ -39,7 +40,7 @@ func NewDockerPlatform() (Platform, error) {
 
 // PrepareEnvironment prepares an environment to start deploying services
 // This should contain all one time setup like creating namespaces/networks etc.
-func (p *DockerPlatform) PrepareEnvironment(ctx context.Context, options *PrepareEnvironmentOptions) error {
+func (p *DockerPlatform) PrepareEnvironment(ctx context.Context, options *deployment.PrepareEnvironmentOptions) error {
 	if err := os.MkdirAll(secretRoot, 0755); err != nil {
 		return err
 	}
@@ -56,10 +57,10 @@ func (p *DockerPlatform) PrepareEnvironment(ctx context.Context, options *Prepar
 }
 
 // DeployService deploys a service in an environment
-func (p *DockerPlatform) DeployService(ctx context.Context, options *DeployServiceOptions) error {
+func (p *DockerPlatform) DeployService(ctx context.Context, options *deployment.DeployServiceOptions) error {
 	netName := options.EnvironmentID + "_network"
 	if options.Labels == nil {
-		options.Labels = make(LabelSet)
+		options.Labels = make(deployment.LabelSet)
 	}
 	options.Labels["btrfaas_env"] = options.EnvironmentID
 
@@ -99,15 +100,15 @@ func (p *DockerPlatform) DeployService(ctx context.Context, options *DeployServi
 }
 
 // UndeployService unddeploys a service from an environment
-func (p *DockerPlatform) UndeployService(ctx context.Context, options *UndeployServiceOptions) error {
+func (p *DockerPlatform) UndeployService(ctx context.Context, options *deployment.UndeployServiceOptions) error {
 	d := 5 * time.Second
 	return p.cli.ContainerStop(ctx, options.ID, &d)
 }
 
 // ListServices returns a list of all deployed services
-func (p *DockerPlatform) ListServices(ctx context.Context, options *ListServicesOptions) ([]*ServiceInfo, error) {
+func (p *DockerPlatform) ListServices(ctx context.Context, options *deployment.ListServicesOptions) ([]*deployment.ServiceInfo, error) {
 	if options.Labels == nil {
-		options.Labels = make(LabelSet)
+		options.Labels = make(deployment.LabelSet)
 	}
 	options.Labels["btrfaas_env"] = options.EnvironmentID
 
@@ -124,9 +125,9 @@ func (p *DockerPlatform) ListServices(ctx context.Context, options *ListServices
 	if err != nil {
 		return nil, err
 	}
-	result := make([]*ServiceInfo, len(resp))
+	result := make([]*deployment.ServiceInfo, len(resp))
 	for idx, val := range resp {
-		result[idx] = &ServiceInfo{
+		result[idx] = &deployment.ServiceInfo{
 			ID:        val.Names[0][1:],
 			Image:     val.Image,
 			Labels:    val.Labels,
@@ -140,31 +141,31 @@ func (p *DockerPlatform) ListServices(ctx context.Context, options *ListServices
 }
 
 // DeploySecret deploys a secret in an environment
-func (p *DockerPlatform) DeploySecret(ctx context.Context, options *DeploySecretOptions) error {
+func (p *DockerPlatform) DeploySecret(ctx context.Context, options *deployment.DeploySecretOptions) error {
 	return ioutil.WriteFile(filepath.Join(secretRoot, options.ID), []byte(options.Value), 0600)
 }
 
 // UndeploySecret unddeploys a secret from an environment
-func (p *DockerPlatform) UndeploySecret(ctx context.Context, options *UndeploySecretOptions) error {
+func (p *DockerPlatform) UndeploySecret(ctx context.Context, options *deployment.UndeploySecretOptions) error {
 	return os.Remove(filepath.Join(secretRoot, options.ID))
 }
 
 // ListSecrets returns a list of all deployed secrets
-func (p *DockerPlatform) ListSecrets(ctx context.Context, options *ListSecretsOptions) ([]*SecretInfo, error) {
+func (p *DockerPlatform) ListSecrets(ctx context.Context, options *deployment.ListSecretsOptions) ([]*deployment.SecretInfo, error) {
 	resp, err := ioutil.ReadDir(secretRoot)
 	if err != nil {
 		return nil, err
 	}
-	result := make([]*SecretInfo, len(resp))
+	result := make([]*deployment.SecretInfo, len(resp))
 	for idx, val := range resp {
-		result[idx] = &SecretInfo{
+		result[idx] = &deployment.SecretInfo{
 			ID: val.Name(),
 		}
 	}
 	return result, nil
 }
 
-func constructSecretBinds(secrets LabelSet) []string {
+func constructSecretBinds(secrets deployment.LabelSet) []string {
 	res := make([]string, len(secrets))
 	idx := 0
 	for secretID, path := range secrets {
@@ -175,13 +176,13 @@ func constructSecretBinds(secrets LabelSet) []string {
 }
 
 // ScaleService scales the service
-func (p *DockerPlatform) ScaleService(ctx context.Context, options *ScaleServiceOptions) error {
+func (p *DockerPlatform) ScaleService(ctx context.Context, options *deployment.ScaleServiceOptions) error {
 	return errors.New("not supported in plain docker")
 }
 
 // TeardownEnvironment cleans the environment completely
-func (p *DockerPlatform) TeardownEnvironment(ctx context.Context, options *TeardownEnvironmentOptions) error {
-	services, err := p.ListServices(ctx, &ListServicesOptions{
+func (p *DockerPlatform) TeardownEnvironment(ctx context.Context, options *deployment.TeardownEnvironmentOptions) error {
+	services, err := p.ListServices(ctx, &deployment.ListServicesOptions{
 		EnvironmentID: options.ID,
 	})
 	if err != nil {
@@ -189,7 +190,7 @@ func (p *DockerPlatform) TeardownEnvironment(ctx context.Context, options *Teard
 		return err
 	}
 	for _, service := range services {
-		if err = p.UndeployService(ctx, &UndeployServiceOptions{
+		if err = p.UndeployService(ctx, &deployment.UndeployServiceOptions{
 			EnvironmentID: options.ID,
 			ID:            service.ID,
 		}); err != nil {
@@ -197,7 +198,7 @@ func (p *DockerPlatform) TeardownEnvironment(ctx context.Context, options *Teard
 			return err
 		}
 	}
-	secrets, err := p.ListSecrets(ctx, &ListSecretsOptions{
+	secrets, err := p.ListSecrets(ctx, &deployment.ListSecretsOptions{
 		EnvironmentID: options.ID,
 	})
 	if err != nil {
@@ -205,7 +206,7 @@ func (p *DockerPlatform) TeardownEnvironment(ctx context.Context, options *Teard
 		return err
 	}
 	for _, secret := range secrets {
-		if err = p.UndeploySecret(ctx, &UndeploySecretOptions{
+		if err = p.UndeploySecret(ctx, &deployment.UndeploySecretOptions{
 			EnvironmentID: options.ID,
 			ID:            secret.ID,
 		}); err != nil {
@@ -238,7 +239,7 @@ func constructExposedPorts(ports map[uint16]uint16) nat.PortSet {
 	return res
 }
 
-func constructVolumeBinds(volumes []*VolumeConfig) []string {
+func constructVolumeBinds(volumes []*deployment.VolumeConfig) []string {
 	var res []string
 	for _, cfg := range volumes {
 		if cfg.Type == "host" {

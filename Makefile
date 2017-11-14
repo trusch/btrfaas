@@ -1,7 +1,7 @@
 GOOS=linux
 GOARCH=amd64
 
-SRC=$(shell find ./btrfaasctl ./deployment ./fgateway ./frunner -type f -name "*.go")
+SRC=$(shell find ./btrfaasctl ./deployment ./fgateway ./frunner ./faas -type f -name "*.go")
 
 all: vendor fmt vet unit-tests frunner btrfaasctl fgateway docker install integration-tests
 
@@ -105,9 +105,9 @@ fmt: vendor
 			go fmt github.com/trusch/btrfaas/...
 
 echo-examples:
-	cd examples/functions/native-go-echo && docker build --no-cache -t btrfaas/functions/echo-go .
-	cp grpc/frunner.proto examples/functions/native-python-echo
-	cd examples/functions/native-python-echo && python -m grpc_tools.protoc -I . --python_out=. --grpc_python_out=. frunner.proto
-	cd examples/functions/native-python-echo && docker build --no-cache -t btrfaas/functions/echo-python .
-	cp grpc/frunner.proto examples/functions/native-node-echo
-	cd examples/functions/native-node-echo && docker build --no-cache -t btrfaas/functions/echo-node .
+	cd examples/btrfaas/native-functions/echo-go && docker build --no-cache -t btrfaas/functions/echo-go .
+	cp grpc/frunner.proto examples/btrfaas/native-functions/echo-python
+	cd examples/btrfaas/native-functions/echo-python && python -m grpc_tools.protoc -I . --python_out=. --grpc_python_out=. frunner.proto
+	cd examples/btrfaas/native-functions/echo-python && docker build --no-cache -t btrfaas/functions/echo-python .
+	cp grpc/frunner.proto examples/btrfaas/native-functions/echo-node
+	cd examples/btrfaas/native-functions/echo-node && docker build --no-cache -t btrfaas/functions/echo-node .

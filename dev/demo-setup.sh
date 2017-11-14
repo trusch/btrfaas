@@ -13,6 +13,6 @@ while ! curl -s -H "Content-Type: application/json" \
 do sleep 1; done
 
 echo ""
-echo "everything deployed, visit grafana on http://localhost:3000"
+echo "everything deployed, visit grafana on http://localhost:3000/dashboard/db/echo?refresh=10s&orgId=1"
 
 exit 0

@@ -24,27 +24,30 @@ import (
 	"context"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/trusch/btrfaas/deployment"
+	"github.com/trusch/btrfaas/faas"
 
 	"github.com/spf13/cobra"
-	"github.com/trusch/btrfaas/deployment"
 )
 
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "init your cluster",
-	Long:  `init your cluster`,
+	Short: "init your faas",
+	Long:  `init your faas`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cli := getDeploymentPlatform(cmd)
+		cli := getFaaS(cmd)
 		env, _ := cmd.Flags().GetString("env")
 		ctx := context.Background()
-		err := cli.PrepareEnvironment(ctx, &deployment.PrepareEnvironmentOptions{
-			ID: env,
+		err := cli.Init(ctx, &faas.InitOptions{
+			PrepareEnvironmentOptions: deployment.PrepareEnvironmentOptions{
+				ID: env,
+			},
 		})
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Info("successfully prepared environment ", env)
+		log.Info("successfully prepared faas ", env)
 	},
 }
 

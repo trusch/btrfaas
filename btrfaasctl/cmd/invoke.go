@@ -22,15 +22,13 @@ package cmd
 
 import (
 	"context"
-	"errors"
 	"log"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/trusch/btrfaas/fgateway/grpc"
-	g "google.golang.org/grpc"
+	"github.com/trusch/btrfaas/faas"
 )
 
 // invokeCmd represents the invoke command
@@ -43,24 +41,23 @@ var invokeCmd = &cobra.Command{
 			cmd.Help()
 			os.Exit(1)
 		}
-		expr := strings.Join(args, " ")
-		gw, _ := cmd.Flags().GetString("gateway")
-		cli, err := grpc.NewClient(gw, g.WithInsecure())
-		if err != nil {
-			log.Fatal(err)
-		}
-		chain, opts, err := createCallRequest(expr)
-		if err != nil {
-			log.Fatal(err)
-		}
+
+		cli := getFaaS(cmd)
+
 		ctx := context.Background()
 		if timeout, _ := cmd.Flags().GetDuration("timeout"); timeout != 0 {
 			c, cancel := context.WithTimeout(ctx, timeout)
 			defer cancel()
 			ctx = c
 		}
+		expr := strings.Join(args, " ")
 
-		if err = cli.Run(ctx, chain, opts, os.Stdin, os.Stdout); err != nil {
+		if err := cli.Invoke(ctx, &faas.InvokeOptions{
+			GatewayAddress:     getGateway(cmd),
+			FunctionExpression: expr,
+			Input:              os.Stdin,
+			Output:             os.Stdout,
+		}); err != nil {
 			log.Fatal(err)
 		}
 	},
@@ -68,39 +65,23 @@ var invokeCmd = &cobra.Command{
 
 func init() {
 	functionCmd.AddCommand(invokeCmd)
-	invokeCmd.Flags().String("gateway", "127.0.0.1:2424", "fgatway address")
 	invokeCmd.Flags().Duration("timeout", 0*time.Second, "specify a timeout for the call")
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// invokeCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// invokeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	invokeCmd.Flags().String("gateway", "", "gateway address")
 }
 
-func createCallRequest(expr string) (chain []string, opts []map[string]string, err error) {
-	fnExpressions := strings.Split(expr, "|")
-	chain = make([]string, len(fnExpressions))
-	opts = make([]map[string]string, len(fnExpressions))
-	for idx, fnExpression := range fnExpressions {
-		parts := strings.Split(strings.Trim(fnExpression, " "), " ")
-		if len(parts) < 1 {
-			return nil, nil, errors.New("malformed expression")
+func getGateway(cmd *cobra.Command) string {
+	flags := cmd.Flags()
+	gw, _ := flags.GetString("gateway")
+	if gw == "" {
+		faasProvider, _ := flags.GetString("faas-provider")
+		switch faasProvider {
+		case "btrfaas":
+			gw = "127.0.0.1:2424"
+		case "openfaas":
+			gw = "127.0.0.1:8080"
+		default:
+			log.Fatal("unknown faas provider")
 		}
-		fn := strings.Trim(parts[0], " ")
-		chain[idx] = fn
-		fnOpts := make(map[string]string)
-		for i := 1; i < len(parts); i++ {
-			pairSlice := strings.Split(parts[i], "=")
-			if len(pairSlice) < 2 {
-				return nil, nil, errors.New("malformed expression")
-			}
-			fnOpts[pairSlice[0]] = pairSlice[1]
-		}
-		opts[idx] = fnOpts
 	}
-	return chain, opts, nil
+	return gw
 }

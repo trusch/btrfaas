@@ -28,6 +28,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/trusch/btrfaas/deployment"
+	"github.com/trusch/btrfaas/faas"
 )
 
 // secretUndeployCmd represents the secretUndeploy command
@@ -43,11 +44,13 @@ var secretUndeployCmd = &cobra.Command{
 		}
 		id := args[0]
 		env, _ := cmd.Flags().GetString("env")
-		cli := getDeploymentPlatform(cmd)
+		cli := getFaaS(cmd)
 		ctx := context.Background()
-		err := cli.UndeploySecret(ctx, &deployment.UndeploySecretOptions{
-			EnvironmentID: env,
-			ID:            id,
+		err := cli.UndeploySecret(ctx, &faas.UndeploySecretOptions{
+			UndeploySecretOptions: deployment.UndeploySecretOptions{
+				EnvironmentID: env,
+				ID:            id,
+			},
 		})
 		if err != nil {
 			log.Fatal(err)

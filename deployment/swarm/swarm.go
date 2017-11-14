@@ -1,9 +1,10 @@
-package deployment
+package swarm
 
 import (
 	"context"
 	"strings"
 
+	"github.com/trusch/btrfaas/deployment"
 	"github.com/trusch/btrfaas/frunner/env"
 
 	"github.com/docker/docker/api/types"
@@ -18,8 +19,8 @@ type SwarmPlatform struct {
 	cli *client.Client
 }
 
-// NewSwarmPlatform creates a new Platform instance for local docker development
-func NewSwarmPlatform() (Platform, error) {
+// NewPlatform creates a new Platform instance for local docker development
+func NewPlatform() (deployment.Platform, error) {
 	cli, err := client.NewEnvClient()
 	if err != nil {
 		return nil, err
@@ -29,7 +30,7 @@ func NewSwarmPlatform() (Platform, error) {
 
 // PrepareEnvironment prepares an environment to start deploying services
 // This should contain all one time setup like creating namespaces/networks etc.
-func (p *SwarmPlatform) PrepareEnvironment(ctx context.Context, options *PrepareEnvironmentOptions) error {
+func (p *SwarmPlatform) PrepareEnvironment(ctx context.Context, options *deployment.PrepareEnvironmentOptions) error {
 	name := options.ID + "_network"
 	_, err := p.cli.NetworkInspect(ctx, name, false)
 	if err != nil {
@@ -43,10 +44,10 @@ func (p *SwarmPlatform) PrepareEnvironment(ctx context.Context, options *Prepare
 }
 
 // DeployService deploys a service in an environment
-func (p *SwarmPlatform) DeployService(ctx context.Context, options *DeployServiceOptions) error {
+func (p *SwarmPlatform) DeployService(ctx context.Context, options *deployment.DeployServiceOptions) error {
 	netName := options.EnvironmentID + "_network"
 	if options.Labels == nil {
-		options.Labels = make(LabelSet)
+		options.Labels = make(deployment.LabelSet)
 	}
 	options.Labels["btrfaas_env"] = options.EnvironmentID
 
@@ -82,14 +83,14 @@ func (p *SwarmPlatform) DeployService(ctx context.Context, options *DeployServic
 }
 
 // UndeployService unddeploys a service from an environment
-func (p *SwarmPlatform) UndeployService(ctx context.Context, options *UndeployServiceOptions) error {
+func (p *SwarmPlatform) UndeployService(ctx context.Context, options *deployment.UndeployServiceOptions) error {
 	return p.cli.ServiceRemove(ctx, options.ID)
 }
 
 // ListServices returns a list of all deployed services
-func (p *SwarmPlatform) ListServices(ctx context.Context, options *ListServicesOptions) ([]*ServiceInfo, error) {
+func (p *SwarmPlatform) ListServices(ctx context.Context, options *deployment.ListServicesOptions) ([]*deployment.ServiceInfo, error) {
 	if options.Labels == nil {
-		options.Labels = make(LabelSet)
+		options.Labels = make(deployment.LabelSet)
 	}
 	options.Labels["btrfaas_env"] = options.EnvironmentID
 
@@ -106,9 +107,9 @@ func (p *SwarmPlatform) ListServices(ctx context.Context, options *ListServicesO
 	if err != nil {
 		return nil, err
 	}
-	result := make([]*ServiceInfo, len(resp))
+	result := make([]*deployment.ServiceInfo, len(resp))
 	for idx, val := range resp {
-		result[idx] = &ServiceInfo{
+		result[idx] = &deployment.ServiceInfo{
 			ID:        val.Spec.Name,
 			Image:     val.Spec.TaskTemplate.ContainerSpec.Image,
 			Labels:    val.Spec.Labels,
@@ -124,9 +125,9 @@ func (p *SwarmPlatform) ListServices(ctx context.Context, options *ListServicesO
 }
 
 // DeploySecret deploys a secret in an environment
-func (p *SwarmPlatform) DeploySecret(ctx context.Context, options *DeploySecretOptions) error {
+func (p *SwarmPlatform) DeploySecret(ctx context.Context, options *deployment.DeploySecretOptions) error {
 	if options.Labels == nil {
-		options.Labels = make(LabelSet)
+		options.Labels = make(deployment.LabelSet)
 	}
 	options.Labels["btrfaas_env"] = options.EnvironmentID
 	_, err := p.cli.SecretCreate(ctx, swarm.SecretSpec{
@@ -140,14 +141,14 @@ func (p *SwarmPlatform) DeploySecret(ctx context.Context, options *DeploySecretO
 }
 
 // UndeploySecret unddeploys a secret from an environment
-func (p *SwarmPlatform) UndeploySecret(ctx context.Context, options *UndeploySecretOptions) error {
+func (p *SwarmPlatform) UndeploySecret(ctx context.Context, options *deployment.UndeploySecretOptions) error {
 	return p.cli.SecretRemove(ctx, options.ID)
 }
 
 // ListSecrets returns a list of all deployed secrets
-func (p *SwarmPlatform) ListSecrets(ctx context.Context, options *ListSecretsOptions) ([]*SecretInfo, error) {
+func (p *SwarmPlatform) ListSecrets(ctx context.Context, options *deployment.ListSecretsOptions) ([]*deployment.SecretInfo, error) {
 	if options.Labels == nil {
-		options.Labels = make(LabelSet)
+		options.Labels = make(deployment.LabelSet)
 	}
 	options.Labels["btrfaas_env"] = options.EnvironmentID
 
@@ -164,9 +165,9 @@ func (p *SwarmPlatform) ListSecrets(ctx context.Context, options *ListSecretsOpt
 	if err != nil {
 		return nil, err
 	}
-	result := make([]*SecretInfo, len(resp))
+	result := make([]*deployment.SecretInfo, len(resp))
 	for idx, val := range resp {
-		result[idx] = &SecretInfo{
+		result[idx] = &deployment.SecretInfo{
 			ID:     val.Spec.Name,
 			Labels: val.Spec.Labels,
 		}
@@ -202,7 +203,7 @@ func (p *SwarmPlatform) constructSecretReferences(ctx context.Context, list map[
 }
 
 // ScaleService scales the service
-func (p *SwarmPlatform) ScaleService(ctx context.Context, options *ScaleServiceOptions) error {
+func (p *SwarmPlatform) ScaleService(ctx context.Context, options *deployment.ScaleServiceOptions) error {
 	service, _, err := p.cli.ServiceInspectWithRaw(ctx, options.ServiceID, types.ServiceInspectOptions{})
 	if err != nil {
 		return err
@@ -214,29 +215,29 @@ func (p *SwarmPlatform) ScaleService(ctx context.Context, options *ScaleServiceO
 }
 
 // TeardownEnvironment cleans the environment completely
-func (p *SwarmPlatform) TeardownEnvironment(ctx context.Context, options *TeardownEnvironmentOptions) error {
-	services, err := p.ListServices(ctx, &ListServicesOptions{
+func (p *SwarmPlatform) TeardownEnvironment(ctx context.Context, options *deployment.TeardownEnvironmentOptions) error {
+	services, err := p.ListServices(ctx, &deployment.ListServicesOptions{
 		EnvironmentID: options.ID,
 	})
 	if err != nil {
 		return err
 	}
 	for _, service := range services {
-		if err = p.UndeployService(ctx, &UndeployServiceOptions{
+		if err = p.UndeployService(ctx, &deployment.UndeployServiceOptions{
 			EnvironmentID: options.ID,
 			ID:            service.ID,
 		}); err != nil {
 			return err
 		}
 	}
-	secrets, err := p.ListSecrets(ctx, &ListSecretsOptions{
+	secrets, err := p.ListSecrets(ctx, &deployment.ListSecretsOptions{
 		EnvironmentID: options.ID,
 	})
 	if err != nil {
 		return err
 	}
 	for _, secret := range secrets {
-		if err = p.UndeploySecret(ctx, &UndeploySecretOptions{
+		if err = p.UndeploySecret(ctx, &deployment.UndeploySecretOptions{
 			EnvironmentID: options.ID,
 			ID:            secret.ID,
 		}); err != nil {
@@ -246,8 +247,8 @@ func (p *SwarmPlatform) TeardownEnvironment(ctx context.Context, options *Teardo
 	return p.cli.NetworkRemove(ctx, options.ID+"_network")
 }
 
-func envToLabelSet(env []string) LabelSet {
-	res := make(LabelSet)
+func envToLabelSet(env []string) deployment.LabelSet {
+	res := make(deployment.LabelSet)
 	for _, val := range env {
 		parts := strings.Split(val, "=")
 		if len(parts) > 1 {
@@ -257,8 +258,8 @@ func envToLabelSet(env []string) LabelSet {
 	return res
 }
 
-func secretListToLabelSet(secrets []*swarm.SecretReference) LabelSet {
-	res := make(LabelSet)
+func secretListToLabelSet(secrets []*swarm.SecretReference) deployment.LabelSet {
+	res := make(deployment.LabelSet)
 	for _, val := range secrets {
 		res[val.SecretName] = val.File.Name
 	}
@@ -280,7 +281,7 @@ func createPortConfigs(portmap map[uint16]uint16) []swarm.PortConfig {
 	return res
 }
 
-func createMounts(volumes []*VolumeConfig) []mount.Mount {
+func createMounts(volumes []*deployment.VolumeConfig) []mount.Mount {
 	var mounts []mount.Mount
 	for _, cfg := range volumes {
 		if cfg.Type == "host" {
