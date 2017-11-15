@@ -1,5 +1,5 @@
 hash: 6c93b5c569d10418d5f6bfe4867fd510d862d4703e8420ff476b5183bbe07d87
-updated: 2017-11-10T08:06:30.903275532Z
+updated: 2017-11-15T11:22:52.421866894Z
 imports:
 - name: github.com/beorn7/perks
   version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
@@ -46,7 +46,7 @@ imports:
 - name: github.com/fsnotify/fsnotify
   version: 4da3e2cfbabc9f751898f250b49f2439785783a1
 - name: github.com/golang/protobuf
-  version: 1643683e1b54a9e88ad26d98f81400c8c9d9f4f9
+  version: 1e59b77b52bf8e4b449a57e6f79f21226d571845
   subpackages:
   - proto
   - ptypes
@@ -106,7 +106,7 @@ imports:
 - name: github.com/Sirupsen/logrus
   version: f006c2ac4710855cf0f916dd6b77acf6b048dc6e
 - name: github.com/spf13/afero
-  version: 5660eeed305fe5f69c8fc6cf899132a459a97064
+  version: 8d919cbe7e2627e417f3e45c3c0e489a5b7e2536
   subpackages:
   - mem
 - name: github.com/spf13/cast
@@ -120,7 +120,7 @@ imports:
 - name: github.com/spf13/viper
   version: 25b30aa063fc18e48662b86996252eabdcf2f0c7
 - name: golang.org/x/crypto
-  version: 6a293f2d4b14b8e6d3f0539e383f6d0d30fce3fd
+  version: 9f005a07e0d31d45e6656d241bb5c0f2efd4bc94
   subpackages:
   - ssh/terminal
 - name: golang.org/x/net
@@ -139,7 +139,7 @@ imports:
   - proxy
   - trace
 - name: golang.org/x/sys
-  version: 1e2299c37cc91a509f1b12369872d27be0ce98a6
+  version: bf42f188b9bc6f2cf5b8ee5a912ef1aedd0eba4c
   subpackages:
   - unix
   - windows
@@ -169,7 +169,7 @@ imports:
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 5ffe3083946d5603a0578721101dc8165b1d5b5f
+  version: 401e0e00e4bb830a10496d64cd95e068c5bf50de
   subpackages:
   - balancer
   - codes
