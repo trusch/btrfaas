@@ -73,7 +73,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	RootCmd.Flags().String("http-address", ":8080", "http listen address")
+	RootCmd.Flags().String("http-address", ":8000", "http listen address")
 	RootCmd.Flags().String("grpc-address", ":2424", "grpc listen address")
 	RootCmd.Flags().Uint16("grpc-default-port", 2424, "grpc default port")
 }

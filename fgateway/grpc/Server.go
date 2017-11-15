@@ -45,7 +45,7 @@ func (s *Server) ListenAndServe() error {
 
 // Run implements the gRPC interface
 func (s *Server) Run(stream btrfaasgrpc.FunctionRunner_RunServer) (err error) {
-	log.Info("new gRPC request")
+	log.Debug("new gRPC request")
 	ctx, cancel := context.WithCancel(stream.Context())
 	defer cancel()
 	start := time.Now()
@@ -59,7 +59,7 @@ func (s *Server) Run(stream btrfaasgrpc.FunctionRunner_RunServer) (err error) {
 	defer func() {
 		end := time.Now()
 		duration := end.Sub(start)
-		log.Infof("finished gRPC request in %v", duration)
+		log.Debugf("finished gRPC request in %v", duration)
 		for _, host := range hosts {
 			metrics.Observe(host.Host, err != nil, duration)
 		}
@@ -71,7 +71,7 @@ func (s *Server) Run(stream btrfaasgrpc.FunctionRunner_RunServer) (err error) {
 	done := make(chan error, 5)
 
 	go func() {
-		log.Info("forward to function services ", chain)
+		log.Debug("forward to function services ", chain)
 		done <- forwarder.Forward(stream.Context(), &forwarder.Options{
 			Hosts:  hosts,
 			Input:  inputReader,
@@ -129,6 +129,9 @@ func getOptionsFromStream(stream btrfaasgrpc.FunctionRunner_RunServer) (chain []
 			return chain, nil, err
 		}
 		optionSlice[idx] = options
+	}
+	if len(chain) != len(optionSlice) {
+		return nil, nil, errors.New("chain/option count mismatch")
 	}
 	return chain, optionSlice, nil
 }

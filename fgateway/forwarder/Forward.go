@@ -41,7 +41,7 @@ const (
 
 // Forward forwards a function call
 func Forward(ctx context.Context, options *Options) error {
-	log.Info("construct forwarding pipeline")
+	log.Debug("construct forwarding pipeline")
 	runnables := make([]runnable.Runnable, len(options.Hosts))
 	optSlice := make([]map[string]string, len(options.Hosts))
 	for i, host := range options.Hosts {
@@ -53,12 +53,12 @@ func Forward(ctx context.Context, options *Options) error {
 			}
 			runnables[i] = fn
 			optSlice[i] = host.CallOptions
-			log.Infof("added grpc://%v to the pipeline", uri)
+			log.Debugf("added grpc://%v to the pipeline", uri)
 			continue
 		}
 		return errors.New("transport not implemented")
 	}
 	cmd := chain.New(runnables...)
-	log.Info("finished constructing pipeline, kickoff...")
+	log.Debug("finished constructing pipeline, kickoff...")
 	return cmd.Run(ctx, optSlice, options.Input, options.Output)
 }
