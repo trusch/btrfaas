@@ -1,0 +1,11 @@
+global:
+  scrape_interval:     5s # Set the scrape interval to every 5 seconds. Default is every 1 minute.
+  evaluation_interval: 5s # Evaluate rules every 5 seconds. The default is every 1 minute.
+
+scrape_configs:
+  - job_name: 'fgateway'
+    static_configs:
+      - targets: ['fgateway:8000']
+  - job_name: 'openfaas-gateway'
+    static_configs:
+      - targets: ['openfaas-gateway:8080']

@@ -1,0 +1,5 @@
+---
+id: "prometheus"
+image: "btrfaas/prometheus"
+ports:
+  9090: 9090
