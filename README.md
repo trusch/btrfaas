@@ -20,15 +20,14 @@ This is heavily inspired by the architecture of [OpenFaaS](https://github.com/op
 
 ## Walk Through
 ```bash
+# use GOOS=darwin when on mac to build a mac compatible version of btrfaasctl
 > make all GOOS=linux # build everything (frunner, fgateway, btrfaasctl + docker images)
-> make install        # install btrfaasctl to $GOPATH/bin
 > btrfaasctl init     # init deployment
 
-# deploy function gateway + example function
-> btrfaasctl service deploy core-services/fgateway.yaml
-> btrfaasctl service deploy examples/services/sed.yaml
-> btrfaasctl service deploy examples/services/to-upper.yaml
-> btrfaasctl service deploy examples/services/echo/*
+# deploy functions
+> btrfaasctl function deploy examples/btrfaas/sed.yaml
+> btrfaasctl function deploy examples/btrfaas/to-upper.yaml
+> btrfaasctl function deploy examples/btrfaas/**/echo-*.yaml
 
 # test it
 > echo "I hate this" | btrfaasctl function invoke "sed e=s/hate/love/ | to-upper"
