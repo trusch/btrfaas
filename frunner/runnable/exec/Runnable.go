@@ -15,7 +15,6 @@ import (
 type Runnable struct {
 	bin          string
 	args         []string
-	cmd          *exec.Cmd
 	bufferOutput bool
 }
 
@@ -30,33 +29,33 @@ func NewRunnable(bin string, args ...string) *Runnable {
 // Run implements the Runnable interface
 func (r *Runnable) Run(ctx context.Context, options map[string]string, input io.Reader, output io.Writer) error {
 	args := append(r.args, constructArgsFromOptions(options)...)
-	r.cmd = exec.Command(r.bin, args...)
-	r.cmd.Stdin = input
-	r.cmd.Stdout = output
-	r.cmd.Stderr = output
+	cmd := exec.Command(r.bin, args...)
+	cmd.Stdin = input
+	cmd.Stdout = output
+	cmd.Stderr = output
 	if r.bufferOutput {
 		buf := &bytes.Buffer{}
-		r.cmd.Stdout = buf
+		cmd.Stdout = buf
 	}
 	if env, err := env.FromContext(ctx); err == nil {
-		r.cmd.Env = env.ToSlice()
+		cmd.Env = env.ToSlice()
 	}
 	done := make(chan error)
 	go func() {
-		done <- r.cmd.Run()
+		done <- cmd.Run()
 	}()
 	select {
 	case err := <-done:
 		{
 			if err == nil && r.bufferOutput {
-				_, err = io.Copy(output, r.cmd.Stdout.(*bytes.Buffer))
+				_, err = io.Copy(output, cmd.Stdout.(*bytes.Buffer))
 			}
 			return err
 		}
 	case <-ctx.Done():
 		{
-			if r.cmd.Process != nil {
-				r.cmd.Process.Kill()
+			if cmd.Process != nil {
+				cmd.Process.Kill()
 				log.Print("process got killed because of: ", ctx.Err())
 			}
 			return ctx.Err()
