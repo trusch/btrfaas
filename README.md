@@ -3,11 +3,11 @@ btrfaas
 **b**trfaas is **tr**usch's **f**unction **a**s **a** **s**ervice platform
 
 ## Disclaimer
-This is heavily inspired by the architecture of [OpenFaaS](https://github.com/openfaas/openfaas) but has a focus on performance and maintainability.
+This is heavily inspired by the architecture of [OpenFaaS](https://github.com/openfaas/faas) but has a focus on performance and maintainability.
 
 ## Features
 
-* swappable deployment platforms (currently swarm, k8s in progress ;))
+* swappable deployment platforms (currently docker and swarm, k8s in progress ;))
 * simple command line client
 * use secrets
 * function can receive options
