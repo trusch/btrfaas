@@ -42,8 +42,6 @@ fgateway/fgateway: vendor $(SRC)
 		-w /go/src/github.com/trusch/btrfaas/fgateway \
 		-u $(shell ls -n .|tail -1|tr -s ' '|awk '{print $$3 ":" $$4}') \
 		-e CGO_ENABLED=0 \
-		-e GOOS=$(GOOS) \
-		-e GOARCH=$(GOARCH) \
 		golang:1.9 \
 			go build -v -a -ldflags '-extldflags "-static"' .
 
@@ -54,8 +52,6 @@ frunner/cmd/frunner/frunner: vendor $(SRC)
 		-w /go/src/github.com/trusch/btrfaas/frunner/cmd/frunner \
 		-u $(shell ls -n .|tail -1|tr -s ' '|awk '{print $$3 ":" $$4}') \
 		-e CGO_ENABLED=0 \
-		-e GOOS=$(GOOS) \
-		-e GOARCH=$(GOARCH) \
 		golang:1.9 \
 			go build -v -a -ldflags '-extldflags "-static"' .
 
@@ -76,8 +72,6 @@ unit-tests: vendor
 		-w /go/src/github.com/trusch/btrfaas \
 		-u $(shell ls -n .|tail -1|tr -s ' '|awk '{print $$3 ":" $$4}') \
 		-e CGO_ENABLED=0 \
-		-e GOOS=$(GOOS) \
-		-e GOARCH=$(GOARCH) \
 		golang:1.9 \
 			go test -v -cover ./deployment/... ./fgateway/... ./frunner/...
 
@@ -89,8 +83,6 @@ vet: vendor
 		-v $(shell pwd):/go/src/github.com/trusch/btrfaas \
 		-u $(shell ls -n .|tail -1|tr -s ' '|awk '{print $$3 ":" $$4}') \
 		-e CGO_ENABLED=0 \
-		-e GOOS=$(GOOS) \
-		-e GOARCH=$(GOARCH) \
 		golang:1.9 \
 			go vet github.com/trusch/btrfaas/...
 
@@ -99,8 +91,6 @@ fmt: vendor
 		-v $(shell pwd):/go/src/github.com/trusch/btrfaas \
 		-u $(shell ls -n .|tail -1|tr -s ' '|awk '{print $$3 ":" $$4}') \
 		-e CGO_ENABLED=0 \
-		-e GOOS=$(GOOS) \
-		-e GOARCH=$(GOARCH) \
 		golang:1.9 \
 			go fmt github.com/trusch/btrfaas/...
 
