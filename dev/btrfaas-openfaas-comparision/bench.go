@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -17,6 +18,8 @@ type DevNull struct{}
 func (d *DevNull) Write(data []byte) (bs int, err error) {
 	return len(data), nil
 }
+
+type RunSyncFunc func(context.Context, string, []byte, int) error
 
 func runBtrfaasSync(ctx context.Context, fn string, data []byte, n int) error {
 	cli, err := grpc.NewClient("127.0.0.1:2424", g.WithInsecure())
@@ -41,12 +44,11 @@ func runOpenfaasSync(ctx context.Context, fn string, data []byte, n int) error {
 			log.Print(err)
 			continue
 		}
+		io.Copy(&DevNull{}, resp.Body)
 		resp.Body.Close()
 	}
 	return nil
 }
-
-type RunSyncFunc func(context.Context, string, []byte, int) error
 
 func runAsync(ctx context.Context, fn string, data []byte, sync RunSyncFunc, p, n int) error {
 	start := time.Now()
@@ -69,25 +71,6 @@ func runAsync(ctx context.Context, fn string, data []byte, sync RunSyncFunc, p, 
 		}
 	}
 	return nil
-}
-
-func race(ctx context.Context, fn1 string, runSync1 RunSyncFunc, fn2 string, runSync2 RunSyncFunc, data []byte, p, n int) {
-	var (
-		done = make(chan error, 2)
-	)
-	go func() {
-		err := runAsync(ctx, fn1, data, runSync1, p, n)
-		done <- err
-	}()
-	go func() {
-		err := runAsync(ctx, fn2, data, runSync2, p, n)
-		done <- err
-	}()
-	for i := 0; i < 2; i++ {
-		if err := <-done; err != nil {
-			log.Print(err)
-		}
-	}
 }
 
 func main() {
