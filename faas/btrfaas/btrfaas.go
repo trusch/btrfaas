@@ -32,7 +32,7 @@ func (ptr *BtrFaaS) Init(ctx context.Context, options *faas.InitOptions) error {
 		ID:            "fgateway",
 		Image:         "btrfaas/fgateway",
 		Ports: map[uint16]uint16{
-			8080: 8080,
+			8000: 8000,
 			2424: 2424,
 		},
 	})
