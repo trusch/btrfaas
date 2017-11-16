@@ -35,7 +35,7 @@ func (ptr *OpenFaaS) Init(ctx context.Context, options *faas.InitOptions) error 
 			8080: 8080,
 		},
 		Volumes: []*deployment.VolumeConfig{
-			&deployment.VolumeConfig{
+			{
 				Type:   "host",
 				Source: "/var/run/docker.sock",
 				Target: "/var/run/docker.sock",

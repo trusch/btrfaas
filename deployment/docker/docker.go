@@ -85,7 +85,7 @@ func (p *DockerPlatform) DeployService(ctx context.Context, options *deployment.
 
 	networkConfig := &network.NetworkingConfig{
 		EndpointsConfig: map[string]*network.EndpointSettings{
-			netName: &network.EndpointSettings{},
+			netName: {},
 		},
 	}
 

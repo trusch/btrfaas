@@ -49,7 +49,7 @@ func (d *FunctionDispatcher) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		err := forwarder.Forward(ctx, &forwarder.Options{
 			Hosts: []*forwarder.HostConfig{
-				&forwarder.HostConfig{
+				{
 					Transport: forwarder.GRPC,
 					Host:      functionID,
 					Port:      d.DefaultPort,

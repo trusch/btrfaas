@@ -70,7 +70,7 @@ func (p *SwarmPlatform) DeployService(ctx context.Context, options *deployment.D
 				Mounts:  createMounts(options.Volumes),
 			},
 			Networks: []swarm.NetworkAttachmentConfig{
-				swarm.NetworkAttachmentConfig{Target: netName},
+				{Target: netName},
 			},
 		},
 		EndpointSpec: &swarm.EndpointSpec{

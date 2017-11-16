@@ -92,7 +92,31 @@ fmt: vendor
 		-u $(shell ls -n .|tail -1|tr -s ' '|awk '{print $$3 ":" $$4}') \
 		-e CGO_ENABLED=0 \
 		golang:1.9 \
-			go fmt github.com/trusch/btrfaas/...
+			gofmt -e -s -w \
+				/go/src/github.com/trusch/btrfaas/btrfaasctl \
+				/go/src/github.com/trusch/btrfaas/btrfaasctl/cmd \
+				/go/src/github.com/trusch/btrfaas/deployment \
+				/go/src/github.com/trusch/btrfaas/deployment/docker \
+				/go/src/github.com/trusch/btrfaas/deployment/swarm \
+				/go/src/github.com/trusch/btrfaas/faas \
+				/go/src/github.com/trusch/btrfaas/faas/btrfaas \
+				/go/src/github.com/trusch/btrfaas/faas/openfaas \
+				/go/src/github.com/trusch/btrfaas/fgateway \
+				/go/src/github.com/trusch/btrfaas/fgateway/cmd \
+				/go/src/github.com/trusch/btrfaas/fgateway/forwarder \
+				/go/src/github.com/trusch/btrfaas/fgateway/grpc \
+				/go/src/github.com/trusch/btrfaas/fgateway/http \
+				/go/src/github.com/trusch/btrfaas/fgateway/metrics \
+				/go/src/github.com/trusch/btrfaas/frunner/cmd \
+				/go/src/github.com/trusch/btrfaas/frunner/config \
+				/go/src/github.com/trusch/btrfaas/frunner/env \
+				/go/src/github.com/trusch/btrfaas/frunner/grpc \
+				/go/src/github.com/trusch/btrfaas/frunner/http \
+				/go/src/github.com/trusch/btrfaas/frunner/runnable \
+				/go/src/github.com/trusch/btrfaas/frunner/runnable/exec \
+				/go/src/github.com/trusch/btrfaas/frunner/runnable/chain \
+				/go/src/github.com/trusch/btrfaas/grpc \
+				/go/src/github.com/trusch/btrfaas/integration-tests
 
 echo-examples:
 	cd examples/btrfaas/native-functions/echo-go && docker build --no-cache -t btrfaas/functions/echo-go .
