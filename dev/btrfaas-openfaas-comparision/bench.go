@@ -27,7 +27,7 @@ func runBtrfaasSync(ctx context.Context, fn string, data []byte, n int) error {
 		log.Fatal("init:", err)
 	}
 	for i := 0; i < n; i++ {
-		if err := cli.Run(ctx, []string{fn}, []map[string]string{map[string]string{}}, bytes.NewReader(data), &DevNull{}); err != nil {
+		if err := cli.Run(ctx, []string{fn}, []map[string]string{{}}, bytes.NewReader(data), &DevNull{}); err != nil {
 			log.Print(err)
 		}
 	}

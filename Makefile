@@ -98,6 +98,7 @@ fmt: vendor
 				/go/src/github.com/trusch/btrfaas/deployment \
 				/go/src/github.com/trusch/btrfaas/deployment/docker \
 				/go/src/github.com/trusch/btrfaas/deployment/swarm \
+				/go/src/github.com/trusch/btrfaas/dev/btrfaas-openfaas-comparision \
 				/go/src/github.com/trusch/btrfaas/faas \
 				/go/src/github.com/trusch/btrfaas/faas/btrfaas \
 				/go/src/github.com/trusch/btrfaas/faas/openfaas \
