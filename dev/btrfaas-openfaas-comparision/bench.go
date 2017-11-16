@@ -13,13 +13,13 @@ import (
 	g "google.golang.org/grpc"
 )
 
-type DevNull struct{}
+type devNull struct{}
 
-func (d *DevNull) Write(data []byte) (bs int, err error) {
+func (d *devNull) Write(data []byte) (bs int, err error) {
 	return len(data), nil
 }
 
-type RunSyncFunc func(context.Context, string, []byte, int) error
+type runSyncFunc func(context.Context, string, []byte, int) error
 
 func runBtrfaasSync(ctx context.Context, fn string, data []byte, n int) error {
 	cli, err := grpc.NewClient("127.0.0.1:2424", g.WithInsecure())
@@ -27,7 +27,7 @@ func runBtrfaasSync(ctx context.Context, fn string, data []byte, n int) error {
 		log.Fatal("init:", err)
 	}
 	for i := 0; i < n; i++ {
-		if err := cli.Run(ctx, []string{fn}, []map[string]string{{}}, bytes.NewReader(data), &DevNull{}); err != nil {
+		if err := cli.Run(ctx, []string{fn}, []map[string]string{{}}, bytes.NewReader(data), &devNull{}); err != nil {
 			log.Print(err)
 		}
 	}
@@ -44,13 +44,13 @@ func runOpenfaasSync(ctx context.Context, fn string, data []byte, n int) error {
 			log.Print(err)
 			continue
 		}
-		io.Copy(&DevNull{}, resp.Body)
+		io.Copy(&devNull{}, resp.Body)
 		resp.Body.Close()
 	}
 	return nil
 }
 
-func runAsync(ctx context.Context, fn string, data []byte, sync RunSyncFunc, p, n int) error {
+func runAsync(ctx context.Context, fn string, data []byte, sync runSyncFunc, p, n int) error {
 	start := time.Now()
 	defer func() {
 		end := time.Now()

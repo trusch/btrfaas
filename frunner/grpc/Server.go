@@ -16,16 +16,19 @@ import (
 	"github.com/trusch/btrfaas/frunner/runnable"
 )
 
+// Server is a gRPC server which serves function calls to a specific runnable
 type Server struct {
 	cmd      runnable.Runnable
 	cfg      *config.Config
 	grpcOpts []grpc.ServerOption
 }
 
+// NewServer returns a new server instance
 func NewServer(cmd runnable.Runnable, cfg *config.Config, opts ...grpc.ServerOption) *Server {
 	return &Server{cmd, cfg, opts}
 }
 
+// ListenAndServe start listening for requests
 func (s *Server) ListenAndServe() error {
 	lis, err := net.Listen("tcp", *s.cfg.GRPCAddr)
 	if err != nil {
@@ -37,6 +40,7 @@ func (s *Server) ListenAndServe() error {
 	return grpcServer.Serve(lis)
 }
 
+// Run implements the server interface implied by the btrfaas protobuf service definition
 func (s *Server) Run(stream btrfaasgrpc.FunctionRunner_RunServer) (err error) {
 	ctx := stream.Context()
 	if *s.cfg.CallTimeout > 0 {

@@ -93,10 +93,7 @@ func (p *DockerPlatform) DeployService(ctx context.Context, options *deployment.
 	if err != nil {
 		return err
 	}
-	if err = p.cli.ContainerStart(ctx, createResp.ID, types.ContainerStartOptions{}); err != nil {
-		return err
-	}
-	return nil
+	return p.cli.ContainerStart(ctx, createResp.ID, types.ContainerStartOptions{})
 }
 
 // UndeployService unddeploys a service from an environment

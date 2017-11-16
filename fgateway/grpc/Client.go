@@ -10,11 +10,13 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+// Client is a gRPC client to the fgateway
 type Client struct {
 	conn   *grpc.ClientConn
 	client btrfaasgrpc.FunctionRunnerClient
 }
 
+// NewClient creates a new client instance
 func NewClient(gateway string, opts ...grpc.DialOption) (*Client, error) {
 	conn, err := grpc.Dial(gateway, opts...)
 	if err != nil {
@@ -24,6 +26,7 @@ func NewClient(gateway string, opts ...grpc.DialOption) (*Client, error) {
 	return &Client{conn, client}, nil
 }
 
+// Run nearly implements the runnable interface, except that it supports specifying chains of functions instead of a single function
 func (c *Client) Run(ctx context.Context, chain []string, options []map[string]string, input io.Reader, output io.Writer) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()

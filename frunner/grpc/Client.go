@@ -9,11 +9,13 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+// Client is a gRPC client for the function runner interface implementing Runnable
 type Client struct {
 	conn   *grpc.ClientConn
 	client btrfaasgrpc.FunctionRunnerClient
 }
 
+// NewClient returns a new client instance
 func NewClient(target string, opts ...grpc.DialOption) (*Client, error) {
 	conn, err := grpc.Dial(target, opts...)
 	if err != nil {
@@ -23,6 +25,7 @@ func NewClient(target string, opts ...grpc.DialOption) (*Client, error) {
 	return &Client{conn, client}, nil
 }
 
+// Run implements the Runnable interface
 func (c *Client) Run(ctx context.Context, options map[string]string, input io.Reader, output io.Writer) error {
 	ctx = metadata.NewOutgoingContext(ctx, metadata.MD{
 		"options": buildOptionsForMetadata(options),
