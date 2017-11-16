@@ -1,5 +1,5 @@
 hash: 6c93b5c569d10418d5f6bfe4867fd510d862d4703e8420ff476b5183bbe07d87
-updated: 2017-11-15T11:22:52.421866894Z
+updated: 2017-11-16T09:56:54.132200873Z
 imports:
 - name: github.com/beorn7/perks
   version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
@@ -124,7 +124,7 @@ imports:
   subpackages:
   - ssh/terminal
 - name: golang.org/x/net
-  version: a337091b0525af65de94df2eb7e98bd9962dcbe2
+  version: 9dfe39835686865bff950a07b394c12a98ddc811
   subpackages:
   - context
   - context/ctxhttp
@@ -188,7 +188,7 @@ imports:
   - tap
   - transport
 - name: gopkg.in/yaml.v2
-  version: eb3733d160e74a9c7e442f435eb3bea458e1d19f
+  version: 287cf08546ab5e7e37d55a84f7ed3fd1db036de5
 testImports:
 - name: github.com/onsi/ginkgo
   version: 9eda700730cba42af70d53180f9dcce9266bc2bc
