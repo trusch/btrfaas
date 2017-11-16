@@ -50,6 +50,26 @@ foobar
 > echo "hello openfaas" | btrfaasctl --platform swarm --faas-provider openfaas function invoke echo
 ```
 
+## Run BtrFaaS and OpenFaaS side by side without openfaas-gateway
+It is possible to run openfaas functions without modifications by explicit specifying the transport layer.
+You can even mix the functions with other functions in a pipeline.
+
+Anyway, this brings some problems:
+
+* openfaas functions will block your pipeline until EOF is sent
+* the watchdog will copy the entire input in memory before start working
+* if an error occurs after the first output byte is send, we can not catch it
+* if you cancel your request, or a timeout occurs, the watchdog will not be informed.
+
+```bash
+> btrfaasctl init
+# deploy sample functions
+> btrfaasctl function deploy examples/btrfaas/echo-shell.yaml
+> btrfaasctl function deploy examples/openfaas/echo.yaml
+# call sample functions
+> echo "hello world" | btrfaasctl function invoke "http://echo | echo-shell"
+```
+
 ## Run the FaaS comparision demo
 This will start an increasing load against the four btrfaas echo implementations and the openfaas echo implementation. You can inspect the average call durations on the commandline or look at a grafana dashboard showing you requests per second and request latencies.
 ```bash
