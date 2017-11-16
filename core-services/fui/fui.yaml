@@ -1,0 +1,5 @@
+---
+id: "fui"
+image: "btrfaas/fui"
+ports:
+  8000: 80

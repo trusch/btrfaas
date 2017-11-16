@@ -1,11 +1,11 @@
 GOOS=linux
 GOARCH=amd64
 
-SRC=$(shell find ./btrfaasctl ./deployment ./fgateway ./frunner ./faas -type f -name "*.go")
+SRC=$(shell find ./btrfaasctl ./deployment ./fgateway ./frunner ./faas ./fui ./grpc -type f -name "*.go")
 
-all: vendor fmt vet unit-tests frunner btrfaasctl fgateway docker install integration-tests
+all: vendor fmt vet unit-tests frunner btrfaasctl fgateway fui docker install integration-tests
 
-docker: docker/frunner docker/fgateway echo-examples
+docker: docker/frunner docker/fgateway docker/fui echo-examples
 
 install: btrfaasctl
 	cp btrfaasctl/btrfaasctl $(GOPATH)/bin/
@@ -19,11 +19,16 @@ btrfaasctl: btrfaasctl/btrfaasctl
 
 fgateway: fgateway/fgateway
 
+fui: fui/fui
+
 docker/frunner: frunner
 	cd frunner/cmd/frunner && docker build --no-cache -t btrfaas/frunner .
 
 docker/fgateway: fgateway
 	cd fgateway && docker build --no-cache -t btrfaas/fgateway .
+
+docker/fui: fui
+	cd fui && docker build --no-cache -t btrfaas/fui .
 
 btrfaasctl/btrfaasctl: vendor $(SRC)
 	docker run \
@@ -50,6 +55,15 @@ frunner/cmd/frunner/frunner: vendor $(SRC)
 	docker run \
 		-v $(shell pwd):/go/src/github.com/trusch/btrfaas \
 		-w /go/src/github.com/trusch/btrfaas/frunner/cmd/frunner \
+		-u $(shell ls -n .|tail -1|tr -s ' '|awk '{print $$3 ":" $$4}') \
+		-e CGO_ENABLED=0 \
+		golang:1.9 \
+			go build -v -a -ldflags '-extldflags "-static"' .
+
+fui/fui: vendor $(SRC)
+	docker run \
+		-v $(shell pwd):/go/src/github.com/trusch/btrfaas \
+		-w /go/src/github.com/trusch/btrfaas/fui \
 		-u $(shell ls -n .|tail -1|tr -s ' '|awk '{print $$3 ":" $$4}') \
 		-e CGO_ENABLED=0 \
 		golang:1.9 \
@@ -116,6 +130,8 @@ fmt: vendor
 				/go/src/github.com/trusch/btrfaas/frunner/runnable \
 				/go/src/github.com/trusch/btrfaas/frunner/runnable/exec \
 				/go/src/github.com/trusch/btrfaas/frunner/runnable/chain \
+				/go/src/github.com/trusch/btrfaas/fui \
+				/go/src/github.com/trusch/btrfaas/fui/cmd \
 				/go/src/github.com/trusch/btrfaas/grpc \
 				/go/src/github.com/trusch/btrfaas/integration-tests
 
