@@ -37,12 +37,11 @@ func (c *Client) Run(ctx context.Context, options map[string]string, input io.Re
 
 	var (
 		readDone  = make(chan struct{})
-		sendError error
 		readError error
 	)
 
 	go func() {
-		sendError = c.shovelInputData(cli, input)
+		c.shovelInputData(cli, input)
 	}()
 
 	go func() {
