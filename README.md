@@ -35,6 +35,9 @@ This is heavily inspired by the architecture of [OpenFaaS](https://github.com/op
 I LOVE THIS
 > echo "foobar" | btrfaasctl function invoke "echo-go | echo-node | echo-python | echo-shell"
 foobar
+
+# Teardown
+> btrfaasctl teardown
 ```
 
 ## Deploy BtrFaaS and OpenFaaS side by side
@@ -42,12 +45,17 @@ foobar
 # init faas's
 > btrfaasctl --platform swarm --faas-provider btrfaas init
 > btrfaasctl --platform swarm --faas-provider openfaas init
+
 # deploy sample functions
 > btrfaasctl --platform swarm --faas-provider btrfaas function deploy examples/btrfaas/echo-shell.yaml
 > btrfaasctl --platform swarm --faas-provider openfaas function deploy examples/openfaas/echo.yaml
+
 # call sample functions
 > echo "hello btrfaas" | btrfaasctl --platform swarm --faas-provider btrfaas function invoke echo-shell
 > echo "hello openfaas" | btrfaasctl --platform swarm --faas-provider openfaas function invoke echo
+
+# Teardown
+> btrfaasctl --platform swarm teardown
 ```
 
 ## Run BtrFaaS and OpenFaaS side by side without openfaas-gateway
@@ -62,12 +70,18 @@ Anyway, this brings some problems:
 * if you cancel your request, or a timeout occurs, the watchdog will not be informed.
 
 ```bash
+# init btrfaas
 > btrfaasctl init
+
 # deploy sample functions
 > btrfaasctl function deploy examples/btrfaas/echo-shell.yaml
 > btrfaasctl function deploy examples/openfaas/echo.yaml
+
 # call sample functions
 > echo "hello world" | btrfaasctl function invoke "http://echo | echo-shell"
+
+# Teardown
+> btrfaasctl teardown
 ```
 
 ## Run the FaaS comparision demo
