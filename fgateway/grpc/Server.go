@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net"
-	"strings"
+	"net/url"
+	"strconv"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -54,8 +56,10 @@ func (s *Server) Run(stream btrfaasgrpc.FunctionRunner_RunServer) (err error) {
 	if err != nil {
 		return err
 	}
-	hosts := s.createHostConfigs(chain, options)
-
+	hosts, err := s.createHostConfigs(chain, options)
+	if err != nil {
+		return err
+	}
 	defer func() {
 		end := time.Now()
 		duration := end.Sub(start)
@@ -136,15 +140,49 @@ func getOptionsFromStream(stream btrfaasgrpc.FunctionRunner_RunServer) (chain []
 	return chain, optionSlice, nil
 }
 
-func (s *Server) createHostConfigs(functionIDs []string, opts []map[string]string) []*forwarder.HostConfig {
+func (s *Server) createHostConfigs(functionIDs []string, opts []map[string]string) ([]*forwarder.HostConfig, error) {
 	cfgs := make([]*forwarder.HostConfig, len(functionIDs))
 	for i, id := range functionIDs {
-		cfgs[i] = &forwarder.HostConfig{
-			Transport:   forwarder.GRPC,
-			Host:        strings.Trim(id, " \t"),
-			Port:        s.defaultPort,
-			CallOptions: opts[i],
+		hostConfig := &forwarder.HostConfig{}
+		uri, err := url.Parse(id)
+		if err != nil {
+			return nil, err
 		}
+		switch uri.Scheme {
+		case "":
+			{
+				hostConfig.Transport = forwarder.GRPC
+				hostConfig.Host = uri.Path
+			}
+		case "grpc":
+			{
+				hostConfig.Transport = forwarder.GRPC
+				hostConfig.Host = uri.Host
+			}
+		case "http":
+			{
+				hostConfig.Transport = forwarder.HTTP
+				hostConfig.Host = uri.Host
+			}
+		default:
+			{
+				return nil, fmt.Errorf("no such transport: %v uri: %v", uri.Scheme, id)
+			}
+		}
+		if port := uri.Port(); port != "" {
+			portNum, err := strconv.ParseUint(port, 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			hostConfig.Port = uint16(portNum)
+		} else {
+			hostConfig.Port = s.defaultPort
+			if hostConfig.Transport == forwarder.HTTP {
+				hostConfig.Port = 8080
+			}
+		}
+		hostConfig.CallOptions = opts[i]
+		cfgs[i] = hostConfig
 	}
-	return cfgs
+	return cfgs, nil
 }

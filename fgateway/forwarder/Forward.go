@@ -45,18 +45,29 @@ func Forward(ctx context.Context, options *Options) error {
 	runnables := make([]runnable.Runnable, len(options.Hosts))
 	optSlice := make([]map[string]string, len(options.Hosts))
 	for i, host := range options.Hosts {
-		if host.Transport == GRPC {
-			uri := fmt.Sprintf("%v:%v", host.Host, host.Port)
-			fn, err := grpc.NewClient(uri, g.WithInsecure())
-			if err != nil {
-				return err
+		switch host.Transport {
+		case GRPC:
+			{
+				uri := fmt.Sprintf("%v:%v", host.Host, host.Port)
+				fn, err := grpc.NewClient(uri, g.WithInsecure())
+				if err != nil {
+					return err
+				}
+				runnables[i] = fn
+				optSlice[i] = host.CallOptions
+				log.Debugf("added grpc://%v to the pipeline", uri)
 			}
-			runnables[i] = fn
-			optSlice[i] = host.CallOptions
-			log.Debugf("added grpc://%v to the pipeline", uri)
-			continue
+		case HTTP:
+			{
+				fn := NewHTTPRunnable(fmt.Sprintf("http://%v:%v", host.Host, host.Port))
+				runnables[i] = fn
+				optSlice[i] = host.CallOptions
+			}
+		default:
+			{
+				return errors.New("transport not implemented")
+			}
 		}
-		return errors.New("transport not implemented")
 	}
 	cmd := chain.New(runnables...)
 	log.Debug("finished constructing pipeline, kickoff...")
