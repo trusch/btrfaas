@@ -1,9 +1,18 @@
 {
-  "name": "fui",
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
+  "name": "react-app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "material-ui": "^0.19.4",
+    "react": "^16.1.1",
+    "react-dom": "^16.1.1",
+    "react-scripts": "1.0.17",
+    "react-tap-event-plugin": "^3.0.2"
+  },
   "scripts": {
-    "build": "mkdir -p output/js && cp api.js output/js/"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
   }
 }

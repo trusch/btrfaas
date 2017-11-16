@@ -7,6 +7,6 @@ FROM alpine
 
 COPY fui /bin/fui
 COPY assets /assets
-COPY --from=builder /app/output/ /assets/
+COPY --from=builder /app/build/ /assets/
 
 CMD ["/bin/fui","--assets","/assets"]
