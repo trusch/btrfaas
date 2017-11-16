@@ -13,7 +13,7 @@ type FaaS interface {
 	// Init initializes the FaaS
 	Init(ctx context.Context, options *InitOptions) error
 
-	// Invoke performs a function call agains the faas
+	// Invoke performs a function call against the faas
 	Invoke(ctx context.Context, options *InvokeOptions) error
 
 	// Teardown cleans the FaaS completely

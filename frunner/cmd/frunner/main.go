@@ -61,7 +61,6 @@ func getBinaryAndArgs() error {
 	rest := []string{}
 	if dashDashIndex != -1 {
 		rest = args[dashDashIndex+1:]
-		args = args[:dashDashIndex]
 	}
 	if len(rest) > 0 {
 		binary = rest[0]
