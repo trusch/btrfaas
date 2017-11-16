@@ -1,5 +1,10 @@
 btrfaas
 =======
+
+[![](https://godoc.org/github.com/trusch/btrfaas?status.svg)](http://godoc.org/github.com/trusch/btrfaas)
+[![Go Report Card](https://goreportcard.com/badge/github.com/trusch/btrfaas)](https://goreportcard.com/report/github.com/trusch/btrfaas)
+
+
 **b**trfaas is **tr**usch's **f**unction **a**s **a** **s**ervice platform
 
 ## Disclaimer
@@ -18,6 +23,12 @@ This is heavily inspired by the architecture of [OpenFaaS](https://github.com/op
 * can run every OpenFaaS function with minor modifications (swap watchdog with frunner)
 * first level support for arbitary (non function) services
 * it is possible to deploy the openfaas gateway and functions
+
+## How to Contribute
+Contributions are welcome, please feel free to open a PR!
+If you find a bug or have an idea on how to improve things, open an issue.
+PR's are accepted if they follow the used coding standards, and the go-report keeps on 100%.
+If you add end-user features, it would be great to see them integrated into the smoke tests.
 
 ## Walk Through
 ```bash
