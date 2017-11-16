@@ -1,0 +1,9 @@
+{
+  "name": "fui",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "mkdir -p output/js && cp api.js output/js/"
+  }
+}
