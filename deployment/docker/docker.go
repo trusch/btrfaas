@@ -139,7 +139,12 @@ func (p *DockerPlatform) ListServices(ctx context.Context, options *deployment.L
 
 // DeploySecret deploys a secret in an environment
 func (p *DockerPlatform) DeploySecret(ctx context.Context, options *deployment.DeploySecretOptions) error {
-	return ioutil.WriteFile(filepath.Join(secretRoot, options.ID), []byte(options.Value), 0600)
+	return ioutil.WriteFile(filepath.Join(secretRoot, options.ID), options.Value, 0600)
+}
+
+// GetSecret returns the secret value
+func (p *DockerPlatform) GetSecret(ctx context.Context, options *deployment.GetSecretOptions) ([]byte, error) {
+	return ioutil.ReadFile(filepath.Join(secretRoot, options.ID))
 }
 
 // UndeploySecret unddeploys a secret from an environment

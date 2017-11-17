@@ -2,6 +2,7 @@ package swarm
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	"github.com/trusch/btrfaas/deployment"
@@ -135,7 +136,7 @@ func (p *SwarmPlatform) DeploySecret(ctx context.Context, options *deployment.De
 			Name:   options.ID,
 			Labels: options.Labels,
 		},
-		Data: []byte(options.Value),
+		Data: options.Value,
 	})
 	return err
 }
@@ -143,6 +144,25 @@ func (p *SwarmPlatform) DeploySecret(ctx context.Context, options *deployment.De
 // UndeploySecret unddeploys a secret from an environment
 func (p *SwarmPlatform) UndeploySecret(ctx context.Context, options *deployment.UndeploySecretOptions) error {
 	return p.cli.SecretRemove(ctx, options.ID)
+}
+
+// GetSecret unddeploys a secret from an environment
+func (p *SwarmPlatform) GetSecret(ctx context.Context, options *deployment.GetSecretOptions) ([]byte, error) {
+	args := filters.NewArgs()
+	args.Add("label", "btrfaas_env="+options.EnvironmentID)
+	opts := types.SecretListOptions{
+		Filters: args,
+	}
+	resp, err := p.cli.SecretList(ctx, opts)
+	if err != nil {
+		return nil, err
+	}
+	for _, secret := range resp {
+		if secret.Spec.Name == options.ID {
+			return secret.Spec.Data, nil
+		}
+	}
+	return nil, errors.New("no such secret")
 }
 
 // ListSecrets returns a list of all deployed secrets
@@ -157,7 +177,7 @@ func (p *SwarmPlatform) ListSecrets(ctx context.Context, options *deployment.Lis
 		args.Add("label", key+"="+val)
 	}
 
-	// search swarm services
+	// search swarm secrets
 	opts := types.SecretListOptions{
 		Filters: args,
 	}

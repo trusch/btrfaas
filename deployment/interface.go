@@ -35,6 +35,9 @@ type Platform interface {
 	// UndeploySecret unddeploys a secret from an environment
 	UndeploySecret(ctx context.Context, options *UndeploySecretOptions) error
 
+	// GetSecret returns the secret value
+	GetSecret(ctx context.Context, options *GetSecretOptions) ([]byte, error)
+
 	// ListSecrets returns a list of all deployed secrets
 	ListSecrets(ctx context.Context, options *ListSecretsOptions) ([]*SecretInfo, error)
 }
@@ -99,7 +102,7 @@ type DeploySecretOptions struct {
 	EnvironmentID string
 	ID            string
 	Labels        LabelSet
-	Value         string
+	Value         []byte
 }
 
 // UndeploySecretOptions contains the options for the UndeploySecret call
@@ -112,6 +115,12 @@ type UndeploySecretOptions struct {
 type ListSecretsOptions struct {
 	EnvironmentID string
 	Labels        LabelSet
+}
+
+// GetSecretOptions contains the options for the GetSecret call
+type GetSecretOptions struct {
+	EnvironmentID string
+	ID            string
 }
 
 // SecretInfo is the (inner) response type for ListSecrets calls
