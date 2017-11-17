@@ -1,7 +1,7 @@
 GOOS=linux
 GOARCH=amd64
 
-SRC=$(shell find ./btrfaasctl ./deployment ./fgateway ./frunner ./faas ./fui ./grpc -type f -name "*.go")
+SRC=$(shell find ./btrfaasctl ./deployment ./fgateway ./frunner ./faas ./fui ./grpc ./template -type f -name "*.go")
 
 all: vendor fmt vet unit-tests frunner btrfaasctl fgateway fui docker install integration-tests
 

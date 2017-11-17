@@ -2,8 +2,8 @@
 set -e
 echo "running release script"
 echo "first do a clean followed by integration tests"
-make clean
-make all
+# make clean
+# make all
 
 echo "Current Version: " $(git describe)
 read -e -p "New Version Tag:  " TAG
