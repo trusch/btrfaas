@@ -57,27 +57,27 @@ var secretDeployCmd = &cobra.Command{
 	},
 }
 
-func getIDAndValue(cmd *cobra.Command, args []string) (id, val string) {
+func getIDAndValue(cmd *cobra.Command, args []string) (id string, val []byte) {
 	if len(args) < 1 {
 		cmd.Help()
 		os.Exit(1)
 	}
 	secretID := args[0]
-	secretValue := ""
+	var secretValue []byte
 	filePath, err := cmd.Flags().GetString("file")
 	if err != nil || filePath == "" {
 		if len(args) < 2 {
 			cmd.Help()
 			os.Exit(1)
 		}
-		secretValue = args[1]
+		secretValue = []byte(args[1])
 	}
-	if secretValue == "" {
+	if secretValue == nil {
 		bs, err := ioutil.ReadFile(filePath)
 		if err != nil {
 			log.Fatal(err)
 		}
-		secretValue = string(bs)
+		secretValue = bs
 	}
 	return secretID, secretValue
 }

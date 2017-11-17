@@ -26,7 +26,7 @@ type HostConfig struct {
 	Transport   TransportProtocol
 	Host        string
 	Port        uint16
-	CallOptions map[string]string
+	CallOptions []string
 }
 
 // TransportProtocol is the type of the transport, currently only GRPC is supported
@@ -43,7 +43,7 @@ const (
 func Forward(ctx context.Context, options *Options) error {
 	log.Debug("construct forwarding pipeline")
 	runnables := make([]runnable.Runnable, len(options.Hosts))
-	optSlice := make([]map[string]string, len(options.Hosts))
+	optSlice := make([][]string, len(options.Hosts))
 	for i, host := range options.Hosts {
 		switch host.Transport {
 		case GRPC:

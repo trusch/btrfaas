@@ -54,7 +54,7 @@ var RootCmd = &cobra.Command{
 			expr := r.Header.Get("X-Btrfaas-Chain")
 			optionsStr := r.Header.Get("X-Btrfaas-Options")
 			chain := strings.Split(expr, "|")
-			options := []map[string]string{}
+			options := [][]string{}
 			if err := json.Unmarshal([]byte(optionsStr), &options); err != nil {
 				w.WriteHeader(http.StatusBadRequest)
 				return

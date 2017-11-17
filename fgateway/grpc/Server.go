@@ -112,7 +112,7 @@ func (s *Server) Run(stream btrfaasgrpc.FunctionRunner_RunServer) (err error) {
 	}
 }
 
-func getOptionsFromStream(stream btrfaasgrpc.FunctionRunner_RunServer) (chain []string, optionSlice []map[string]string, err error) {
+func getOptionsFromStream(stream btrfaasgrpc.FunctionRunner_RunServer) (chain []string, optionSlice [][]string, err error) {
 	md, ok := metadata.FromIncomingContext(stream.Context())
 	if !ok {
 		return nil, nil, errors.New("no metadata")
@@ -126,9 +126,9 @@ func getOptionsFromStream(stream btrfaasgrpc.FunctionRunner_RunServer) (chain []
 	if !ok {
 		return chain, nil, nil
 	}
-	optionSlice = make([]map[string]string, len(optionsList))
+	optionSlice = make([][]string, len(optionsList))
 	for idx, objStr := range optionsList {
-		options := make(map[string]string)
+		var options []string
 		if err := json.Unmarshal([]byte(objStr), &options); err != nil {
 			return chain, nil, err
 		}
@@ -140,7 +140,7 @@ func getOptionsFromStream(stream btrfaasgrpc.FunctionRunner_RunServer) (chain []
 	return chain, optionSlice, nil
 }
 
-func (s *Server) createHostConfigs(functionIDs []string, opts []map[string]string) ([]*forwarder.HostConfig, error) {
+func (s *Server) createHostConfigs(functionIDs []string, opts [][]string) ([]*forwarder.HostConfig, error) {
 	cfgs := make([]*forwarder.HostConfig, len(functionIDs))
 	for i, id := range functionIDs {
 		hostConfig := &forwarder.HostConfig{}

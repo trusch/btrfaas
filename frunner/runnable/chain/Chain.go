@@ -18,7 +18,7 @@ func New(cmd ...runnable.Runnable) *Chain {
 }
 
 // Run implements the runnable.Runnable interface
-func (c *Chain) Run(ctx context.Context, options []map[string]string, input io.Reader, output io.Writer) error {
+func (c *Chain) Run(ctx context.Context, options [][]string, input io.Reader, output io.Writer) error {
 	var currentReader = input
 
 	// cancel everything when something goes wrong
@@ -28,7 +28,7 @@ func (c *Chain) Run(ctx context.Context, options []map[string]string, input io.R
 
 	// kick of runnables and chain via io.Pipe
 	for i := 0; i < len(c.runnables); i++ {
-		var opts map[string]string
+		var opts []string
 		if i < len(options) {
 			opts = options[i]
 		}
@@ -52,7 +52,7 @@ func (c *Chain) Run(ctx context.Context, options []map[string]string, input io.R
 	return nil
 }
 
-func runChained(ctx context.Context, cmd runnable.Runnable, options map[string]string, input io.Reader, done chan error) io.Reader {
+func runChained(ctx context.Context, cmd runnable.Runnable, options []string, input io.Reader, done chan error) io.Reader {
 	pipeReader, pipeWriter := io.Pipe()
 	go func() {
 		// IMPORTANT: pipes need to be closed to send EOF

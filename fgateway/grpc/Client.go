@@ -27,7 +27,7 @@ func NewClient(gateway string, opts ...grpc.DialOption) (*Client, error) {
 }
 
 // Run nearly implements the runnable interface, except that it supports specifying chains of functions instead of a single function
-func (c *Client) Run(ctx context.Context, chain []string, options []map[string]string, input io.Reader, output io.Writer) error {
+func (c *Client) Run(ctx context.Context, chain []string, options [][]string, input io.Reader, output io.Writer) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	ctx = metadata.NewOutgoingContext(ctx, metadata.MD{
@@ -69,7 +69,7 @@ func (c *Client) Run(ctx context.Context, chain []string, options []map[string]s
 	}
 }
 
-func buildOptionsForMetadata(options []map[string]string) (res []string) {
+func buildOptionsForMetadata(options [][]string) (res []string) {
 	for _, v := range options {
 		bs, _ := json.Marshal(v)
 		res = append(res, string(bs))

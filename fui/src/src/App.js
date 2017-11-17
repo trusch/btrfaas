@@ -5,7 +5,7 @@ import FlatButton from 'material-ui/FlatButton';
 import {List, ListItem} from 'material-ui/List';
 import TextField from 'material-ui/TextField';
 import LinearProgress from 'material-ui/LinearProgress';
-import {Card, CardHeader, CardText} from 'material-ui/Card';
+import {Card, CardText} from 'material-ui/Card';
 
 import logo from './logo.svg';
 import './App.css';
@@ -25,9 +25,10 @@ class App extends Component {
     const chainHeader = this.state.functions.map(e=>e.name).join('|');
     const options = [];
     for(let i=0;i<this.state.functions.length;i++){
-      options[i] = {}
+      options[i] = []
       if (this.state.functions[i].options) {
         const parts = this.state.functions[i].options.split(' ');
+        options[i] = parts;
         for(let partIdx=0;partIdx<parts.length; partIdx++) {
           const kv = parts[partIdx].split('=');
           options[i][kv[0]] = kv[1];

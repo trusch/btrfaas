@@ -17,7 +17,7 @@ func NewHTTPRunnable(url string) *HTTPRunnable {
 }
 
 // Run implements the runnable interface
-func (r *HTTPRunnable) Run(ctx context.Context, options map[string]string, input io.Reader, output io.Writer) error {
+func (r *HTTPRunnable) Run(ctx context.Context, options []string, input io.Reader, output io.Writer) error {
 	req, err := http.NewRequest("POST", r.constructURL(options), input)
 	if err != nil {
 		return err
@@ -32,13 +32,13 @@ func (r *HTTPRunnable) Run(ctx context.Context, options map[string]string, input
 	return err
 }
 
-func (r *HTTPRunnable) constructURL(options map[string]string) string {
+func (r *HTTPRunnable) constructURL(options []string) string {
 	res := r.url
 	if options != nil && len(options) > 0 {
 		res += "?"
 	}
-	for k, v := range options {
-		res += k + "=" + v + "&"
+	for _, v := range options {
+		res += v + "&"
 	}
 	if options != nil && len(options) > 0 {
 		res = res[:len(res)-1] // remove last ampersant

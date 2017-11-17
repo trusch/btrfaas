@@ -4,7 +4,6 @@ import (
 	"context"
 	"io"
 	"net"
-	"strings"
 
 	log "github.com/Sirupsen/logrus"
 
@@ -145,21 +144,14 @@ func (s *Server) shovelOutputData(stream btrfaasgrpc.FunctionRunner_RunServer, o
 	}
 }
 
-func getOptionsFromStream(stream btrfaasgrpc.FunctionRunner_RunServer) map[string]string {
-	res := make(map[string]string)
+func getOptionsFromStream(stream btrfaasgrpc.FunctionRunner_RunServer) []string {
 	md, ok := metadata.FromIncomingContext(stream.Context())
 	if !ok {
-		return res
+		return nil
 	}
 	optionsList, ok := md["options"]
 	if !ok {
-		return res
+		return nil
 	}
-	for _, pair := range optionsList {
-		slice := strings.Split(pair, "=")
-		if len(slice) == 2 {
-			res[slice[0]] = slice[1]
-		}
-	}
-	return res
+	return optionsList
 }

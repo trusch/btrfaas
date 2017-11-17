@@ -115,26 +115,19 @@ func (ptr *BtrFaaS) Invoke(ctx context.Context, options *faas.InvokeOptions) err
 	return cli.Run(ctx, chain, opts, options.Input, options.Output)
 }
 
-func createCallRequest(expr string) (chain []string, opts []map[string]string, err error) {
+func createCallRequest(expr string) (chain []string, opts [][]string, err error) {
 	fnExpressions := strings.Split(expr, "|")
 	chain = make([]string, len(fnExpressions))
-	opts = make([]map[string]string, len(fnExpressions))
+	opts = make([][]string, len(fnExpressions))
 	for idx, fnExpression := range fnExpressions {
-		parts := strings.Split(strings.Trim(fnExpression, " "), " ")
+		parts := strings.Fields(fnExpression)
 		if len(parts) < 1 {
 			return nil, nil, errors.New("malformed expression")
 		}
-		fn := strings.Trim(parts[0], " ")
-		chain[idx] = fn
-		fnOpts := make(map[string]string)
-		for i := 1; i < len(parts); i++ {
-			pairSlice := strings.Split(parts[i], "=")
-			if len(pairSlice) < 2 {
-				return nil, nil, errors.New("malformed expression")
-			}
-			fnOpts[pairSlice[0]] = pairSlice[1]
+		chain[idx] = parts[0]
+		if len(parts) > 1 {
+			opts[idx] = parts[1:]
 		}
-		opts[idx] = fnOpts
 	}
 	return chain, opts, nil
 }

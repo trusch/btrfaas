@@ -27,8 +27,8 @@ func NewRunnable(bin string, args ...string) *Runnable {
 }
 
 // Run implements the Runnable interface
-func (r *Runnable) Run(ctx context.Context, options map[string]string, input io.Reader, output io.Writer) error {
-	args := append(r.args, constructArgsFromOptions(options)...)
+func (r *Runnable) Run(ctx context.Context, options []string, input io.Reader, output io.Writer) error {
+	args := append(r.args, options...)
 	cmd := exec.Command(r.bin, args...)
 	cmd.Stdin = input
 	cmd.Stdout = output
@@ -66,16 +66,4 @@ func (r *Runnable) Run(ctx context.Context, options map[string]string, input io.
 // EnableOutputBuffering ensures that nothing is written to the output in case of an error
 func (r *Runnable) EnableOutputBuffering() {
 	r.bufferOutput = true
-}
-
-func constructArgsFromOptions(options map[string]string) []string {
-	res := make([]string, 0, 2*len(options))
-	for k, v := range options {
-		if len(k) == 1 {
-			res = append(res, "-"+k, v)
-		} else {
-			res = append(res, "--"+k, v)
-		}
-	}
-	return res
 }

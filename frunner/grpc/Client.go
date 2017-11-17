@@ -26,9 +26,9 @@ func NewClient(target string, opts ...grpc.DialOption) (*Client, error) {
 }
 
 // Run implements the Runnable interface
-func (c *Client) Run(ctx context.Context, options map[string]string, input io.Reader, output io.Writer) error {
+func (c *Client) Run(ctx context.Context, options []string, input io.Reader, output io.Writer) error {
 	ctx = metadata.NewOutgoingContext(ctx, metadata.MD{
-		"options": buildOptionsForMetadata(options),
+		"options": options,
 	})
 	cli, err := c.client.Run(ctx)
 	if err != nil {
