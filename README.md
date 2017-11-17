@@ -1,9 +1,9 @@
 btrfaas
 =======
 
-[![](https://godoc.org/github.com/trusch/btrfaas?status.svg)](http://godoc.org/github.com/trusch/btrfaas)
+[![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg)]()
 [![Go Report Card](https://goreportcard.com/badge/github.com/trusch/btrfaas)](https://goreportcard.com/report/github.com/trusch/btrfaas)
-
+[![](https://godoc.org/github.com/trusch/btrfaas?status.svg)](http://godoc.org/github.com/trusch/btrfaas)
 
 **b**trfaas is **tr**usch's **f**unction **a**s **a** **s**ervice platform
 
