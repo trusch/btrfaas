@@ -22,11 +22,12 @@ package cmd
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/trusch/btrfaas/btrfaasctl/inputfile"
 	"github.com/trusch/btrfaas/deployment"
+
 	"github.com/trusch/btrfaas/faas"
 
 	"github.com/spf13/cobra"
@@ -73,7 +74,7 @@ func getIDAndValue(cmd *cobra.Command, args []string) (id string, val []byte) {
 		secretValue = []byte(args[1])
 	}
 	if secretValue == nil {
-		bs, err := ioutil.ReadFile(filePath)
+		bs, err := inputfile.Resolve(filePath)
 		if err != nil {
 			log.Fatal(err)
 		}

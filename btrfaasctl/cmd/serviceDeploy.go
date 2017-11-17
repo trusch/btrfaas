@@ -22,7 +22,6 @@ package cmd
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 
 	log "github.com/Sirupsen/logrus"
@@ -30,6 +29,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/spf13/cobra"
+	"github.com/trusch/btrfaas/btrfaasctl/inputfile"
 	"github.com/trusch/btrfaas/deployment"
 )
 
@@ -47,7 +47,7 @@ var serviceDeployCmd = &cobra.Command{
 		env, _ := cmd.Flags().GetString("env")
 		cli := getDeploymentPlatform(cmd)
 		for _, arg := range args {
-			bs, err := ioutil.ReadFile(arg)
+			bs, err := inputfile.Resolve(arg)
 			if err != nil {
 				log.Fatal(err)
 			}
