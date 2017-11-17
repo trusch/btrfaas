@@ -3,7 +3,7 @@ Getting started with other languages
 
 ## 1. Install `btrfaasctl`
 ```bash
-curl -sL https://github.com/trusch/btrfaas/releases/download/v0.1.0/btrfaasctl > /tmp/btrfaasctl
+curl -sL https://github.com/trusch/btrfaas/releases/download/v0.1.1/btrfaasctl > /tmp/btrfaasctl
 chmod +x /tmp/btrfaasctl
 sudo mv /tmp/btrfaasctl /usr/bin/
 ```
