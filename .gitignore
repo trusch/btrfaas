@@ -10,3 +10,5 @@ examples/functions/native-node-echo/frunner.proto
 examples/functions/native-python-echo/frunner.proto
 fui/fui
 fui/src/build
+btrfaas-*.tar.bz2
+release
