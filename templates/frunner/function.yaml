@@ -1,0 +1,3 @@
+---
+id: {{.FunctionName}}
+image: btrfaas/functions/{{.FunctionName}}
