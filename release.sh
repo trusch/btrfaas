@@ -2,14 +2,15 @@
 set -e
 echo "running release script"
 echo "first do a clean followed by integration tests"
-# make clean
-# make all
+make clean
+make all
 
 echo "Current Version: " $(git describe)
 read -e -p "New Version Tag:  " TAG
-echo "Tagging current HEAD as ${TAG}"
-git tag -a -m "version ${TAG}" ${TAG}
-
+if [[ $(git describe) != "${TAG}" ]]; then
+  echo "Tagging current HEAD as ${TAG}"
+  git tag -a -m "version ${TAG}" ${TAG}
+fi
 echo "doing docker pushes"
 docker tag btrfaas/fgateway:latest btrfaas/fgateway:${TAG}
 docker tag btrfaas/frunner:latest btrfaas/frunner:${TAG}
