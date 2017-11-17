@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package grpc;
+
+// Data is a message wrapper around a slice of bytes
+message Data {
+  bytes data = 1;
+}
+
+// FunctionRunner is a service capable of running a function via the Run() method
+// the options for the function(s) are stored in the requests metadata under the key `options`
+// The `frunner` implementation expects the following metadata structure:
+//    metadata = { options: [ "val1", "val2" ] }
+// The `fgateway` implementation expects this metadata structure:
+//    metadata = {
+//      chain: [ "function1", "function2"],
+//      options: [ "json-string-array-1", "json-string-array-2"]
+//    }
+service FunctionRunner {
+  rpc Run(stream Data) returns (stream Data) {}
+}
