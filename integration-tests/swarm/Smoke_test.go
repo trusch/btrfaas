@@ -57,7 +57,7 @@ var _ = Describe("Smoke Test", func() {
 	})
 	It("should be possible to deploy and access a function with options", func() {
 		runScript("btrfaasctl --platform swarm function deploy ../../examples/btrfaas/sed.yaml")
-		res := runScript(`echo -n foo | btrfaasctl function invoke "sed e=s/foo/bar/g"`)
+		res := runScript(`echo -n foo | btrfaasctl function invoke "sed s/foo/bar/g"`)
 		Expect(res).To(Equal("bar"))
 	})
 	It("should be possible to teardown btrfaas", func() {
