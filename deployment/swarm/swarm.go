@@ -15,8 +15,8 @@ import (
 	"github.com/docker/docker/client"
 )
 
-// SwarmPlatform implements deployment.Platform with the help of a docker swarm
-type SwarmPlatform struct {
+// swarmPlatform implements deployment.Platform with the help of a docker swarm
+type swarmPlatform struct {
 	cli *client.Client
 }
 
@@ -26,12 +26,12 @@ func NewPlatform() (deployment.Platform, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &SwarmPlatform{cli}, nil
+	return &swarmPlatform{cli}, nil
 }
 
 // PrepareEnvironment prepares an environment to start deploying services
 // This should contain all one time setup like creating namespaces/networks etc.
-func (p *SwarmPlatform) PrepareEnvironment(ctx context.Context, options *deployment.PrepareEnvironmentOptions) error {
+func (p *swarmPlatform) PrepareEnvironment(ctx context.Context, options *deployment.PrepareEnvironmentOptions) error {
 	name := options.ID + "_network"
 	_, err := p.cli.NetworkInspect(ctx, name, false)
 	if err != nil {
@@ -45,7 +45,7 @@ func (p *SwarmPlatform) PrepareEnvironment(ctx context.Context, options *deploym
 }
 
 // DeployService deploys a service in an environment
-func (p *SwarmPlatform) DeployService(ctx context.Context, options *deployment.DeployServiceOptions) error {
+func (p *swarmPlatform) DeployService(ctx context.Context, options *deployment.DeployServiceOptions) error {
 	netName := options.EnvironmentID + "_network"
 	if options.Labels == nil {
 		options.Labels = make(deployment.LabelSet)
@@ -84,12 +84,12 @@ func (p *SwarmPlatform) DeployService(ctx context.Context, options *deployment.D
 }
 
 // UndeployService unddeploys a service from an environment
-func (p *SwarmPlatform) UndeployService(ctx context.Context, options *deployment.UndeployServiceOptions) error {
+func (p *swarmPlatform) UndeployService(ctx context.Context, options *deployment.UndeployServiceOptions) error {
 	return p.cli.ServiceRemove(ctx, options.ID)
 }
 
 // ListServices returns a list of all deployed services
-func (p *SwarmPlatform) ListServices(ctx context.Context, options *deployment.ListServicesOptions) ([]*deployment.ServiceInfo, error) {
+func (p *swarmPlatform) ListServices(ctx context.Context, options *deployment.ListServicesOptions) ([]*deployment.ServiceInfo, error) {
 	if options.Labels == nil {
 		options.Labels = make(deployment.LabelSet)
 	}
@@ -126,7 +126,7 @@ func (p *SwarmPlatform) ListServices(ctx context.Context, options *deployment.Li
 }
 
 // DeploySecret deploys a secret in an environment
-func (p *SwarmPlatform) DeploySecret(ctx context.Context, options *deployment.DeploySecretOptions) error {
+func (p *swarmPlatform) DeploySecret(ctx context.Context, options *deployment.DeploySecretOptions) error {
 	if options.Labels == nil {
 		options.Labels = make(deployment.LabelSet)
 	}
@@ -142,12 +142,12 @@ func (p *SwarmPlatform) DeploySecret(ctx context.Context, options *deployment.De
 }
 
 // UndeploySecret unddeploys a secret from an environment
-func (p *SwarmPlatform) UndeploySecret(ctx context.Context, options *deployment.UndeploySecretOptions) error {
+func (p *swarmPlatform) UndeploySecret(ctx context.Context, options *deployment.UndeploySecretOptions) error {
 	return p.cli.SecretRemove(ctx, options.ID)
 }
 
 // GetSecret unddeploys a secret from an environment
-func (p *SwarmPlatform) GetSecret(ctx context.Context, options *deployment.GetSecretOptions) ([]byte, error) {
+func (p *swarmPlatform) GetSecret(ctx context.Context, options *deployment.GetSecretOptions) ([]byte, error) {
 	args := filters.NewArgs()
 	args.Add("label", "btrfaas_env="+options.EnvironmentID)
 	opts := types.SecretListOptions{
@@ -166,7 +166,7 @@ func (p *SwarmPlatform) GetSecret(ctx context.Context, options *deployment.GetSe
 }
 
 // ListSecrets returns a list of all deployed secrets
-func (p *SwarmPlatform) ListSecrets(ctx context.Context, options *deployment.ListSecretsOptions) ([]*deployment.SecretInfo, error) {
+func (p *swarmPlatform) ListSecrets(ctx context.Context, options *deployment.ListSecretsOptions) ([]*deployment.SecretInfo, error) {
 	if options.Labels == nil {
 		options.Labels = make(deployment.LabelSet)
 	}
@@ -195,7 +195,7 @@ func (p *SwarmPlatform) ListSecrets(ctx context.Context, options *deployment.Lis
 	return result, nil
 }
 
-func (p *SwarmPlatform) constructSecretReferences(ctx context.Context, list map[string]string) ([]*swarm.SecretReference, error) {
+func (p *swarmPlatform) constructSecretReferences(ctx context.Context, list map[string]string) ([]*swarm.SecretReference, error) {
 	res := make([]*swarm.SecretReference, len(list))
 	secrets, err := p.cli.SecretList(ctx, types.SecretListOptions{})
 	if err != nil {
@@ -223,7 +223,7 @@ func (p *SwarmPlatform) constructSecretReferences(ctx context.Context, list map[
 }
 
 // ScaleService scales the service
-func (p *SwarmPlatform) ScaleService(ctx context.Context, options *deployment.ScaleServiceOptions) error {
+func (p *swarmPlatform) ScaleService(ctx context.Context, options *deployment.ScaleServiceOptions) error {
 	service, _, err := p.cli.ServiceInspectWithRaw(ctx, options.ServiceID, types.ServiceInspectOptions{})
 	if err != nil {
 		return err
@@ -235,7 +235,7 @@ func (p *SwarmPlatform) ScaleService(ctx context.Context, options *deployment.Sc
 }
 
 // TeardownEnvironment cleans the environment completely
-func (p *SwarmPlatform) TeardownEnvironment(ctx context.Context, options *deployment.TeardownEnvironmentOptions) error {
+func (p *swarmPlatform) TeardownEnvironment(ctx context.Context, options *deployment.TeardownEnvironmentOptions) error {
 	services, err := p.ListServices(ctx, &deployment.ListServicesOptions{
 		EnvironmentID: options.ID,
 	})

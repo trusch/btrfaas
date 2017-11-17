@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	homedir "github.com/mitchellh/go-homedir"
 	"github.com/trusch/btrfaas/deployment"
 	"github.com/trusch/btrfaas/frunner/env"
 
@@ -22,10 +23,18 @@ import (
 	"github.com/docker/go-connections/nat"
 )
 
-const secretRoot = "/var/lib/btrfaas/secrets/"
+var secretRoot = ""
 
-// DockerPlatform implements deployment.Platform with the help of a docker
-type DockerPlatform struct {
+func init() {
+	home, err := homedir.Dir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	secretRoot = filepath.Join(home, ".btrfaas/secrets/")
+}
+
+// dockerPlatform implements deployment.Platform with the help of a docker
+type dockerPlatform struct {
 	cli *client.Client
 }
 
@@ -35,12 +44,12 @@ func NewPlatform() (deployment.Platform, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &DockerPlatform{cli}, nil
+	return &dockerPlatform{cli}, nil
 }
 
 // PrepareEnvironment prepares an environment to start deploying services
 // This should contain all one time setup like creating namespaces/networks etc.
-func (p *DockerPlatform) PrepareEnvironment(ctx context.Context, options *deployment.PrepareEnvironmentOptions) error {
+func (p *dockerPlatform) PrepareEnvironment(ctx context.Context, options *deployment.PrepareEnvironmentOptions) error {
 	if err := os.MkdirAll(secretRoot, 0755); err != nil {
 		return err
 	}
@@ -57,7 +66,7 @@ func (p *DockerPlatform) PrepareEnvironment(ctx context.Context, options *deploy
 }
 
 // DeployService deploys a service in an environment
-func (p *DockerPlatform) DeployService(ctx context.Context, options *deployment.DeployServiceOptions) error {
+func (p *dockerPlatform) DeployService(ctx context.Context, options *deployment.DeployServiceOptions) error {
 	netName := options.EnvironmentID + "_network"
 	if options.Labels == nil {
 		options.Labels = make(deployment.LabelSet)
@@ -97,13 +106,13 @@ func (p *DockerPlatform) DeployService(ctx context.Context, options *deployment.
 }
 
 // UndeployService unddeploys a service from an environment
-func (p *DockerPlatform) UndeployService(ctx context.Context, options *deployment.UndeployServiceOptions) error {
+func (p *dockerPlatform) UndeployService(ctx context.Context, options *deployment.UndeployServiceOptions) error {
 	d := 5 * time.Second
 	return p.cli.ContainerStop(ctx, options.ID, &d)
 }
 
 // ListServices returns a list of all deployed services
-func (p *DockerPlatform) ListServices(ctx context.Context, options *deployment.ListServicesOptions) ([]*deployment.ServiceInfo, error) {
+func (p *dockerPlatform) ListServices(ctx context.Context, options *deployment.ListServicesOptions) ([]*deployment.ServiceInfo, error) {
 	if options.Labels == nil {
 		options.Labels = make(deployment.LabelSet)
 	}
@@ -138,22 +147,22 @@ func (p *DockerPlatform) ListServices(ctx context.Context, options *deployment.L
 }
 
 // DeploySecret deploys a secret in an environment
-func (p *DockerPlatform) DeploySecret(ctx context.Context, options *deployment.DeploySecretOptions) error {
+func (p *dockerPlatform) DeploySecret(ctx context.Context, options *deployment.DeploySecretOptions) error {
 	return ioutil.WriteFile(filepath.Join(secretRoot, options.ID), options.Value, 0600)
 }
 
 // GetSecret returns the secret value
-func (p *DockerPlatform) GetSecret(ctx context.Context, options *deployment.GetSecretOptions) ([]byte, error) {
+func (p *dockerPlatform) GetSecret(ctx context.Context, options *deployment.GetSecretOptions) ([]byte, error) {
 	return ioutil.ReadFile(filepath.Join(secretRoot, options.ID))
 }
 
 // UndeploySecret unddeploys a secret from an environment
-func (p *DockerPlatform) UndeploySecret(ctx context.Context, options *deployment.UndeploySecretOptions) error {
+func (p *dockerPlatform) UndeploySecret(ctx context.Context, options *deployment.UndeploySecretOptions) error {
 	return os.Remove(filepath.Join(secretRoot, options.ID))
 }
 
 // ListSecrets returns a list of all deployed secrets
-func (p *DockerPlatform) ListSecrets(ctx context.Context, options *deployment.ListSecretsOptions) ([]*deployment.SecretInfo, error) {
+func (p *dockerPlatform) ListSecrets(ctx context.Context, options *deployment.ListSecretsOptions) ([]*deployment.SecretInfo, error) {
 	resp, err := ioutil.ReadDir(secretRoot)
 	if err != nil {
 		return nil, err
@@ -178,12 +187,12 @@ func constructSecretBinds(secrets deployment.LabelSet) []string {
 }
 
 // ScaleService scales the service
-func (p *DockerPlatform) ScaleService(ctx context.Context, options *deployment.ScaleServiceOptions) error {
+func (p *dockerPlatform) ScaleService(ctx context.Context, options *deployment.ScaleServiceOptions) error {
 	return errors.New("not supported in plain docker")
 }
 
 // TeardownEnvironment cleans the environment completely
-func (p *DockerPlatform) TeardownEnvironment(ctx context.Context, options *deployment.TeardownEnvironmentOptions) error {
+func (p *dockerPlatform) TeardownEnvironment(ctx context.Context, options *deployment.TeardownEnvironmentOptions) error {
 	services, err := p.ListServices(ctx, &deployment.ListServicesOptions{
 		EnvironmentID: options.ID,
 	})
