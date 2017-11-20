@@ -37,7 +37,14 @@ class Server(frunner_pb2_grpc.FunctionRunnerServicer):
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     frunner_pb2_grpc.add_FunctionRunnerServicer_to_server(Server(), server)
-    server.add_insecure_port('[::]:2424')
+    caCertFile = open("/run/secrets/btrfaas-ca-cert.pem")
+    certFile = open("/run/secrets/btrfaas-function-cert.pem")
+    keyFile = open("/run/secrets/btrfaas-function-key.pem")
+    caCert = caCertFile.read()
+    cert = certFile.read()
+    key = keyFile.read()
+    creds = grpc.ssl_server_credentials(((key,cert),),root_certificats=caCert)
+    server.add_secure_port('[::]:2424', creds)
     server.start()
     try:
         while True:
