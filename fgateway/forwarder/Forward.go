@@ -2,9 +2,12 @@ package forwarder
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 
 	log "github.com/Sirupsen/logrus"
 
@@ -12,6 +15,7 @@ import (
 	"github.com/trusch/btrfaas/frunner/runnable"
 	"github.com/trusch/btrfaas/frunner/runnable/chain"
 	g "google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 // Options are the options for the forwarding
@@ -49,7 +53,11 @@ func Forward(ctx context.Context, options *Options) error {
 		case GRPC:
 			{
 				uri := fmt.Sprintf("%v:%v", host.Host, host.Port)
-				fn, err := grpc.NewClient(uri, g.WithInsecure())
+				creds, err := getTransportCredentials(host.Host)
+				if err != nil {
+					return err
+				}
+				fn, err := grpc.NewClient(uri, creds)
 				if err != nil {
 					return err
 				}
@@ -72,4 +80,27 @@ func Forward(ctx context.Context, options *Options) error {
 	cmd := chain.New(runnables...)
 	log.Debug("finished constructing pipeline, kickoff...")
 	return cmd.Run(ctx, optSlice, options.Input, options.Output)
+}
+
+var certPool *x509.CertPool
+
+func getTransportCredentials(target string) (g.DialOption, error) {
+	if certPool == nil {
+		ca, err := ioutil.ReadFile("/run/secrets/btrfaas-ca-cert.pem")
+		if err != nil {
+			return nil, fmt.Errorf("could not read ca certificate: %s", err)
+		}
+		certPool = x509.NewCertPool()
+		// Append the certificates from the CA
+		if ok := certPool.AppendCertsFromPEM(ca); !ok {
+			return nil, errors.New("failed to append ca certs")
+		}
+	}
+
+	creds := credentials.NewTLS(&tls.Config{
+		ServerName: target,
+		RootCAs:    certPool,
+	})
+
+	return g.WithTransportCredentials(creds), nil
 }

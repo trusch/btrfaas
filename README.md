@@ -41,7 +41,7 @@ If you add end-user features, it would be great to see them integrated into the 
 > btrfaasctl function deploy examples/btrfaas/**/echo-*.yaml
 
 # test it
-> echo "I hate this" | btrfaasctl function invoke "sed e=s/hate/love/ | to-upper"
+> echo "I hate this" | btrfaasctl function invoke "sed -e s/hate/love/ | to-upper"
 I LOVE THIS
 > echo "foobar" | btrfaasctl function invoke "echo-go | echo-node | echo-python | echo-shell"
 foobar

@@ -1,5 +1,5 @@
-hash: a446d151b7953f8d8ffa7bb9980b7fe97ba230fbd7fff425d885ea28e8e06d64
-updated: 2017-11-17T11:26:37.777943987Z
+hash: 998127cb107ba3817f29c31fd604757a748dc52310def450617830731bed4560
+updated: 2017-11-20T09:10:37.514959973Z
 imports:
 - name: github.com/beorn7/perks
   version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
@@ -98,7 +98,7 @@ imports:
   subpackages:
   - go
 - name: github.com/prometheus/common
-  version: e3fb1a1acd7605367a2b378bc2e2f893c05174b7
+  version: 2e54d0b93cba2fd133edc32211dcc32c06ef72ca
   subpackages:
   - expfmt
   - internal/bitbucket.org/ww/goautoneg
@@ -133,6 +133,8 @@ imports:
   - scanner
   - token
   - types
+- name: github.com/trusch/pki
+  version: e7f5c5b78b8313fc608a4a123a087590491b3cd4
 - name: github.com/xanzy/ssh-agent
   version: ba9c9e33906f58169366275e3450db66139a31a9
 - name: golang.org/x/crypto
@@ -161,7 +163,7 @@ imports:
   - proxy
   - trace
 - name: golang.org/x/sys
-  version: 0dd5e194bbf5eb84a39666eb4c98a4d007e4203a
+  version: 0ac51a24ef1c37380f98ba8b98f56e3bffd59850
   subpackages:
   - unix
   - windows

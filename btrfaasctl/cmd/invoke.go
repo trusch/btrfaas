@@ -41,7 +41,6 @@ var invokeCmd = &cobra.Command{
 			cmd.Help()
 			os.Exit(1)
 		}
-
 		cli := getFaaS(cmd)
 
 		ctx := context.Background()
@@ -51,8 +50,9 @@ var invokeCmd = &cobra.Command{
 			ctx = c
 		}
 		expr := strings.Join(args, " ")
-
+		env, _ := cmd.Flags().GetString("env")
 		if err := cli.Invoke(ctx, &faas.InvokeOptions{
+			EnvironmentID:      env,
 			GatewayAddress:     getGateway(cmd),
 			FunctionExpression: expr,
 			Input:              os.Stdin,

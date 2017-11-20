@@ -40,9 +40,16 @@ function getServer() {
 }
 
 if (require.main === module) {
-  // If this is run as a script, start a server on an unused port
+  const serverCredentials = grpc.ServerCredentials.createSsl(
+    fs.readFileSync('/run/secrets/btrfaas-ca-cert.pem'),
+    [{
+      private_key: fs.readFileSync('/run/secrets/btrfaas-function-key.pem'),
+      cert_chain: fs.readFileSync('/run/secrets/btrfaas-function-cert.pem')
+    }],
+    false,
+  );
   var functionRunner = getServer();
-  functionRunner.bind('0.0.0.0:2424', grpc.ServerCredentials.createInsecure());
+  functionRunner.bind('0.0.0.0:2424', serverCredentials);
   functionRunner.start();
 }
 

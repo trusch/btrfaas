@@ -2,10 +2,13 @@ package grpc
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net"
 	"net/url"
 	"strconv"
@@ -18,6 +21,7 @@ import (
 	btrfaasgrpc "github.com/trusch/btrfaas/grpc"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -39,8 +43,31 @@ func (s *Server) ListenAndServe() error {
 	if err != nil {
 		return err
 	}
-	var opts []grpc.ServerOption
-	grpcServer := grpc.NewServer(opts...)
+	certificate, err := tls.LoadX509KeyPair("/run/secrets/fgateway-cert.pem", "/run/secrets/fgateway-key.pem")
+	if err != nil {
+		return fmt.Errorf("could not load server key pair: %s", err)
+	}
+
+	// Create a certificate pool from the certificate authority
+	certPool := x509.NewCertPool()
+	ca, err := ioutil.ReadFile("/run/secrets/btrfaas-ca-cert.pem")
+	if err != nil {
+		return fmt.Errorf("could not read ca certificate: %s", err)
+	}
+
+	// Append the client certificates from the CA
+	if ok := certPool.AppendCertsFromPEM(ca); !ok {
+		return errors.New("failed to append client certs")
+	}
+
+	// Create the TLS credentials
+	creds := credentials.NewTLS(&tls.Config{
+		ClientAuth:   tls.VerifyClientCertIfGiven,
+		Certificates: []tls.Certificate{certificate},
+		ClientCAs:    certPool,
+	})
+	grpcServer := grpc.NewServer(grpc.Creds(creds))
+
 	btrfaasgrpc.RegisterFunctionRunnerServer(grpcServer, s)
 	return grpcServer.Serve(lis)
 }

@@ -17,6 +17,12 @@ type Platform interface {
 	// TeardownEnvironment cleans the environment completely
 	TeardownEnvironment(ctx context.Context, options *TeardownEnvironmentOptions) error
 
+	ServicePlatform
+	SecretPlatform
+}
+
+// ServicePlatform provides an interface for service operations
+type ServicePlatform interface {
 	// DeployService deploys a service in an environment
 	DeployService(ctx context.Context, options *DeployServiceOptions) error
 
@@ -28,7 +34,10 @@ type Platform interface {
 
 	// ScaleService scales the service
 	ScaleService(ctx context.Context, options *ScaleServiceOptions) error
+}
 
+// SecretPlatform provides an interface for service operations
+type SecretPlatform interface {
 	// DeploySecret deploys a secret in an environment
 	DeploySecret(ctx context.Context, options *DeploySecretOptions) error
 

@@ -98,6 +98,7 @@ type ScaleFunctionOptions struct {
 
 // InvokeOptions are the options for the Invoke call
 type InvokeOptions struct {
+	EnvironmentID      string
 	GatewayAddress     string
 	FunctionExpression string
 	Input              io.Reader

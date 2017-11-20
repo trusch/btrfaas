@@ -2,14 +2,23 @@ package btrfaas
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"errors"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"path/filepath"
 	"strings"
 
 	g "google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 
+	homedir "github.com/mitchellh/go-homedir"
 	"github.com/trusch/btrfaas/deployment"
 	"github.com/trusch/btrfaas/faas"
 	"github.com/trusch/btrfaas/fgateway/grpc"
+	"github.com/trusch/btrfaas/pki"
 )
 
 // BtrFaaS is the btrfaas implementation of the FaaS interface
@@ -27,12 +36,24 @@ func (ptr *BtrFaaS) Init(ctx context.Context, options *faas.InitOptions) error {
 	if err := ptr.platform.PrepareEnvironment(ctx, &options.PrepareEnvironmentOptions); err != nil {
 		return err
 	}
+	pkiManager, err := pki.NewManager(ctx, ptr.platform, options.PrepareEnvironmentOptions.ID)
+	if err != nil {
+		return err
+	}
+	if err = pkiManager.IssueServer(ctx, "fgateway"); err != nil {
+		return err
+	}
 	return ptr.platform.DeployService(ctx, &deployment.DeployServiceOptions{
 		EnvironmentID: options.PrepareEnvironmentOptions.ID,
 		ID:            "fgateway",
 		Image:         "btrfaas/fgateway",
 		Ports: map[uint16]uint16{
 			2424: 2424,
+		},
+		Secrets: deployment.LabelSet{
+			"btrfaas-ca-cert": "/run/secrets/btrfaas-ca-cert.pem",
+			"fgateway-cert":   "/run/secrets/fgateway-cert.pem",
+			"fgateway-key":    "/run/secrets/fgateway-key.pem",
 		},
 	})
 }
@@ -44,17 +65,42 @@ func (ptr *BtrFaaS) Teardown(ctx context.Context, options *faas.TeardownOptions)
 
 // DeployFunction deploys a service in an environment
 func (ptr *BtrFaaS) DeployFunction(ctx context.Context, options *faas.DeployFunctionOptions) error {
-	if options.DeployServiceOptions.Labels == nil {
+	log.Printf("call deploy function: %+v", options)
+	if options.Labels == nil {
 		options.DeployServiceOptions.Labels = make(map[string]string)
 	}
-	options.DeployServiceOptions.Labels["btrfaas.function"] = "true"
+	options.Labels["btrfaas.function"] = "true"
+	pkiManager, err := pki.NewManager(ctx, ptr.platform, options.EnvironmentID)
+	if err != nil {
+		return err
+	}
+	if err := pkiManager.IssueServer(ctx, options.ID); err != nil {
+		return err
+	}
+	if options.Secrets == nil {
+		options.Secrets = make(map[string]string)
+	}
+	options.Secrets["btrfaas-ca-cert"] = "/run/secrets/btrfaas-ca-cert.pem"
+	options.Secrets[options.ID+"-key"] = "/run/secrets/btrfaas-function-key.pem"
+	options.Secrets[options.ID+"-cert"] = "/run/secrets/btrfaas-function-cert.pem"
 	return ptr.platform.DeployService(ctx, &options.DeployServiceOptions)
 }
 
-// UndeployFunction unddeploys a service from an environment
+// UndeployFunction undeploys a service from an environment
 func (ptr *BtrFaaS) UndeployFunction(ctx context.Context, options *faas.UndeployFunctionOptions) error {
-	return ptr.platform.UndeployService(ctx, &options.UndeployServiceOptions)
-
+	if err := ptr.platform.UndeployService(ctx, &options.UndeployServiceOptions); err != nil {
+		return err
+	}
+	if err := ptr.platform.UndeploySecret(ctx, &deployment.UndeploySecretOptions{
+		EnvironmentID: options.EnvironmentID,
+		ID:            options.ID + "-key",
+	}); err != nil {
+		return err
+	}
+	return ptr.platform.UndeploySecret(ctx, &deployment.UndeploySecretOptions{
+		EnvironmentID: options.EnvironmentID,
+		ID:            options.ID + "-cert",
+	})
 }
 
 // ListFunctions returns a list of all deployed services
@@ -108,7 +154,27 @@ func (ptr *BtrFaaS) Invoke(ctx context.Context, options *faas.InvokeOptions) err
 	if err != nil {
 		return err
 	}
-	cli, err := grpc.NewClient(options.GatewayAddress, g.WithInsecure())
+	// Create a certificate pool from the certificate authority
+	certPool := x509.NewCertPool()
+	home, err := homedir.Dir()
+	if err != nil {
+		return err
+	}
+	ca, err := ioutil.ReadFile(filepath.Join(home, ".btrfaas", options.EnvironmentID, "ca-cert.pem"))
+	if err != nil {
+		return fmt.Errorf("could not read ca certificate: %s", err)
+	}
+
+	// Append the certificates from the CA
+	if ok := certPool.AppendCertsFromPEM(ca); !ok {
+		return errors.New("failed to append ca certs")
+	}
+
+	creds := credentials.NewTLS(&tls.Config{
+		ServerName: "fgateway",
+		RootCAs:    certPool,
+	})
+	cli, err := grpc.NewClient(options.GatewayAddress, g.WithTransportCredentials(creds))
 	if err != nil {
 		return err
 	}
