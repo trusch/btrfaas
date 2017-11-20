@@ -43,7 +43,7 @@ def serve():
     caCert = caCertFile.read()
     cert = certFile.read()
     key = keyFile.read()
-    creds = grpc.ssl_server_credentials(((key,cert),),root_certificats=caCert)
+    creds = grpc.ssl_server_credentials(((key,cert),), root_certificates=caCert)
     server.add_secure_port('[::]:2424', creds)
     server.start()
     try:
