@@ -20,7 +20,7 @@ Anyway, this brings some problems:
 > btrfaasctl function deploy examples/echo-openfaas.yaml
 
 # call sample functions
-> echo "hello world" | btrfaasctl function invoke "http://echo | echo-shell"
+> echo "hello world" | btrfaasctl function invoke "http://echo-openfaas | echo-shell"
 
 # Teardown
 > btrfaasctl teardown

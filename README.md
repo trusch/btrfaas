@@ -64,6 +64,53 @@ Hello World
 > btrfaasctl teardown
 ```
 
+## Full Setup
+This will setup the complete btrfaas stack.
+This includes:
+
+* fgateway
+* fui (simple web based UI)
+* prometheus
+* grafana
+* two sample functions: "sed" and "to-upper"
+
+```bash
+# install
+> curl -sL https://raw.githubusercontent.com/trusch/btrfaas/master/install.sh | sh
+
+# init deployment
+> btrfaasctl init
+
+# deploy fui, prometheus and grafana
+> btrfaasctl service deploy https://raw.githubusercontent.com/trusch/btrfaas/master/core-services/fui/fui.yaml
+> btrfaasctl service deploy https://raw.githubusercontent.com/trusch/btrfaas/master/core-services/prometheus/prometheus.yaml
+> btrfaasctl service deploy https://raw.githubusercontent.com/trusch/btrfaas/master/core-services/prometheus/grafana.yaml
+
+# configure grafana:
+> while ! curl -s -H "Content-Type: application/json" \
+    -XPOST http://admin:admin@localhost:3000/api/datasources \
+    -d @- <<EOF
+{
+    "name": "prometheus",
+    "type": "prometheus",
+    "access": "proxy",
+    "isDefault": true,
+    "url": "http://prometheus:9090"
+}
+EOF
+do sleep 1; done
+
+# deploy sample functions
+> btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.2.0/examples/sed.yaml
+> btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.2.0/examples/to-upper.yaml
+```
+
+You can now visit:
+
+* fui on `http://localhost:8000`
+* prometheus on `http://localhost:9000`
+* grafana on `http://localhost:3000`
+
 ## How to Contribute
 Contributions are welcome, please feel free to open a PR!
 If you find a bug or have an idea on how to improve things, open an issue.
