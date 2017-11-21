@@ -7,7 +7,7 @@ btrfaas
 **b**trfaas is **tr**usch's **f**unction **a**s **a** **s**ervice platform
 
 ## Disclaimer
-This is heavily inspired by the architecture of [OpenFaaS](https://github.com/openfaas/faas) but has a focus on performance and maintainability.
+This is heavily inspired by the architecture of [OpenFaaS](https://github.com/openfaas/faas) but has a focus on performance, security and maintainability.
 
 ## Features
 
