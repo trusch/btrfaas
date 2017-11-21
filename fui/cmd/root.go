@@ -23,17 +23,23 @@ package cmd
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"strings"
 
+	"google.golang.org/grpc/credentials"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/trusch/btrfaas/fgateway/grpc"
+	g "google.golang.org/grpc"
 )
 
 var cli *grpc.Client
@@ -45,10 +51,28 @@ var RootCmd = &cobra.Command{
 	Long:  `BtrFaaS HTTP UI`,
 	Run: func(cmd *cobra.Command, args []string) {
 		gateway, _ := cmd.Flags().GetString("gateway")
-		cli, err := grpc.NewClient(gateway)
+		// Create a certificate pool from the certificate authority
+		certPool := x509.NewCertPool()
+		ca, err := ioutil.ReadFile("/run/secrets/btrfaas-ca-cert.pem")
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		// Append the certificates from the CA
+		if ok := certPool.AppendCertsFromPEM(ca); !ok {
+			log.Fatal(err)
+		}
+
+		creds := credentials.NewTLS(&tls.Config{
+			ServerName: "fgateway",
+			RootCAs:    certPool,
+		})
+
+		cli, err := grpc.NewClient(gateway, g.WithTransportCredentials(creds))
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		http.HandleFunc("/api/invoke", func(w http.ResponseWriter, r *http.Request) {
 			expr := r.Header.Get("X-Btrfaas-Chain")
 			optionsStr := r.Header.Get("X-Btrfaas-Options")

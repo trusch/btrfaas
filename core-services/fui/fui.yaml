@@ -3,3 +3,5 @@ id: "fui"
 image: "btrfaas/fui"
 ports:
   8000: 80
+secrets:
+  btrfaas-ca-cert: "/run/secrets/btrfaas-ca-cert.pem"
