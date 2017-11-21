@@ -24,7 +24,6 @@ func Load(uri, targetFolder string) error {
 		repo = uri[:gitIdx+4]
 		path = uri[gitIdx+4:]
 	}
-
 	tmpDir := filepath.Join(os.TempDir(), "btrfaas-work")
 	defer os.RemoveAll(tmpDir)
 	if err := os.MkdirAll(tmpDir, 0755); err != nil {
@@ -41,10 +40,10 @@ func Load(uri, targetFolder string) error {
 	if err = os.Rename(filepath.Join(tmpDir, path), targetFolder); err != nil {
 		return err
 	}
-	if err = replaceFunctionName(filepath.Join(targetFolder, "function.yaml"), targetFolder); err != nil {
+	if err = replaceFunctionName(filepath.Join(targetFolder, "function.yaml"), filepath.Base(targetFolder)); err != nil {
 		return err
 	}
-	if err = replaceFunctionName(filepath.Join(targetFolder, "Dockerfile"), targetFolder); err != nil {
+	if err = replaceFunctionName(filepath.Join(targetFolder, "Dockerfile"), filepath.Base(targetFolder)); err != nil {
 		return err
 	}
 	return nil
