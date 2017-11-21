@@ -1,5 +1,5 @@
 hash: 998127cb107ba3817f29c31fd604757a748dc52310def450617830731bed4560
-updated: 2017-11-20T09:10:37.514959973Z
+updated: 2017-11-21T07:15:16.031553876Z
 imports:
 - name: github.com/beorn7/perks
   version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
@@ -163,7 +163,7 @@ imports:
   - proxy
   - trace
 - name: golang.org/x/sys
-  version: 0ac51a24ef1c37380f98ba8b98f56e3bffd59850
+  version: 328643532ee3c60c099171d4ce2cad0ca0354ca9
   subpackages:
   - unix
   - windows
@@ -189,7 +189,7 @@ imports:
   - unicode/bidi
   - unicode/norm
 - name: google.golang.org/genproto
-  version: 11c7f9e547da6db876260ce49ea7536985904c9b
+  version: 891aceb7c239e72692819142dfca057bdcbfcb96
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
