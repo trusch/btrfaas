@@ -1,7 +1,11 @@
 #!/bin/bash
 
 btrfaasctl init
-btrfaasctl function deploy $(find examples/btrfaas -name "echo-*.yaml")
+btrfaasctl function deploy \
+  examples/echo-go/function.yaml \
+  examples/echo-python/function.yaml \
+  examples/echo-node/function.yaml \
+  examples/echo-shell.yaml
 
 bash core-services/prometheus/setup.sh
 

@@ -11,6 +11,7 @@ sudo mv /tmp/btrfaasctl /usr/bin/
 ## 2. Init your deployment
 ```bash
 docker pull btrfaas/fgateway
+docker pull btrfaas/frunner
 btrfaasctl init
 ```
 

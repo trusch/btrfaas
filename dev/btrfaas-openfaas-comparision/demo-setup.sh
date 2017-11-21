@@ -1,9 +1,13 @@
 #!/bin/bash
 
 btrfaasctl --platform swarm --faas-provider btrfaas init
-btrfaasctl --platform swarm --faas-provider btrfaas function deploy $(find examples/btrfaas -name "echo-*.yaml")
+btrfaasctl --platform swarm --faas-provider btrfaas function deploy \
+  examples/echo-go/function.yaml \
+  examples/echo-python/function.yaml \
+  examples/echo-node/function.yaml \
+  examples/echo-shell.yaml
 btrfaasctl --platform swarm --faas-provider openfaas init
-btrfaasctl --platform swarm --faas-provider openfaas function deploy examples/openfaas/echo.yaml
+btrfaasctl --platform swarm --faas-provider openfaas function deploy examples/echo-openfaas.yaml
 
 pushd dev/btrfaas-openfaas-comparision/prometheus
 bash setup.sh
