@@ -29,22 +29,20 @@ If you find a bug or have an idea on how to improve things, open an issue.
 PR's are accepted if they follow the used coding standards, and the go-report keeps on 100%.
 If you add end-user features, it would be great to see them integrated into the smoke tests.
 
-## Walk Through
+## Getting Started
 ```bash
-# use GOOS=darwin when on mac to build a mac compatible version of btrfaasctl
-> make all GOOS=linux # build everything (frunner, fgateway, btrfaasctl + docker images)
+> curl -sL https://github.com/trusch/btrfaas/releases/download/v0.2.0/btrfaasctl > /tmp/btrfaasctl
+> chmod +x /tmp/btrfaasctl
+> sudo mv /tmp/btrfaasctl /usr/bin/
 > btrfaasctl init     # init deployment
 
-# deploy functions
-> btrfaasctl function deploy examples/btrfaas/sed.yaml
-> btrfaasctl function deploy examples/btrfaas/to-upper.yaml
-> btrfaasctl function deploy examples/btrfaas/**/echo-*.yaml
+# deploy sample functions
+> btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/master/examples/sed.yaml
+> btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/master/examples/to-upper.yaml
 
 # test it
 > echo "I hate this" | btrfaasctl function invoke "sed -e s/hate/love/ | to-upper"
 I LOVE THIS
-> echo "foobar" | btrfaasctl function invoke "echo-go | echo-node | echo-python | echo-shell"
-foobar
 
 # Teardown
 > btrfaasctl teardown
