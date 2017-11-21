@@ -43,10 +43,7 @@ func Load(uri, targetFolder string) error {
 	if err = replaceFunctionName(filepath.Join(targetFolder, "function.yaml"), filepath.Base(targetFolder)); err != nil {
 		return err
 	}
-	if err = replaceFunctionName(filepath.Join(targetFolder, "Dockerfile"), filepath.Base(targetFolder)); err != nil {
-		return err
-	}
-	return nil
+	return replaceFunctionName(filepath.Join(targetFolder, "Dockerfile"), filepath.Base(targetFolder))
 }
 
 func replaceFunctionName(file, functionName string) error {
