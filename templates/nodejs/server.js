@@ -20,6 +20,7 @@
 var PROTO_PATH = __dirname + '/../../../protos/route_guide.proto';
 
 var grpc = require('grpc');
+var fs = require('fs');
 var frunner = grpc.load('./frunner.proto').grpc;
 
 function run(call) {
