@@ -40,7 +40,7 @@ var _ = Describe("Smoke Test", func() {
 		runScript("btrfaasctl --platform=docker init")
 	})
 	It("should be possible to deploy and call the echo tests", func() {
-		runScript(`btrfaasctl --platform docker function deploy $(find ../../examples/btrfaas -name "echo-*.yaml")`)
+		runScript(`btrfaasctl --platform docker function deploy ../../examples/echo-shell.yaml $(find ../../examples/echo-* -name "function.yaml")`)
 		res := runScript(`echo -n foobar | btrfaasctl function invoke "echo-go | echo-node | echo-python | echo-shell"`)
 		Expect(res).To(Equal("foobar"))
 	})
