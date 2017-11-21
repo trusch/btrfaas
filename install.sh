@@ -15,6 +15,7 @@ docker pull btrfaas/fgateway:v0.2.0
 docker pull btrfaas/frunner:v0.2.0
 docker pull btrfaas/fui:v0.2.0
 docker pull btrfaas/prometheus:v0.2.0
+docker pull grafana/grafana
 docker tag btrfaas/fgateway:v0.2.0 btrfaas/fgateway:latest
 docker tag btrfaas/frunner:v0.2.0 btrfaas/frunner:latest
 docker tag btrfaas/fui:v0.2.0 btrfaas/fui:latest
