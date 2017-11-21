@@ -15,12 +15,15 @@ echo "doing docker pushes"
 docker tag btrfaas/fgateway:latest btrfaas/fgateway:${TAG}
 docker tag btrfaas/frunner:latest btrfaas/frunner:${TAG}
 docker tag btrfaas/fui:latest btrfaas/fui:${TAG}
+docker tag btrfaas/prometheus:latest btrfaas/prometheus:${TAG}
 docker push btrfaas/fgateway:latest
 docker push btrfaas/frunner:latest
 docker push btrfaas/fui:latest
+docker push btrfaas/prometheus:latest
 docker push btrfaas/fgateway:${TAG}
 docker push btrfaas/frunner:${TAG}
 docker push btrfaas/fui:${TAG}
+docker push btrfaas/prometheus:${TAG}
 
 rm -rf release || true
 mkdir release

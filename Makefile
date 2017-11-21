@@ -5,7 +5,7 @@ SRC=$(shell find ./btrfaasctl ./deployment ./fgateway ./frunner ./faas ./fui ./g
 
 all: vendor fmt vet unit-tests frunner btrfaasctl fgateway fui docker install prepare-templates echo-examples integration-tests
 
-docker: docker/frunner docker/fgateway docker/fui echo-examples
+docker: docker/frunner docker/fgateway docker/fui docker/prometheus echo-examples
 
 install: btrfaasctl
 	cp btrfaasctl/btrfaasctl $(GOPATH)/bin/
@@ -29,6 +29,9 @@ docker/fgateway: fgateway
 
 docker/fui: fui
 	cd fui && docker build --no-cache -t btrfaas/fui .
+
+docker/prometheus: core-services/prometheus
+	cd core-services/prometheus && docker build --no-cache -t btrfaas/prometheus .
 
 btrfaasctl/btrfaasctl: vendor $(SRC)
 	docker run \
