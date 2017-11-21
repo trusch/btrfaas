@@ -135,10 +135,24 @@ fmt: vendor
 				/go/src/github.com/trusch/btrfaas/grpc \
 				/go/src/github.com/trusch/btrfaas/integration-tests
 
-echo-examples:
-	cd examples/btrfaas/native-functions/echo-go && docker build --no-cache -t btrfaas/functions/echo-go .
-	cp grpc/frunner.proto examples/btrfaas/native-functions/echo-python
-	cd examples/btrfaas/native-functions/echo-python && python -m grpc_tools.protoc -I . --python_out=. --grpc_python_out=. frunner.proto
-	cd examples/btrfaas/native-functions/echo-python && docker build --no-cache -t btrfaas/functions/echo-python .
-	cp grpc/frunner.proto examples/btrfaas/native-functions/echo-node
-	cd examples/btrfaas/native-functions/echo-node && docker build --no-cache -t btrfaas/functions/echo-node .
+prepare-templates:
+	cp grpc/frunner.proto templates/python
+	cd templates/python && python -m grpc_tools.protoc -I . --python_out=. --grpc_python_out=. frunner.proto
+	cp grpc/frunner.proto templates/nodejs
+
+echo-examples: prepare-templates examples/echo-go examples/echo-node examples/echo-python
+
+examples/echo-go: templates/go
+	mkdir -p examples
+	btrfaasctl function init examples/echo-go --template go
+	btrfaasctl function build examples/echo-go
+
+examples/echo-node: templates/nodejs
+	mkdir -p examples
+	btrfaasctl function init examples/echo-node --template nodejs
+	btrfaasctl function build examples/echo-node
+
+examples/echo-python: templates/nodejs
+	mkdir -p examples
+	btrfaasctl function init examples/echo-python --template python
+	btrfaasctl function build examples/echo-python
