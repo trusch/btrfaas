@@ -12,3 +12,6 @@ fui/fui
 fui/src/build
 btrfaas-*.tar.bz2
 release
+examples/echo-go
+examples/echo-python
+examples/echo-node
