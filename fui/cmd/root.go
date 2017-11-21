@@ -34,7 +34,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/trusch/btrfaas/fgateway/grpc"
-	g "google.golang.org/grpc"
 )
 
 var cli *grpc.Client
@@ -46,7 +45,7 @@ var RootCmd = &cobra.Command{
 	Long:  `BtrFaaS HTTP UI`,
 	Run: func(cmd *cobra.Command, args []string) {
 		gateway, _ := cmd.Flags().GetString("gateway")
-		cli, err := grpc.NewClient(gateway, g.WithInsecure())
+		cli, err := grpc.NewClient(gateway)
 		if err != nil {
 			log.Fatal(err)
 		}
