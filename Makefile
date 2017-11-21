@@ -3,7 +3,7 @@ GOARCH=amd64
 
 SRC=$(shell find ./btrfaasctl ./deployment ./fgateway ./frunner ./faas ./fui ./grpc ./template ./pki -type f -name "*.go")
 
-all: vendor fmt vet unit-tests frunner btrfaasctl fgateway fui docker install integration-tests
+all: vendor fmt vet unit-tests frunner btrfaasctl fgateway fui docker install prepare-templates echo-examples integration-tests
 
 docker: docker/frunner docker/fgateway docker/fui echo-examples
 
@@ -140,7 +140,7 @@ prepare-templates:
 	cd templates/python && python -m grpc_tools.protoc -I . --python_out=. --grpc_python_out=. frunner.proto
 	cp grpc/frunner.proto templates/nodejs
 
-echo-examples: prepare-templates examples/echo-go examples/echo-node examples/echo-python
+echo-examples: install examples/echo-go examples/echo-node examples/echo-python
 
 examples/echo-go: templates/go
 	mkdir -p examples

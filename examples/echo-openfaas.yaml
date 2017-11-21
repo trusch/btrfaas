@@ -1,5 +1,5 @@
 ---
-id: "echo"
+id: "echo-openfaas"
 image: "functions/alpine"
 env:
   fprocess: "/bin/cat"
