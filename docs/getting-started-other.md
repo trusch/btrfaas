@@ -3,15 +3,11 @@ Getting started with other languages
 
 ## 1. Install `btrfaasctl`
 ```bash
-curl -sL https://github.com/trusch/btrfaas/releases/download/v0.2.0/btrfaasctl > /tmp/btrfaasctl
-chmod +x /tmp/btrfaasctl
-sudo mv /tmp/btrfaasctl /usr/bin/
+curl -sL https://raw.githubusercontent.com/trusch/btrfaas/master/install.sh | sh
 ```
 
 ## 2. Init your deployment
 ```bash
-docker pull btrfaas/fgateway
-docker pull btrfaas/frunner
 btrfaasctl init
 ```
 
