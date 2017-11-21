@@ -13,7 +13,8 @@ import (
 )
 
 var (
-	curve = "P521"
+	curve   = ""
+	rsaBits = 2048
 )
 
 func init() {
@@ -37,7 +38,7 @@ func NewManager(ctx context.Context, platform deployment.SecretPlatform, env str
 	caCrtFile := filepath.Join(home, fmt.Sprintf(".btrfaas/%v/ca-cert.pem", env))
 	caKeyFile := filepath.Join(home, fmt.Sprintf(".btrfaas/%v/ca-key.pem", env))
 	if _, err = os.Stat(caCrtFile); err != nil {
-		ca, err = pki.NewSelfSignedCA("btrfaas", curve, 0)
+		ca, err = pki.NewSelfSignedCA("btrfaas", curve, rsaBits)
 		if err != nil {
 			return nil, err
 		}
@@ -93,7 +94,7 @@ func NewManager(ctx context.Context, platform deployment.SecretPlatform, env str
 
 // IssueClient issues a new client certificate and saves it as secret
 func (manager *Manager) IssueClient(ctx context.Context, id string) error {
-	cert, key, err := manager.ca.IssueClient(id, curve, 0)
+	cert, key, err := manager.ca.IssueClient(id, curve, rsaBits)
 	if err != nil {
 		return err
 	}
@@ -102,7 +103,7 @@ func (manager *Manager) IssueClient(ctx context.Context, id string) error {
 
 // IssueServer issues a new server certificate and saves it as secret
 func (manager *Manager) IssueServer(ctx context.Context, id string) error {
-	cert, key, err := manager.ca.IssueServer(id, curve, 0)
+	cert, key, err := manager.ca.IssueServer(id, curve, rsaBits)
 	if err != nil {
 		return err
 	}
