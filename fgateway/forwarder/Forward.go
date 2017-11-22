@@ -61,6 +61,7 @@ func Forward(ctx context.Context, options *Options) error {
 				if err != nil {
 					return err
 				}
+				defer fn.Close()
 				runnables[i] = fn
 				optSlice[i] = host.CallOptions
 				log.Debugf("added grpc://%v to the pipeline", uri)

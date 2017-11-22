@@ -144,7 +144,6 @@ func getOptionsFromStream(stream btrfaasgrpc.FunctionRunner_RunServer) (chain []
 	if !ok {
 		return nil, nil, errors.New("no metadata")
 	}
-	log.Print(md)
 	chain, ok = md["chain"]
 	if !ok {
 		return nil, nil, errors.New("no chain in metadata")

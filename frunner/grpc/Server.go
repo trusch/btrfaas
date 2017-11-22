@@ -68,7 +68,7 @@ func (s *Server) ListenAndServe() error {
 }
 
 // Run implements the server interface implied by the btrfaas protobuf service definition
-func (s *Server) Run(stream btrfaasgrpc.FunctionRunner_RunServer) (err error) {
+func (s *Server) Run(stream btrfaasgrpc.FunctionRunner_RunServer) error {
 	ctx := stream.Context()
 	if *s.cfg.CallTimeout > 0 {
 		log.Print("set timeout of ", *s.cfg.CallTimeout, " to context")
@@ -76,46 +76,51 @@ func (s *Server) Run(stream btrfaasgrpc.FunctionRunner_RunServer) (err error) {
 		defer cancel()
 		ctx = c
 	}
+
+	options := getOptionsFromStream(stream)
+
 	inputReader, inputWriter := io.Pipe()
 	outputReader, outputWriter := io.Pipe()
-	defer inputWriter.Close()
-	done := make(chan error)
 
 	var input io.Reader = inputReader
 	if *s.cfg.ReadLimit > 0 {
 		input = io.LimitReader(input, *s.cfg.ReadLimit)
 	}
 
-	options := getOptionsFromStream(stream)
+	done := make(chan error, 5)
 
 	go func() {
-		defer outputWriter.Close()
-		err = s.cmd.Run(ctx, options, input, outputWriter)
-		if err != nil {
-			log.Error("error executing runnable: ", err)
-			done <- err
-		}
+		done <- s.cmd.Run(ctx, options, input, outputWriter)
+		done <- outputWriter.Close()
 	}()
 
-	go s.shovelInputData(stream, inputWriter)
 	go func() {
-		defer close(done)
-		e := s.shovelOutputData(stream, outputReader)
-		if e != nil {
-			done <- e
-			return
-		}
+		done <- btrfaasgrpc.CopyFromStream(ctx, stream, inputWriter)
+		done <- inputWriter.Close()
 	}()
-	select {
-	case err := <-done:
-		{
-			return err
-		}
-	case <-ctx.Done():
-		{
+
+	go func() {
+		done <- btrfaasgrpc.CopyToStream(ctx, outputReader, stream)
+	}()
+
+	todo := 5
+	for {
+		select {
+		case <-ctx.Done():
 			return ctx.Err()
+		case err := <-done:
+			{
+				if err != nil {
+					return err
+				}
+				todo--
+				if todo == 0 {
+					return nil
+				}
+			}
 		}
 	}
+
 }
 
 func (s *Server) shovelInputData(stream btrfaasgrpc.FunctionRunner_RunServer, input io.WriteCloser) error {

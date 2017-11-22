@@ -69,6 +69,11 @@ func (c *Client) Run(ctx context.Context, chain []string, options [][]string, in
 	}
 }
 
+// Close closes the client connection
+func (c *Client) Close() error {
+	return c.conn.Close()
+}
+
 func buildOptionsForMetadata(options [][]string) (res []string) {
 	for _, v := range options {
 		bs, _ := json.Marshal(v)
