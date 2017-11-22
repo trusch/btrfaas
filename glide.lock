@@ -1,5 +1,5 @@
 hash: 998127cb107ba3817f29c31fd604757a748dc52310def450617830731bed4560
-updated: 2017-11-21T07:15:16.031553876Z
+updated: 2017-11-22T11:12:27.196517148Z
 imports:
 - name: github.com/beorn7/perks
   version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
@@ -163,7 +163,7 @@ imports:
   - proxy
   - trace
 - name: golang.org/x/sys
-  version: 328643532ee3c60c099171d4ce2cad0ca0354ca9
+  version: 82aafbf43bf885069dc71b7e7c2f9d7a614d47da
   subpackages:
   - unix
   - windows
@@ -193,12 +193,14 @@ imports:
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 401e0e00e4bb830a10496d64cd95e068c5bf50de
+  version: 5a9f7b402fe85096d2e1d0383435ee1876e863d0
   subpackages:
   - balancer
+  - balancer/roundrobin
   - codes
   - connectivity
   - credentials
+  - encoding
   - grpclb/grpc_lb_v1/messages
   - grpclog
   - internal
@@ -207,6 +209,8 @@ imports:
   - naming
   - peer
   - resolver
+  - resolver/dns
+  - resolver/passthrough
   - stats
   - status
   - tap

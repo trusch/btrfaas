@@ -12,7 +12,7 @@
         "type": "grafana",
         "id": "grafana",
         "name": "Grafana",
-        "version": "4.6.1"
+        "version": "4.6.2"
       },
       {
         "type": "panel",
@@ -44,7 +44,7 @@
     "hideControls": false,
     "id": null,
     "links": [],
-    "refresh": "10s",
+    "refresh": "5s",
     "rows": [{
         "collapse": false,
         "height": 654,
@@ -81,13 +81,14 @@
           "stack": false,
           "steppedLine": false,
           "targets": [{
-            "expr": "rpc_durations_seconds{quantile=\"0.99\"}",
-            "format": "time_series",
-            "interval": "",
-            "intervalFactor": 1,
-            "legendFormat": "{{function}}",
-            "refId": "A"
-          }],
+              "expr": "rpc_durations_seconds{quantile=\"0.99\"}",
+              "format": "time_series",
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "{{function}}",
+              "refId": "A"
+            }
+          ],
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
@@ -165,12 +166,20 @@
           "stack": false,
           "steppedLine": false,
           "targets": [{
-            "expr": "deriv(rpc_durations_seconds_count[30s])",
-            "format": "time_series",
-            "intervalFactor": 2,
-            "legendFormat": "{{function}}",
-            "refId": "A"
-          }],
+              "expr": "deriv(rpc_durations_seconds_count[30s])",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "{{function}}",
+              "refId": "A"
+            },
+            {
+              "expr": "rate(rpc_durations_seconds_sum[30s]) / rate(rpc_durations_seconds_count[30s])",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "{{function}}",
+              "refId": "B"
+            }
+          ],
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
@@ -206,6 +215,17 @@
             }
           ]
         }],
+        "repeat": null,
+        "repeatIteration": null,
+        "repeatRowId": null,
+        "showTitle": false,
+        "title": "Dashboard Row",
+        "titleSize": "h6"
+      },
+      {
+        "collapse": false,
+        "height": 250,
+        "panels": [],
         "repeat": null,
         "repeatIteration": null,
         "repeatRowId": null,
@@ -251,6 +271,6 @@
     },
     "timezone": "",
     "title": "Echo",
-    "version": 4
+    "version": 2
   }
 }
