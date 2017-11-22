@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"path/filepath"
 	"strings"
 
@@ -65,7 +64,6 @@ func (ptr *BtrFaaS) Teardown(ctx context.Context, options *faas.TeardownOptions)
 
 // DeployFunction deploys a service in an environment
 func (ptr *BtrFaaS) DeployFunction(ctx context.Context, options *faas.DeployFunctionOptions) error {
-	log.Printf("call deploy function: %+v", options)
 	if options.Labels == nil {
 		options.DeployServiceOptions.Labels = make(map[string]string)
 	}
