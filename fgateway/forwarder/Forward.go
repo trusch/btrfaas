@@ -43,6 +43,8 @@ const (
 	HTTP
 )
 
+var clients = make(map[string]*grpc.Client)
+
 // Forward forwards a function call
 func Forward(ctx context.Context, options *Options) error {
 	log.Debug("construct forwarding pipeline")
@@ -57,11 +59,15 @@ func Forward(ctx context.Context, options *Options) error {
 				if err != nil {
 					return err
 				}
-				fn, err := grpc.NewClient(uri, creds)
-				if err != nil {
-					return err
+				var fn *grpc.Client
+				if cli, ok := clients[uri]; ok {
+					fn = cli
+				} else {
+					fn, err = grpc.NewClient(uri, creds)
+					if err != nil {
+						return err
+					}
 				}
-				defer fn.Close()
 				runnables[i] = fn
 				optSlice[i] = host.CallOptions
 				log.Debugf("added grpc://%v to the pipeline", uri)
