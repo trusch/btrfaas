@@ -46,8 +46,13 @@ const (
 var clients = make(map[string]*grpc.Client)
 
 // Forward forwards a function call
-func Forward(ctx context.Context, options *Options) error {
+func Forward(ctx context.Context, options *Options) (err error) {
 	log.Debug("construct forwarding pipeline")
+	defer func() {
+		if err != nil {
+			cleanupClients(options)
+		}
+	}()
 	runnables := make([]runnable.Runnable, len(options.Hosts))
 	optSlice := make([][]string, len(options.Hosts))
 	for i, host := range options.Hosts {
@@ -111,4 +116,15 @@ func getTransportCredentials(target string) (g.DialOption, error) {
 	})
 
 	return g.WithTransportCredentials(creds), nil
+}
+
+func cleanupClients(options *Options) {
+	for _, host := range options.Hosts {
+		if host.Transport == GRPC {
+			key := fmt.Sprintf("%v:%v", host.Host, host.Port)
+			if _, ok := clients[key]; ok {
+				delete(clients, key)
+			}
+		}
+	}
 }
