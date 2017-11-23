@@ -34,8 +34,8 @@ This is heavily inspired by the architecture of [OpenFaaS](https://github.com/op
 > btrfaasctl init
 
 # deploy sample functions
-> btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.2.1/examples/sed.yaml
-> btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.2.1/examples/to-upper.yaml
+> btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.2.2/examples/sed.yaml
+> btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.2.2/examples/to-upper.yaml
 
 # test it
 > echo "I hate this" | btrfaasctl function invoke "sed -e s/hate/love/ | to-upper"
@@ -101,8 +101,8 @@ EOF
 do sleep 1; done
 
 # deploy sample functions
-> btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.2.1/examples/sed.yaml
-> btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.2.1/examples/to-upper.yaml
+> btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.2.2/examples/sed.yaml
+> btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.2.2/examples/to-upper.yaml
 ```
 
 You can now visit:
