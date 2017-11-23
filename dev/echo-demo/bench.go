@@ -15,16 +15,11 @@ import (
 	"time"
 
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/trusch/btrfaas/fgateway/grpc"
 	g "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
-
-type devNull struct{}
-
-func (d *devNull) Write(data []byte) (bs int, err error) {
-	return len(data), nil
-}
 
 type runSyncFunc func(context.Context, string, []byte, int) error
 
@@ -65,19 +60,17 @@ func runBtrfaasSync(ctx context.Context, fn string, data []byte, n int) error {
 		log.Fatal("init:", err)
 	}
 	for i := 0; i < n; i++ {
-		if err := cli.Run(ctx, []string{fn}, [][]string{{}}, bytes.NewReader(data), &devNull{}); err != nil {
-			log.Print(err)
+		start := time.Now()
+		if err := cli.Run(ctx, []string{fn}, [][]string{{}}, bytes.NewReader(data), ioutil.Discard); err != nil {
+			fmt.Print(err)
 		}
+		end := time.Now()
+		stats.WithLabelValues(fn).Observe(end.Sub(start).Seconds())
 	}
 	return nil
 }
 
 func runAsync(ctx context.Context, fn string, data []byte, sync runSyncFunc, p, n int) error {
-	start := time.Now()
-	defer func() {
-		end := time.Now()
-		log.Printf("%v(%v/%v):\t%v req/s", fn, p, n, 1./(end.Sub(start).Seconds()/float64(p*n)))
-	}()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	done := make(chan error, p)
@@ -100,15 +93,35 @@ var n = flag.Int("n", 1000, "how many requests")
 var size = flag.Int("size", 32, "payload size")
 var fn = flag.String("function", "echo-go", "function to benchmark")
 
+var stats = prometheus.NewSummaryVec(
+	prometheus.SummaryOpts{
+		Name:       "rpc_duration_seconds",
+		Help:       "The function call durations.",
+		Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.95: 0.001, 0.99: 0.001},
+	},
+	[]string{"function"},
+)
+
 func main() {
 	flag.Parse()
+	reg := prometheus.NewRegistry()
+	reg.MustRegister(stats)
 	data := make([]byte, *size)
 	if _, err := rand.Read(data); err != nil {
 		log.Fatal(err)
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+	start := time.Now()
 	if err := runAsync(ctx, *fn, data, runBtrfaasSync, *c, *n); err != nil {
 		log.Fatal(err)
 	}
+	end := time.Now()
+	metricFamilies, _ := reg.Gather()
+	summary := metricFamilies[0].GetMetric()[0].Summary
+	q50 := summary.Quantile[0].GetValue() * 1000.
+	q90 := summary.Quantile[1].GetValue() * 1000.
+	q95 := summary.Quantile[2].GetValue() * 1000.
+	q99 := summary.Quantile[3].GetValue() * 1000.
+	fmt.Printf("%v(%v/%v):\t%v req/s, q99: %vms, q95: %vms, q90: %vms, q50: %vms\n", *fn, *c, *n, 1./(end.Sub(start).Seconds()/float64(*c**n)), q99, q95, q90, q50)
 }
