@@ -11,10 +11,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"time"
 
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/olekukonko/tablewriter"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/trusch/btrfaas/fgateway/grpc"
 	g "google.golang.org/grpc"
@@ -91,7 +93,7 @@ func runAsync(ctx context.Context, fn string, data []byte, sync runSyncFunc, p, 
 var c = flag.Int("c", 10, "concurrency level")
 var n = flag.Int("n", 1000, "how many requests")
 var size = flag.Int("size", 32, "payload size")
-var fn = flag.String("function", "echo-go", "function to benchmark")
+var fn = flag.String("function", "", "function to benchmark")
 
 var stats = prometheus.NewSummaryVec(
 	prometheus.SummaryOpts{
@@ -104,24 +106,49 @@ var stats = prometheus.NewSummaryVec(
 
 func main() {
 	flag.Parse()
-	reg := prometheus.NewRegistry()
-	reg.MustRegister(stats)
-	data := make([]byte, *size)
-	if _, err := rand.Read(data); err != nil {
-		log.Fatal(err)
+	fns := []string{*fn}
+	if fns[0] == "" {
+		fns = []string{
+			"echo-go",
+			"echo-node",
+			"echo-python",
+			"echo-shell",
+			"http://echo-openfaas",
+		}
 	}
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	start := time.Now()
-	if err := runAsync(ctx, *fn, data, runBtrfaasSync, *c, *n); err != nil {
-		log.Fatal(err)
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"function", "req/s", "q99", "q95", "q90", "q50"})
+	for _, fn := range fns {
+		stats.Reset()
+		reg := prometheus.NewRegistry()
+		reg.MustRegister(stats)
+		data := make([]byte, *size)
+		if _, err := rand.Read(data); err != nil {
+			log.Fatal(err)
+		}
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		start := time.Now()
+		if err := runAsync(ctx, fn, data, runBtrfaasSync, *c, *n); err != nil {
+			log.Fatal(err)
+		}
+		end := time.Now()
+		metricFamilies, _ := reg.Gather()
+		summary := metricFamilies[0].GetMetric()[0].Summary
+		q50 := summary.Quantile[0].GetValue() * 1000.
+		q90 := summary.Quantile[1].GetValue() * 1000.
+		q95 := summary.Quantile[2].GetValue() * 1000.
+		q99 := summary.Quantile[3].GetValue() * 1000.
+		reqPerSecond := float64(*c**n) / end.Sub(start).Seconds()
+		fmt.Printf("finished with %v with %.2f req/s\n", fn, reqPerSecond)
+		table.Append([]string{
+			fn,
+			fmt.Sprintf("%.2f", reqPerSecond),
+			fmt.Sprintf("%.2f", q99),
+			fmt.Sprintf("%.2f", q95),
+			fmt.Sprintf("%.2f", q90),
+			fmt.Sprintf("%.2f", q50),
+		})
 	}
-	end := time.Now()
-	metricFamilies, _ := reg.Gather()
-	summary := metricFamilies[0].GetMetric()[0].Summary
-	q50 := summary.Quantile[0].GetValue() * 1000.
-	q90 := summary.Quantile[1].GetValue() * 1000.
-	q95 := summary.Quantile[2].GetValue() * 1000.
-	q99 := summary.Quantile[3].GetValue() * 1000.
-	fmt.Printf("%v(%v/%v):\t%v req/s, q99: %vms, q95: %vms, q90: %vms, q50: %vms\n", *fn, *c, *n, 1./(end.Sub(start).Seconds()/float64(*c**n)), q99, q95, q90, q50)
+	table.Render()
 }
