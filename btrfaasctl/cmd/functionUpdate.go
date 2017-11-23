@@ -35,9 +35,10 @@ import (
 
 // functionUpdateCmd represents the functionUpdate command
 var functionUpdateCmd = &cobra.Command{
-	Use:   "update <function spec>",
-	Short: "update a function",
-	Long:  `update a function`,
+	Use:     "update <function spec>",
+	Aliases: []string{"redeploy", "upgrade"},
+	Short:   "update a function",
+	Long:    `update a function`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
 			cmd.Help()

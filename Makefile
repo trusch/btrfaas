@@ -11,7 +11,7 @@ install: btrfaasctl
 	cp btrfaasctl/btrfaasctl $(GOPATH)/bin/
 
 clean:
-	rm -rf vendor btrfaasctl/btrfaasctl fgateway/fgateway frunner/cmd/frunner/frunner
+	rm -rf vendor btrfaasctl/btrfaasctl fgateway/fgateway frunner/cmd/frunner/frunner fui/fui examples/echo-go examples/echo-node examples/echo-python
 
 frunner: frunner/cmd/frunner/frunner
 
