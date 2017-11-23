@@ -32,9 +32,10 @@ import (
 
 // functionUndeployCmd represents the functionUndeploy command
 var functionUndeployCmd = &cobra.Command{
-	Use:   "undeploy [<function id>]",
-	Short: "undeploy a function",
-	Long:  `undeploy a function`,
+	Use:     "undeploy [<function id>]",
+	Aliases: []string{"del", "delete", "rm", "remove"},
+	Short:   "undeploy a function",
+	Long:    `undeploy a function`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
 			cmd.Help()
@@ -42,8 +43,8 @@ var functionUndeployCmd = &cobra.Command{
 		}
 		env, _ := cmd.Flags().GetString("env")
 		cli := getFaaS(cmd)
+		ctx := context.Background()
 		for _, id := range args {
-			ctx := context.Background()
 			err := cli.UndeployFunction(ctx, &faas.UndeployFunctionOptions{
 				UndeployServiceOptions: deployment.UndeployServiceOptions{
 					EnvironmentID: env,

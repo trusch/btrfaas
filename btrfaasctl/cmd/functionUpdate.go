@@ -22,55 +22,67 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/olekukonko/tablewriter"
 
 	"github.com/spf13/cobra"
+	"github.com/trusch/btrfaas/btrfaasctl/inputfile"
 	"github.com/trusch/btrfaas/deployment"
+	"github.com/trusch/btrfaas/faas"
+	yaml "gopkg.in/yaml.v2"
 )
 
-// serviceListCmd represents the serviceList command
-var serviceListCmd = &cobra.Command{
-	Use:     "list",
-	Aliases: []string{"ls"},
-	Short:   "list services",
-	Long:    `list services`,
+// functionUpdateCmd represents the functionUpdate command
+var functionUpdateCmd = &cobra.Command{
+	Use:   "update <function spec>",
+	Short: "update a function",
+	Long:  `update a function`,
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 1 {
+			cmd.Help()
+			os.Exit(1)
+		}
 		env, _ := cmd.Flags().GetString("env")
-		cli := getDeploymentPlatform(cmd)
-		ctx := context.Background()
-		services, err := cli.ListServices(ctx, &deployment.ListServicesOptions{
-			EnvironmentID: env,
-		})
+		cli := getFaaS(cmd)
+		spec := args[0]
+		bs, err := inputfile.Resolve(spec)
 		if err != nil {
 			log.Fatal(err)
 		}
-		printServiceTable(services)
+		opts := faas.DeployFunctionOptions{}
+		if err = yaml.Unmarshal(bs, &opts); err != nil {
+			log.Fatal(err)
+		}
+		opts.EnvironmentID = env
+		ctx := context.Background()
+		err = cli.UndeployFunction(ctx, &faas.UndeployFunctionOptions{
+			UndeployServiceOptions: deployment.UndeployServiceOptions{
+				EnvironmentID: env,
+				ID:            opts.ID,
+			},
+		})
+		if err != nil {
+			log.Warn(err)
+		}
+		err = cli.DeployFunction(ctx, &opts)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Info("successfully updated function ", opts.ID)
 	},
 }
 
 func init() {
-	serviceCmd.AddCommand(serviceListCmd)
+	functionCmd.AddCommand(functionUpdateCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// serviceListCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// functionUpdateCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// serviceListCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-func printServiceTable(services []*deployment.ServiceInfo) {
-	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"id", "image", "created", "scale"})
-	for _, service := range services {
-		table.Append([]string{service.ID, service.Image, fmt.Sprint(service.CreatedAt), fmt.Sprint(service.Scale)})
-	}
-	table.Render()
+	// functionUpdateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

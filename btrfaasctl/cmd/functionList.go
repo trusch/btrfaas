@@ -27,50 +27,52 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/olekukonko/tablewriter"
-
 	"github.com/spf13/cobra"
 	"github.com/trusch/btrfaas/deployment"
+	"github.com/trusch/btrfaas/faas"
 )
 
-// serviceListCmd represents the serviceList command
-var serviceListCmd = &cobra.Command{
+// functionListCmd represents the functionList command
+var functionListCmd = &cobra.Command{
 	Use:     "list",
 	Aliases: []string{"ls"},
-	Short:   "list services",
-	Long:    `list services`,
+	Short:   "list functions",
+	Long:    `list functions`,
 	Run: func(cmd *cobra.Command, args []string) {
 		env, _ := cmd.Flags().GetString("env")
-		cli := getDeploymentPlatform(cmd)
+		cli := getFaaS(cmd)
 		ctx := context.Background()
-		services, err := cli.ListServices(ctx, &deployment.ListServicesOptions{
-			EnvironmentID: env,
+		functions, err := cli.ListFunctions(ctx, &faas.ListFunctionsOptions{
+			ListServicesOptions: deployment.ListServicesOptions{
+				EnvironmentID: env,
+			},
 		})
 		if err != nil {
 			log.Fatal(err)
 		}
-		printServiceTable(services)
+		printFunctionTable(functions)
 	},
 }
 
 func init() {
-	serviceCmd.AddCommand(serviceListCmd)
+	functionCmd.AddCommand(functionListCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// serviceListCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// functionListCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// serviceListCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// functionListCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func printServiceTable(services []*deployment.ServiceInfo) {
+func printFunctionTable(functions []*faas.FunctionInfo) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"id", "image", "created", "scale"})
-	for _, service := range services {
-		table.Append([]string{service.ID, service.Image, fmt.Sprint(service.CreatedAt), fmt.Sprint(service.Scale)})
+	for _, function := range functions {
+		table.Append([]string{function.ID, function.Image, fmt.Sprint(function.CreatedAt), fmt.Sprint(function.Scale)})
 	}
 	table.Render()
 }
