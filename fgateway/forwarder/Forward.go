@@ -55,18 +55,19 @@ func Forward(ctx context.Context, options *Options) error {
 		case GRPC:
 			{
 				uri := fmt.Sprintf("%v:%v", host.Host, host.Port)
-				creds, err := getTransportCredentials(host.Host)
-				if err != nil {
-					return err
-				}
 				var fn *grpc.Client
 				if cli, ok := clients[uri]; ok {
 					fn = cli
 				} else {
+					creds, err := getTransportCredentials(host.Host)
+					if err != nil {
+						return err
+					}
 					fn, err = grpc.NewClient(uri, creds)
 					if err != nil {
 						return err
 					}
+					clients[uri] = fn
 				}
 				runnables[i] = fn
 				optSlice[i] = host.CallOptions
