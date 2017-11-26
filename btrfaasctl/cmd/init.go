@@ -28,6 +28,7 @@ import (
 	"github.com/trusch/btrfaas/faas"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // initCmd represents the init command
@@ -37,7 +38,7 @@ var initCmd = &cobra.Command{
 	Long:  `init your faas`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli := getFaaS(cmd)
-		env, _ := cmd.Flags().GetString("env")
+		env := viper.GetString("env")
 		ctx := context.Background()
 		err := cli.Init(ctx, &faas.InitOptions{
 			PrepareEnvironmentOptions: deployment.PrepareEnvironmentOptions{

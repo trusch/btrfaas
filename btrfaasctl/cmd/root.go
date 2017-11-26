@@ -66,8 +66,9 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	RootCmd.PersistentFlags().StringP("env", "e", "btrfaas-default", "environment to use")
-	RootCmd.PersistentFlags().String("platform", "docker", "deployment platform (docker, swarm)")
+	RootCmd.PersistentFlags().String("platform", "docker", "deployment platform (docker, swarm, k8s)")
 	RootCmd.PersistentFlags().String("faas-provider", "btrfaas", "faas provider (btrfaas, openfaas)")
+	viper.BindPFlags(RootCmd.PersistentFlags())
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -88,6 +89,7 @@ func initConfig() {
 		viper.SetConfigName(".btrfaasctl")
 	}
 
+	viper.SetEnvPrefix("btrfaas")
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
@@ -97,11 +99,11 @@ func initConfig() {
 }
 
 func getDeploymentPlatform(cmd *cobra.Command) deployment.Platform {
-	platformID, err := cmd.Flags().GetString("platform")
-	if err != nil {
-		log.Fatal(err)
-	}
-	var platform deployment.Platform
+	platformID := viper.GetString("platform")
+	var (
+		platform deployment.Platform
+		err      error
+	)
 	switch platformID {
 	case "docker":
 		platform, err = docker.NewPlatform()
@@ -119,11 +121,11 @@ func getDeploymentPlatform(cmd *cobra.Command) deployment.Platform {
 }
 
 func getFaaS(cmd *cobra.Command) faas.FaaS {
-	faasID, err := cmd.Flags().GetString("faas-provider")
-	if err != nil {
-		log.Fatal(err)
-	}
-	var result faas.FaaS
+	faasID := viper.GetString("faas-provider")
+	var (
+		result faas.FaaS
+		err    error
+	)
 	switch faasID {
 	case "btrfaas":
 		result = btrfaas.New(getDeploymentPlatform(cmd))

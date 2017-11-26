@@ -28,6 +28,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/trusch/btrfaas/deployment"
 	"github.com/trusch/btrfaas/faas"
 )
@@ -39,7 +40,7 @@ var functionListCmd = &cobra.Command{
 	Short:   "list functions",
 	Long:    `list functions`,
 	Run: func(cmd *cobra.Command, args []string) {
-		env, _ := cmd.Flags().GetString("env")
+		env := viper.GetString("env")
 		cli := getFaaS(cmd)
 		ctx := context.Background()
 		functions, err := cli.ListFunctions(ctx, &faas.ListFunctionsOptions{

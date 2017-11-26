@@ -31,6 +31,7 @@ import (
 	"github.com/trusch/btrfaas/faas"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // secretDeployCmd represents the secretDeploy command
@@ -41,7 +42,7 @@ var secretDeployCmd = &cobra.Command{
 	Long:    `deploy a secret`,
 	Run: func(cmd *cobra.Command, args []string) {
 		secretID, secretValue := getIDAndValue(cmd, args)
-		env, _ := cmd.Flags().GetString("env")
+		env := viper.GetString("env")
 		cli := getFaaS(cmd)
 		ctx := context.Background()
 		err := cli.DeploySecret(ctx, &faas.DeploySecretOptions{

@@ -31,6 +31,7 @@ import (
 	"github.com/trusch/btrfaas/faas"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // secretListCmd represents the secretList command
@@ -40,7 +41,7 @@ var secretListCmd = &cobra.Command{
 	Short:   "list deployed secrets",
 	Long:    `list deployed secrets`,
 	Run: func(cmd *cobra.Command, args []string) {
-		env, _ := cmd.Flags().GetString("env")
+		env := viper.GetString("env")
 		cli := getFaaS(cmd)
 		ctx := context.Background()
 		secrets, err := cli.ListSecrets(ctx, &faas.ListSecretsOptions{

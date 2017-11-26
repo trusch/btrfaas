@@ -27,6 +27,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/trusch/btrfaas/btrfaasctl/inputfile"
 	"github.com/trusch/btrfaas/deployment"
 	"github.com/trusch/btrfaas/faas"
@@ -44,7 +45,7 @@ var functionUpdateCmd = &cobra.Command{
 			cmd.Help()
 			os.Exit(1)
 		}
-		env, _ := cmd.Flags().GetString("env")
+		env := viper.GetString("env")
 		cli := getFaaS(cmd)
 		spec := args[0]
 		bs, err := inputfile.Resolve(spec)

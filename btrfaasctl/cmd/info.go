@@ -21,62 +21,38 @@
 package cmd
 
 import (
-	"context"
-	"os"
-
-	log "github.com/Sirupsen/logrus"
-
-	yaml "gopkg.in/yaml.v2"
+	"fmt"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/trusch/btrfaas/btrfaasctl/inputfile"
-	"github.com/trusch/btrfaas/deployment"
 )
 
-// serviceDeployCmd represents the serviceDeploy command
-var serviceDeployCmd = &cobra.Command{
-	Use:     "deploy <service spec file>",
-	Aliases: []string{"create", "add"},
-	Short:   "deploy a service",
-	Long:    `deploy a service`,
+// infoCmd represents the info command
+var infoCmd = &cobra.Command{
+	Use:   "info",
+	Short: "infos about your current configuration",
+	Long:  `infos about your current configuration`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) < 1 {
-			cmd.Help()
-			os.Exit(1)
-		}
+		version := "v0.2.1"
 		env := viper.GetString("env")
-		cli := getDeploymentPlatform(cmd)
-		for _, arg := range args {
-			bs, err := inputfile.Resolve(arg)
-			if err != nil {
-				log.Fatal(err)
-			}
-			opts := deployment.DeployServiceOptions{}
-			if err = yaml.Unmarshal(bs, &opts); err != nil {
-				log.Fatal(err)
-			}
-			opts.EnvironmentID = env
-			ctx := context.Background()
-			err = cli.DeployService(ctx, &opts)
-			if err != nil {
-				log.Fatal(err)
-			}
-			log.Info("successfully deployed service ", opts.ID)
-		}
+		platform := viper.GetString("platform")
+
+		fmt.Printf("version  : %v\n", version)
+		fmt.Printf("env      : %v\n", env)
+		fmt.Printf("platform : %v\n", platform)
 	},
 }
 
 func init() {
-	serviceCmd.AddCommand(serviceDeployCmd)
+	RootCmd.AddCommand(infoCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// serviceDeployCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// infoCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// serviceDeployCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// infoCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

@@ -27,6 +27,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/trusch/btrfaas/deployment"
 	"github.com/trusch/btrfaas/faas"
 )
@@ -43,7 +44,7 @@ var secretUndeployCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		id := args[0]
-		env, _ := cmd.Flags().GetString("env")
+		env := viper.GetString("env")
 		cli := getFaaS(cmd)
 		ctx := context.Background()
 		err := cli.UndeploySecret(ctx, &faas.UndeploySecretOptions{

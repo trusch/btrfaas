@@ -27,6 +27,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/trusch/btrfaas/btrfaasctl/inputfile"
 	"github.com/trusch/btrfaas/faas"
 	yaml "gopkg.in/yaml.v2"
@@ -42,7 +43,7 @@ var functionDeployCmd = &cobra.Command{
 			cmd.Help()
 			os.Exit(1)
 		}
-		env, _ := cmd.Flags().GetString("env")
+		env := viper.GetString("env")
 		cli := getFaaS(cmd)
 		for _, arg := range args {
 			bs, err := inputfile.Resolve(arg)

@@ -28,6 +28,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/trusch/btrfaas/faas"
 )
 
@@ -44,13 +45,13 @@ var invokeCmd = &cobra.Command{
 		cli := getFaaS(cmd)
 
 		ctx := context.Background()
-		if timeout, _ := cmd.Flags().GetDuration("timeout"); timeout != 0 {
+		if timeout := viper.GetDuration("timeout"); timeout != 0 {
 			c, cancel := context.WithTimeout(ctx, timeout)
 			defer cancel()
 			ctx = c
 		}
 		expr := strings.Join(args, " ")
-		env, _ := cmd.Flags().GetString("env")
+		env := viper.GetString("env")
 		if err := cli.Invoke(ctx, &faas.InvokeOptions{
 			EnvironmentID:      env,
 			GatewayAddress:     getGateway(cmd),
@@ -67,11 +68,12 @@ func init() {
 	functionCmd.AddCommand(invokeCmd)
 	invokeCmd.Flags().Duration("timeout", 0*time.Second, "specify a timeout for the call")
 	invokeCmd.Flags().String("gateway", "", "gateway address")
+	viper.BindPFlags(invokeCmd.Flags())
 }
 
 func getGateway(cmd *cobra.Command) string {
 	flags := cmd.Flags()
-	gw, _ := flags.GetString("gateway")
+	gw := viper.GetString("gateway")
 	if gw == "" {
 		faasProvider, _ := flags.GetString("faas-provider")
 		switch faasProvider {

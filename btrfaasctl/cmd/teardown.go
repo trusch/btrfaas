@@ -25,6 +25,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/trusch/btrfaas/deployment"
 )
 
@@ -35,7 +36,7 @@ var teardownCmd = &cobra.Command{
 	Long:  `teardown an environment`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cli := getDeploymentPlatform(cmd)
-		env, _ := cmd.Flags().GetString("env")
+		env := viper.GetString("env")
 		ctx := context.Background()
 		err := cli.TeardownEnvironment(ctx, &deployment.TeardownEnvironmentOptions{
 			ID: env,

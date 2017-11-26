@@ -29,6 +29,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/trusch/btrfaas/deployment"
 )
 
@@ -39,7 +40,7 @@ var serviceListCmd = &cobra.Command{
 	Short:   "list services",
 	Long:    `list services`,
 	Run: func(cmd *cobra.Command, args []string) {
-		env, _ := cmd.Flags().GetString("env")
+		env := viper.GetString("env")
 		cli := getDeploymentPlatform(cmd)
 		ctx := context.Background()
 		services, err := cli.ListServices(ctx, &deployment.ListServicesOptions{

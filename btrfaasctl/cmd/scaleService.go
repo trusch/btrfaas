@@ -28,6 +28,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/trusch/btrfaas/deployment"
 )
 
@@ -42,7 +43,7 @@ var scaleServiceCmd = &cobra.Command{
 			cmd.Help()
 			os.Exit(1)
 		}
-		env, _ := cmd.Flags().GetString("env")
+		env := viper.GetString("env")
 		serviceID := args[0]
 		scale, err := strconv.ParseUint(args[1], 10, 64)
 		if err != nil {
