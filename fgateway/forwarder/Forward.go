@@ -101,7 +101,10 @@ func getTransportCredentials(target string) (g.DialOption, error) {
 	if certPool == nil {
 		ca, err := ioutil.ReadFile("/run/secrets/btrfaas-ca-cert.pem")
 		if err != nil {
-			return nil, fmt.Errorf("could not read ca certificate: %s", err)
+			ca, err = ioutil.ReadFile("/run/secrets/btrfaas-ca-cert.pem/value")
+			if err != nil {
+				return nil, fmt.Errorf("could not read ca certificate: %s", err)
+			}
 		}
 		certPool = x509.NewCertPool()
 		// Append the certificates from the CA

@@ -68,9 +68,9 @@ type DeployServiceOptions struct {
 	Image         string
 	Labels        LabelSet
 	Cmd           []string
-	Ports         map[uint16]uint16 // Host Port -> Container Port
-	Env           LabelSet          // Environment variables: key -> val mapping
-	Secrets       LabelSet          // Secrets: secret-id -> target-path mapping
+	Ports         []*PortConfig
+	Env           LabelSet // Environment variables: key -> val mapping
+	Secrets       LabelSet // Secrets: secret-id -> target-path mapping
 	Volumes       []*VolumeConfig
 }
 
@@ -79,6 +79,15 @@ type VolumeConfig struct {
 	Type   string
 	Source string
 	Target string
+}
+
+// PortConfig configures available ports of a service container
+// if Type == "cluster" HostPort is ignored
+// if Type == "host" HostPort is used
+type PortConfig struct {
+	Type          string
+	ContainerPort uint16
+	HostPort      uint16
 }
 
 // UndeployServiceOptions contains the options for the UndeployService call
@@ -143,6 +152,7 @@ type LabelSet map[string]string
 
 // ScaleServiceOptions are the options for the ScaleService call
 type ScaleServiceOptions struct {
-	ServiceID string
-	Scale     uint64
+	EnvironmentID string
+	ID            string
+	Scale         uint64
 }

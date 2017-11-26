@@ -1,6 +1,7 @@
 ---
 id: "with-ports"
-image: "debian"
-cmd: ["nc","-l","1234"]
+image: "abiosoft/caddy"
 ports:
-  8888: 1234 # host port 8888 is mapped to container port 1234
+  - type: host
+    containerPort: 2015
+    hostPort: 8888

@@ -31,6 +31,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/trusch/btrfaas/deployment"
 	"github.com/trusch/btrfaas/deployment/docker"
+	"github.com/trusch/btrfaas/deployment/k8s"
 	"github.com/trusch/btrfaas/deployment/swarm"
 	"github.com/trusch/btrfaas/faas"
 	"github.com/trusch/btrfaas/faas/btrfaas"
@@ -64,7 +65,7 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	RootCmd.PersistentFlags().StringP("env", "e", "btrfaas_default", "environment to use")
+	RootCmd.PersistentFlags().StringP("env", "e", "btrfaas-default", "environment to use")
 	RootCmd.PersistentFlags().String("platform", "docker", "deployment platform (docker, swarm)")
 	RootCmd.PersistentFlags().String("faas-provider", "btrfaas", "faas provider (btrfaas, openfaas)")
 }
@@ -106,6 +107,8 @@ func getDeploymentPlatform(cmd *cobra.Command) deployment.Platform {
 		platform, err = docker.NewPlatform()
 	case "swarm":
 		platform, err = swarm.NewPlatform()
+	case "k8s":
+		platform, err = k8s.NewPlatform()
 	default:
 		err = errors.New("deployment platform unsupported")
 	}

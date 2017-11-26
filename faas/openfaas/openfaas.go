@@ -31,8 +31,12 @@ func (ptr *OpenFaaS) Init(ctx context.Context, options *faas.InitOptions) error 
 		EnvironmentID: options.PrepareEnvironmentOptions.ID,
 		ID:            "openfaas-gateway",
 		Image:         "functions/gateway",
-		Ports: map[uint16]uint16{
-			8080: 8080,
+		Ports: []*deployment.PortConfig{
+			{
+				Type:          "host",
+				ContainerPort: 8080,
+				HostPort:      8080,
+			},
 		},
 		Volumes: []*deployment.VolumeConfig{
 			{
@@ -56,6 +60,14 @@ func (ptr *OpenFaaS) DeployFunction(ctx context.Context, options *faas.DeployFun
 	}
 	options.DeployServiceOptions.Labels["openfaas.function"] = trueString
 	options.DeployServiceOptions.Labels["function"] = trueString
+	if options.Ports == nil {
+		options.Ports = make([]*deployment.PortConfig, 0)
+	}
+	options.Ports = append(options.Ports, &deployment.PortConfig{
+		Type:          "cluster",
+		ContainerPort: 8080,
+		HostPort:      8080,
+	})
 	return ptr.platform.DeployService(ctx, &options.DeployServiceOptions)
 }
 

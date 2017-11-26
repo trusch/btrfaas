@@ -41,11 +41,23 @@ function getServer() {
 }
 
 if (require.main === module) {
+  var caPath = '/run/secrets/btrfaas-ca-cert.pem';
+  if(fs.lstatSync(path_string).isDirectory()){
+    caPath += '/value';
+  }
+  var keyPath = '/run/secrets/btrfaas-function-key.pem';
+  if(fs.lstatSync(path_string).isDirectory()){
+    keyPath += '/value';
+  }
+  var certPath = '/run/secrets/btrfaas-function-cert.pem';
+  if(fs.lstatSync(path_string).isDirectory()){
+    keyPath += '/value';
+  }
   const serverCredentials = grpc.ServerCredentials.createSsl(
-    fs.readFileSync('/run/secrets/btrfaas-ca-cert.pem'),
+    fs.readFileSync(caPath),
     [{
-      private_key: fs.readFileSync('/run/secrets/btrfaas-function-key.pem'),
-      cert_chain: fs.readFileSync('/run/secrets/btrfaas-function-cert.pem')
+      private_key: keyPath,
+      cert_chain: certPath,
     }],
     false,
   );

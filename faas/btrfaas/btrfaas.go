@@ -46,8 +46,12 @@ func (ptr *BtrFaaS) Init(ctx context.Context, options *faas.InitOptions) error {
 		EnvironmentID: options.PrepareEnvironmentOptions.ID,
 		ID:            "fgateway",
 		Image:         "btrfaas/fgateway",
-		Ports: map[uint16]uint16{
-			2424: 2424,
+		Ports: []*deployment.PortConfig{
+			{
+				Type:          "host",
+				ContainerPort: 2424,
+				HostPort:      2424,
+			},
 		},
 		Secrets: deployment.LabelSet{
 			"btrfaas-ca-cert": "/run/secrets/btrfaas-ca-cert.pem",
@@ -81,6 +85,19 @@ func (ptr *BtrFaaS) DeployFunction(ctx context.Context, options *faas.DeployFunc
 	options.Secrets["btrfaas-ca-cert"] = "/run/secrets/btrfaas-ca-cert.pem"
 	options.Secrets[options.ID+"-key"] = "/run/secrets/btrfaas-function-key.pem"
 	options.Secrets[options.ID+"-cert"] = "/run/secrets/btrfaas-function-cert.pem"
+	if options.Ports == nil {
+		options.Ports = make([]*deployment.PortConfig, 0)
+	}
+	options.Ports = append(options.Ports, &deployment.PortConfig{
+		Type:          "cluster",
+		ContainerPort: 2424,
+		HostPort:      2424,
+	})
+	options.Ports = append(options.Ports, &deployment.PortConfig{
+		Type:          "cluster",
+		ContainerPort: 8080,
+		HostPort:      8080,
+	})
 	return ptr.platform.DeployService(ctx, &options.DeployServiceOptions)
 }
 

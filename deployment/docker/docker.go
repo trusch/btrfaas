@@ -228,11 +228,11 @@ func (p *dockerPlatform) TeardownEnvironment(ctx context.Context, options *deplo
 	return p.cli.NetworkRemove(ctx, options.ID+"_network")
 }
 
-func constructPortMap(ports map[uint16]uint16) (nat.PortMap, error) {
+func constructPortMap(ports []*deployment.PortConfig) (nat.PortMap, error) {
 	specs := make([]string, len(ports))
 	i := 0
-	for k, v := range ports {
-		specs[i] = fmt.Sprintf("0.0.0.0:%v:%v", k, v)
+	for _, portConfig := range ports {
+		specs[i] = fmt.Sprintf("0.0.0.0:%v:%v", portConfig.HostPort, portConfig.ContainerPort)
 		i++
 	}
 	_, res, err := nat.ParsePortSpecs(specs)
@@ -242,10 +242,12 @@ func constructPortMap(ports map[uint16]uint16) (nat.PortMap, error) {
 	return res, nil
 }
 
-func constructExposedPorts(ports map[uint16]uint16) nat.PortSet {
+func constructExposedPorts(ports []*deployment.PortConfig) nat.PortSet {
 	res := make(nat.PortSet)
-	for _, containerPort := range ports {
-		res[nat.Port(fmt.Sprintf("%v/tcp", containerPort))] = struct{}{}
+	for _, portConfig := range ports {
+		if portConfig.Type == "host" {
+			res[nat.Port(fmt.Sprintf("%v/tcp", portConfig.ContainerPort))] = struct{}{}
+		}
 	}
 	return res
 }

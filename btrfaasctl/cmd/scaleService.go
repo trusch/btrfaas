@@ -42,6 +42,7 @@ var scaleServiceCmd = &cobra.Command{
 			cmd.Help()
 			os.Exit(1)
 		}
+		env, _ := cmd.Flags().GetString("env")
 		serviceID := args[0]
 		scale, err := strconv.ParseUint(args[1], 10, 64)
 		if err != nil {
@@ -49,8 +50,9 @@ var scaleServiceCmd = &cobra.Command{
 		}
 		ctx := context.Background()
 		err = cli.ScaleService(ctx, &deployment.ScaleServiceOptions{
-			ServiceID: serviceID,
-			Scale:     scale,
+			EnvironmentID: env,
+			ID:            serviceID,
+			Scale:         scale,
 		})
 		if err != nil {
 			log.Fatal(err)

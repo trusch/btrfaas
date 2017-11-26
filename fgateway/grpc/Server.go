@@ -45,14 +45,20 @@ func (s *Server) ListenAndServe() error {
 	}
 	certificate, err := tls.LoadX509KeyPair("/run/secrets/fgateway-cert.pem", "/run/secrets/fgateway-key.pem")
 	if err != nil {
-		return fmt.Errorf("could not load server key pair: %s", err)
+		certificate, err = tls.LoadX509KeyPair("/run/secrets/fgateway-cert.pem/value", "/run/secrets/fgateway-key.pem/value") // k8s specific -.-
+		if err != nil {
+			return fmt.Errorf("could not load server key pair: %s", err)
+		}
 	}
 
 	// Create a certificate pool from the certificate authority
 	certPool := x509.NewCertPool()
 	ca, err := ioutil.ReadFile("/run/secrets/btrfaas-ca-cert.pem")
 	if err != nil {
-		return fmt.Errorf("could not read ca certificate: %s", err)
+		ca, err = ioutil.ReadFile("/run/secrets/btrfaas-ca-cert.pem/value") // k8s specific -.-
+		if err != nil {
+			return fmt.Errorf("could not read ca certificate: %s", err)
+		}
 	}
 
 	// Append the client certificates from the CA

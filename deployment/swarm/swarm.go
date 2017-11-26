@@ -224,13 +224,13 @@ func (p *swarmPlatform) constructSecretReferences(ctx context.Context, list map[
 
 // ScaleService scales the service
 func (p *swarmPlatform) ScaleService(ctx context.Context, options *deployment.ScaleServiceOptions) error {
-	service, _, err := p.cli.ServiceInspectWithRaw(ctx, options.ServiceID, types.ServiceInspectOptions{})
+	service, _, err := p.cli.ServiceInspectWithRaw(ctx, options.ID, types.ServiceInspectOptions{})
 	if err != nil {
 		return err
 	}
 	spec := service.Spec
 	spec.Mode.Replicated.Replicas = &options.Scale
-	_, err = p.cli.ServiceUpdate(ctx, options.ServiceID, service.Version, spec, types.ServiceUpdateOptions{})
+	_, err = p.cli.ServiceUpdate(ctx, options.ID, service.Version, spec, types.ServiceUpdateOptions{})
 	return err
 }
 
@@ -286,19 +286,21 @@ func secretListToLabelSet(secrets []*swarm.SecretReference) deployment.LabelSet 
 	return res
 }
 
-func createPortConfigs(portmap map[uint16]uint16) []swarm.PortConfig {
-	res := make([]swarm.PortConfig, len(portmap))
+func createPortConfigs(configs []*deployment.PortConfig) []swarm.PortConfig {
+	res := make([]swarm.PortConfig, len(configs))
 	i := 0
-	for hostPort, containerPort := range portmap {
-		res[i] = swarm.PortConfig{
-			Protocol:      swarm.PortConfigProtocolTCP,
-			TargetPort:    uint32(containerPort),
-			PublishedPort: uint32(hostPort),
-			PublishMode:   swarm.PortConfigPublishModeIngress,
+	for _, cfg := range configs {
+		if cfg.Type == "host" {
+			res[i] = swarm.PortConfig{
+				Protocol:      swarm.PortConfigProtocolTCP,
+				TargetPort:    uint32(cfg.ContainerPort),
+				PublishedPort: uint32(cfg.HostPort),
+				PublishMode:   swarm.PortConfigPublishModeIngress,
+			}
+			i++
 		}
-		i++
 	}
-	return res
+	return res[:i]
 }
 
 func createMounts(volumes []*deployment.VolumeConfig) []mount.Mount {

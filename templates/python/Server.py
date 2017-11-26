@@ -37,9 +37,18 @@ class Server(frunner_pb2_grpc.FunctionRunnerServicer):
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     frunner_pb2_grpc.add_FunctionRunnerServicer_to_server(Server(), server)
-    caCertFile = open("/run/secrets/btrfaas-ca-cert.pem", "rb")
-    certFile = open("/run/secrets/btrfaas-function-cert.pem", "rb")
-    keyFile = open("/run/secrets/btrfaas-function-key.pem", "rb")
+    caPath = "/run/secrets/btrfaas-ca-cert.pem"
+    if os.path.isdir(caPath)
+        caPath += "/value"
+    keyPath = "/run/secrets/btrfaas-function-key.pem"
+    if os.path.isdir(keyPath)
+        keyPath += "/value"
+    certPath = "/run/secrets/btrfaas-function-cert.pem"
+    if os.path.isdir(certPath)
+        certPath += "/value"
+    caCertFile = open(caPath, "rb")
+    certFile = open(certPath, "rb")
+    keyFile = open(keyPath, "rb")
     caCert = caCertFile.read()
     cert = certFile.read()
     key = keyFile.read()

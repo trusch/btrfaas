@@ -70,7 +70,13 @@ func printServiceTable(services []*deployment.ServiceInfo) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"id", "image", "created", "scale"})
 	for _, service := range services {
-		table.Append([]string{service.ID, service.Image, fmt.Sprint(service.CreatedAt), fmt.Sprint(service.Scale)})
+		log.Printf("%+v", service)
+		table.Append([]string{
+			service.ID,
+			service.Image,
+			fmt.Sprint(service.CreatedAt),
+			fmt.Sprint(service.Scale),
+		})
 	}
 	table.Render()
 }
