@@ -1,5 +1,5 @@
 hash: 87ca85df67a7192d7b70c252577131e180b68c7dfec978f8768f36c6cb92d631
-updated: 2017-11-23T15:00:55.201660353Z
+updated: 2017-11-27T07:52:34.806584927Z
 imports:
 - name: github.com/beorn7/perks
   version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
@@ -338,7 +338,7 @@ imports:
 - name: gopkg.in/warnings.v0
   version: ec4a0fea49c7b46c2aeb0b51aac55779c607e52b
 - name: gopkg.in/yaml.v2
-  version: 287cf08546ab5e7e37d55a84f7ed3fd1db036de5
+  version: 53feefa2559fb8dfa8d81baad31be332c97d6c77
 - name: k8s.io/api
   version: 6c6dac0277229b9e9578c5ca3f74a4345d35cdc2
   subpackages:
@@ -452,6 +452,7 @@ imports:
   - util/flowcontrol
   - util/homedir
   - util/integer
+  - util/retry
 - name: k8s.io/kube-openapi
   version: 61b46af70dfed79c6d24530cd23b41440a7f22a5
   subpackages:

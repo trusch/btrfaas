@@ -21,5 +21,5 @@ func Resolve(uri string) ([]byte, error) {
 		defer resp.Body.Close()
 		return ioutil.ReadAll(resp.Body)
 	}
-	return nil, errors.New("can not determine file")
+	return nil, errors.New("can not determine file " + uri)
 }
