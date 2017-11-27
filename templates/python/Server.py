@@ -16,6 +16,7 @@
 
 from concurrent import futures
 import time
+import os
 
 import grpc
 
@@ -38,13 +39,13 @@ def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     frunner_pb2_grpc.add_FunctionRunnerServicer_to_server(Server(), server)
     caPath = "/run/secrets/btrfaas-ca-cert.pem"
-    if os.path.isdir(caPath)
+    if os.path.isdir(caPath):
         caPath += "/value"
     keyPath = "/run/secrets/btrfaas-function-key.pem"
-    if os.path.isdir(keyPath)
+    if os.path.isdir(keyPath):
         keyPath += "/value"
     certPath = "/run/secrets/btrfaas-function-cert.pem"
-    if os.path.isdir(certPath)
+    if os.path.isdir(certPath):
         certPath += "/value"
     caCertFile = open(caPath, "rb")
     certFile = open(certPath, "rb")
