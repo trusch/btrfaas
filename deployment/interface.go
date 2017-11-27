@@ -158,6 +158,10 @@ type ScaleServiceOptions struct {
 	Scale         uint64
 }
 
+// Debug returns true if the environment variable BTRFAAS_DEBUG is set to "true"
+// this can be evaluated by Platform implementations to help debugging
+// in fact currently this is only evaluated by the docker platform and turns off auto-deletion of failed functions.
+// This is useful if your function service will not even start and you need to look at the logs of your failed container.
 func Debug() bool {
 	env := os.Environ()
 	for _, kv := range env {
