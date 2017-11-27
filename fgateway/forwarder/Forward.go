@@ -66,10 +66,12 @@ func Forward(ctx context.Context, options *Options) (err error) {
 				} else {
 					creds, err := getTransportCredentials(host.Host)
 					if err != nil {
+						log.Errorf("failed to get credentials for %v: %v", host.Host, err)
 						return err
 					}
 					fn, err = grpc.NewClient(uri, creds)
 					if err != nil {
+						log.Errorf("failed to get gRPC client for %v: %v", host.Host, err)
 						return err
 					}
 					clients[uri] = fn
@@ -96,11 +98,11 @@ func Forward(ctx context.Context, options *Options) (err error) {
 }
 
 var (
-	creds credentials.TransportCredentials
+	creds = make(map[string]credentials.TransportCredentials)
 )
 
 func getTransportCredentials(target string) (g.DialOption, error) {
-	if creds == nil {
+	if _, ok := creds[target]; !ok {
 		ca, err := ioutil.ReadFile("/run/secrets/btrfaas-ca-cert.pem")
 		if err != nil {
 			ca, err = ioutil.ReadFile("/run/secrets/btrfaas-ca-cert.pem/value")
@@ -127,10 +129,10 @@ func getTransportCredentials(target string) (g.DialOption, error) {
 			Certificates: []tls.Certificate{cert},
 		}
 		cfg.BuildNameToCertificate()
-		creds = credentials.NewTLS(cfg)
+		creds[target] = credentials.NewTLS(cfg)
 	}
 
-	return g.WithTransportCredentials(creds), nil
+	return g.WithTransportCredentials(creds[target]), nil
 }
 
 func cleanupClients(options *Options) {
