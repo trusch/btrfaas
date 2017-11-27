@@ -64,7 +64,7 @@ func (s *Server) ListenAndServe() error {
 
 	// Create the TLS credentials
 	creds := credentials.NewTLS(&tls.Config{
-		ClientAuth:   tls.VerifyClientCertIfGiven,
+		ClientAuth:   tls.RequireAndVerifyClientCert,
 		Certificates: []tls.Certificate{certificate},
 		ClientCAs:    certPool,
 	})

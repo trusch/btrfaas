@@ -95,10 +95,12 @@ func Forward(ctx context.Context, options *Options) (err error) {
 	return cmd.Run(ctx, optSlice, options.Input, options.Output)
 }
 
-var certPool *x509.CertPool
+var (
+	creds credentials.TransportCredentials
+)
 
 func getTransportCredentials(target string) (g.DialOption, error) {
-	if certPool == nil {
+	if creds == nil {
 		ca, err := ioutil.ReadFile("/run/secrets/btrfaas-ca-cert.pem")
 		if err != nil {
 			ca, err = ioutil.ReadFile("/run/secrets/btrfaas-ca-cert.pem/value")
@@ -106,17 +108,27 @@ func getTransportCredentials(target string) (g.DialOption, error) {
 				return nil, fmt.Errorf("could not read ca certificate: %s", err)
 			}
 		}
-		certPool = x509.NewCertPool()
-		// Append the certificates from the CA
+
+		certPool := x509.NewCertPool()
 		if ok := certPool.AppendCertsFromPEM(ca); !ok {
 			return nil, errors.New("failed to append ca certs")
 		}
-	}
 
-	creds := credentials.NewTLS(&tls.Config{
-		ServerName: target,
-		RootCAs:    certPool,
-	})
+		cert, err := tls.LoadX509KeyPair("/run/secrets/client-cert.pem", "/run/secrets/client-key.pem")
+		if err != nil {
+			cert, err = tls.LoadX509KeyPair("/run/secrets/client-cert.pem/value", "/run/secrets/client-key.pem/value")
+			if err != nil {
+				return nil, err
+			}
+		}
+		cfg := &tls.Config{
+			ServerName:   target,
+			RootCAs:      certPool,
+			Certificates: []tls.Certificate{cert},
+		}
+		cfg.BuildNameToCertificate()
+		creds = credentials.NewTLS(cfg)
+	}
 
 	return g.WithTransportCredentials(creds), nil
 }

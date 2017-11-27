@@ -42,6 +42,9 @@ func (ptr *BtrFaaS) Init(ctx context.Context, options *faas.InitOptions) error {
 	if err = pkiManager.IssueServer(ctx, "fgateway"); err != nil {
 		return err
 	}
+	if err = pkiManager.IssueClient(ctx, "client"); err != nil {
+		return err
+	}
 	return ptr.platform.DeployService(ctx, &deployment.DeployServiceOptions{
 		EnvironmentID: options.PrepareEnvironmentOptions.ID,
 		ID:            "fgateway",
@@ -57,6 +60,8 @@ func (ptr *BtrFaaS) Init(ctx context.Context, options *faas.InitOptions) error {
 			"btrfaas-ca-cert": "/run/secrets/btrfaas-ca-cert.pem",
 			"fgateway-cert":   "/run/secrets/fgateway-cert.pem",
 			"fgateway-key":    "/run/secrets/fgateway-key.pem",
+			"client-cert":     "/run/secrets/client-cert.pem",
+			"client-key":      "/run/secrets/client-key.pem",
 		},
 	})
 }

@@ -59,7 +59,7 @@ if (require.main === module) {
       private_key: fs.readFileSync(keyPath),
       cert_chain: fs.readFileSync(certPath),
     }],
-    false,
+    true,
   );
   var functionRunner = getServer();
   functionRunner.bind('0.0.0.0:2424', serverCredentials);
