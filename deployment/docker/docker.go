@@ -23,16 +23,6 @@ import (
 	"github.com/docker/go-connections/nat"
 )
 
-var secretRoot = ""
-
-func init() {
-	home, err := homedir.Dir()
-	if err != nil {
-		log.Fatal(err)
-	}
-	secretRoot = filepath.Join(home, ".btrfaas/secrets/")
-}
-
 // dockerPlatform implements deployment.Platform with the help of a docker
 type dockerPlatform struct {
 	cli *client.Client
@@ -50,11 +40,16 @@ func NewPlatform() (deployment.Platform, error) {
 // PrepareEnvironment prepares an environment to start deploying services
 // This should contain all one time setup like creating namespaces/networks etc.
 func (p *dockerPlatform) PrepareEnvironment(ctx context.Context, options *deployment.PrepareEnvironmentOptions) error {
-	if err := os.MkdirAll(secretRoot, 0755); err != nil {
+	home, err := homedir.Dir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	secretRoot := filepath.Join(home, ".btrfaas", options.ID, "secrets")
+	if err = os.MkdirAll(secretRoot, 0755); err != nil {
 		return err
 	}
 	name := options.ID + "_network"
-	_, err := p.cli.NetworkInspect(ctx, name, false)
+	_, err = p.cli.NetworkInspect(ctx, name, false)
 	if err != nil {
 		_, err = p.cli.NetworkCreate(ctx, name, types.NetworkCreate{
 			Driver:     "bridge",
@@ -67,6 +62,11 @@ func (p *dockerPlatform) PrepareEnvironment(ctx context.Context, options *deploy
 
 // DeployService deploys a service in an environment
 func (p *dockerPlatform) DeployService(ctx context.Context, options *deployment.DeployServiceOptions) error {
+	home, err := homedir.Dir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	secretRoot := filepath.Join(home, ".btrfaas", options.EnvironmentID, "secrets")
 	netName := options.EnvironmentID + "_network"
 	if options.Labels == nil {
 		options.Labels = make(deployment.LabelSet)
@@ -84,7 +84,7 @@ func (p *dockerPlatform) DeployService(ctx context.Context, options *deployment.
 	if err != nil {
 		return err
 	}
-	binds := constructSecretBinds(options.Secrets)
+	binds := constructSecretBinds(options.Secrets, secretRoot)
 	binds = append(binds, constructVolumeBinds(options.Volumes)...)
 	hostConfig := &container.HostConfig{
 		AutoRemove:   !deployment.Debug(),
@@ -148,21 +148,41 @@ func (p *dockerPlatform) ListServices(ctx context.Context, options *deployment.L
 
 // DeploySecret deploys a secret in an environment
 func (p *dockerPlatform) DeploySecret(ctx context.Context, options *deployment.DeploySecretOptions) error {
+	home, err := homedir.Dir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	secretRoot := filepath.Join(home, ".btrfaas", options.EnvironmentID, "secrets")
 	return ioutil.WriteFile(filepath.Join(secretRoot, options.ID), options.Value, 0600)
 }
 
 // GetSecret returns the secret value
 func (p *dockerPlatform) GetSecret(ctx context.Context, options *deployment.GetSecretOptions) ([]byte, error) {
+	home, err := homedir.Dir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	secretRoot := filepath.Join(home, ".btrfaas", options.EnvironmentID, "secrets")
 	return ioutil.ReadFile(filepath.Join(secretRoot, options.ID))
 }
 
 // UndeploySecret unddeploys a secret from an environment
 func (p *dockerPlatform) UndeploySecret(ctx context.Context, options *deployment.UndeploySecretOptions) error {
+	home, err := homedir.Dir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	secretRoot := filepath.Join(home, ".btrfaas", options.EnvironmentID, "secrets")
 	return os.Remove(filepath.Join(secretRoot, options.ID))
 }
 
 // ListSecrets returns a list of all deployed secrets
 func (p *dockerPlatform) ListSecrets(ctx context.Context, options *deployment.ListSecretsOptions) ([]*deployment.SecretInfo, error) {
+	home, err := homedir.Dir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	secretRoot := filepath.Join(home, ".btrfaas", options.EnvironmentID, "secrets")
 	resp, err := ioutil.ReadDir(secretRoot)
 	if err != nil {
 		return nil, err
@@ -176,7 +196,7 @@ func (p *dockerPlatform) ListSecrets(ctx context.Context, options *deployment.Li
 	return result, nil
 }
 
-func constructSecretBinds(secrets deployment.LabelSet) []string {
+func constructSecretBinds(secrets deployment.LabelSet, secretRoot string) []string {
 	res := make([]string, len(secrets))
 	idx := 0
 	for secretID, path := range secrets {
