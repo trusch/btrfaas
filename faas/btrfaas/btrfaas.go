@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -45,6 +46,10 @@ func (ptr *BtrFaaS) Init(ctx context.Context, options *faas.InitOptions) error {
 	if err = pkiManager.IssueClient(ctx, "client"); err != nil {
 		return err
 	}
+	cmd := []string{}
+	if deployment.Debug() {
+		cmd = append(cmd, "--log-level", "debug")
+	}
 	return ptr.platform.DeployService(ctx, &deployment.DeployServiceOptions{
 		EnvironmentID: options.PrepareEnvironmentOptions.ID,
 		ID:            "fgateway",
@@ -56,6 +61,7 @@ func (ptr *BtrFaaS) Init(ctx context.Context, options *faas.InitOptions) error {
 				HostPort:      2424,
 			},
 		},
+		Cmd: cmd,
 		Secrets: deployment.LabelSet{
 			"btrfaas-ca-cert": "/run/secrets/btrfaas-ca-cert.pem",
 			"fgateway-cert":   "/run/secrets/fgateway-cert.pem",
@@ -68,7 +74,14 @@ func (ptr *BtrFaaS) Init(ctx context.Context, options *faas.InitOptions) error {
 
 // Teardown cleans the FaaS completely
 func (ptr *BtrFaaS) Teardown(ctx context.Context, options *faas.TeardownOptions) error {
-	return ptr.platform.TeardownEnvironment(ctx, &options.TeardownEnvironmentOptions)
+	if err := ptr.platform.TeardownEnvironment(ctx, &options.TeardownEnvironmentOptions); err != nil {
+		return err
+	}
+	home, err := homedir.Dir()
+	if err != nil {
+		return err
+	}
+	return os.RemoveAll(filepath.Join(home, ".btrfaas", options.ID))
 }
 
 // DeployFunction deploys a service in an environment

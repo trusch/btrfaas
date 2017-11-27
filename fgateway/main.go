@@ -20,7 +20,9 @@
 
 package main
 
-import "github.com/trusch/btrfaas/fgateway/cmd"
+import (
+	"github.com/trusch/btrfaas/fgateway/cmd"
+)
 
 func main() {
 	cmd.Execute()

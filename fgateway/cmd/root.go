@@ -42,6 +42,17 @@ var RootCmd = &cobra.Command{
 	Short: "a gateway to your functions",
 	Long:  `a gateway to your functions`,
 	Run: func(cmd *cobra.Command, args []string) {
+		lvl, _ := cmd.Flags().GetString("log-level")
+		switch lvl {
+		case "info":
+			log.SetLevel(log.InfoLevel)
+		case "error":
+			log.SetLevel(log.ErrorLevel)
+		case "warn":
+			log.SetLevel(log.WarnLevel)
+		case "debug":
+			log.SetLevel(log.DebugLevel)
+		}
 		go runMetricsServer(cmd)
 		go runGRPCServer(cmd)
 		select {}
@@ -59,6 +70,7 @@ func runGRPCServer(cmd *cobra.Command) {
 	grpcAddr, _ := cmd.Flags().GetString("grpc-address")
 	grpcPort, _ := cmd.Flags().GetUint16("grpc-default-port")
 	server := grpc.NewServer(grpcAddr, grpcPort)
+	log.Infof("start function calls on %v", grpcAddr)
 	log.Fatal(server.ListenAndServe())
 }
 
@@ -76,6 +88,7 @@ func init() {
 	RootCmd.Flags().String("http-address", ":8000", "http listen address")
 	RootCmd.Flags().String("grpc-address", ":2424", "grpc listen address")
 	RootCmd.Flags().Uint16("grpc-default-port", 2424, "grpc default port")
+	RootCmd.PersistentFlags().String("log-level", "info", "loglevel: info, error, warn, debug")
 }
 
 // initConfig reads in config file and ENV variables if set.

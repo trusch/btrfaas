@@ -134,7 +134,8 @@ func (s *Server) Run(stream btrfaasgrpc.FunctionRunner_RunServer) (err error) {
 		case err := <-done:
 			{
 				if err != nil {
-					return err
+					log.Debugf("finished with error: %v", err)
+					return fmt.Errorf("fgateway: %v", err)
 				}
 				todo--
 				if todo == 0 {

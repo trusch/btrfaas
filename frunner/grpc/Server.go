@@ -75,9 +75,10 @@ func (s *Server) ListenAndServe() error {
 
 // Run implements the server interface implied by the btrfaas protobuf service definition
 func (s *Server) Run(stream btrfaasgrpc.FunctionRunner_RunServer) error {
+	log.Debug("start serving request")
 	ctx := stream.Context()
 	if *s.cfg.CallTimeout > 0 {
-		log.Print("set timeout of ", *s.cfg.CallTimeout, " to context")
+		log.Debug("set timeout of ", *s.cfg.CallTimeout, " to context")
 		c, cancel := context.WithTimeout(ctx, *s.cfg.CallTimeout)
 		defer cancel()
 		ctx = c
@@ -127,60 +128,6 @@ func (s *Server) Run(stream btrfaasgrpc.FunctionRunner_RunServer) error {
 		}
 	}
 
-}
-
-func (s *Server) shovelInputData(stream btrfaasgrpc.FunctionRunner_RunServer, input io.WriteCloser) error {
-	ctx := stream.Context()
-	defer input.Close()
-	defer log.Print("frunner finished shoveling input data")
-	for {
-		select {
-		case <-ctx.Done():
-			{
-				return ctx.Err()
-			}
-		default:
-			{
-				data, err := stream.Recv()
-				if err != nil {
-					if err == io.EOF {
-						return nil
-					}
-					return err
-				}
-				if _, err = input.Write(data.Data); err != nil {
-					return err
-				}
-			}
-		}
-	}
-}
-
-func (s *Server) shovelOutputData(stream btrfaasgrpc.FunctionRunner_RunServer, output io.Reader) error {
-	defer log.Print("frunner finished shoveling output data")
-	ctx := stream.Context()
-	buf := make([]byte, 4096)
-	for {
-		select {
-		case <-ctx.Done():
-			{
-				return ctx.Err()
-			}
-		default:
-			{
-				bs, err := output.Read(buf[:])
-				if err == io.EOF {
-					return stream.Send(&btrfaasgrpc.Data{Data: buf[:bs]})
-				}
-				if err != nil {
-					return err
-				}
-				if err = stream.Send(&btrfaasgrpc.Data{Data: buf[:bs]}); err != nil {
-					return err
-				}
-			}
-		}
-	}
 }
 
 func getOptionsFromStream(stream btrfaasgrpc.FunctionRunner_RunServer) []string {

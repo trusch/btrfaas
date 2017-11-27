@@ -1,5 +1,5 @@
 hash: 87ca85df67a7192d7b70c252577131e180b68c7dfec978f8768f36c6cb92d631
-updated: 2017-11-27T07:52:34.806584927Z
+updated: 2017-11-27T12:14:30.177874465Z
 imports:
 - name: github.com/beorn7/perks
   version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
@@ -199,7 +199,7 @@ imports:
   - token
   - types
 - name: github.com/trusch/pki
-  version: e7f5c5b78b8313fc608a4a123a087590491b3cd4
+  version: b80df4d31934ba1f718dffb7e9b400f606886b20
 - name: github.com/xanzy/ssh-agent
   version: ba9c9e33906f58169366275e3450db66139a31a9
 - name: golang.org/x/crypto
