@@ -207,6 +207,9 @@ func constructContainerPorts(ports []*deployment.PortConfig) []apiv1.ContainerPo
 			ContainerPort: int32(cfg.ContainerPort),
 		})
 	}
+	if len(res) == 0 {
+		return nil
+	}
 	return res
 }
 
@@ -221,6 +224,9 @@ func constructServicePorts(ports []*deployment.PortConfig) []apiv1.ServicePort {
 				IntVal: int32(cfg.ContainerPort),
 			},
 		})
+	}
+	if len(res) == 0 {
+		return nil
 	}
 	return res
 }
@@ -261,6 +267,9 @@ func constructVolumeMounts(cfg *deployment.DeployServiceOptions) []apiv1.VolumeM
 			ReadOnly:  true,
 		}
 		i++
+	}
+	if len(res) == 0 {
+		return nil
 	}
 	return res
 }

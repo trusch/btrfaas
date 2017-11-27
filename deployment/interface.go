@@ -2,6 +2,7 @@ package deployment
 
 import (
 	"context"
+	"os"
 	"time"
 )
 
@@ -155,4 +156,14 @@ type ScaleServiceOptions struct {
 	EnvironmentID string
 	ID            string
 	Scale         uint64
+}
+
+func Debug() bool {
+	env := os.Environ()
+	for _, kv := range env {
+		if kv == "BTRFAAS_DEBUG=true" {
+			return true
+		}
+	}
+	return false
 }

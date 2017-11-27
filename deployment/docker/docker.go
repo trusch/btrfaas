@@ -87,7 +87,7 @@ func (p *dockerPlatform) DeployService(ctx context.Context, options *deployment.
 	binds := constructSecretBinds(options.Secrets)
 	binds = append(binds, constructVolumeBinds(options.Volumes)...)
 	hostConfig := &container.HostConfig{
-		AutoRemove:   true,
+		AutoRemove:   !deployment.Debug(),
 		PortBindings: ports,
 		Binds:        binds,
 	}
