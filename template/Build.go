@@ -45,7 +45,7 @@ func Build(directory string) error {
 		}
 		script := "cd %v; docker build -t %v ."
 		script = fmt.Sprintf(script, directory, imageName)
-		cmd := exec.Command("bash", "-c", script)
+		cmd := exec.Command("sh", "-c", script)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		if err = cmd.Run(); err != nil {
