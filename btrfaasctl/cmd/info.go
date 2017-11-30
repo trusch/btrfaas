@@ -25,6 +25,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/trusch/btrfaas/deployment"
 )
 
 // infoCmd represents the info command
@@ -40,6 +41,7 @@ var infoCmd = &cobra.Command{
 		fmt.Printf("version  : %v\n", version)
 		fmt.Printf("env      : %v\n", env)
 		fmt.Printf("platform : %v\n", platform)
+		fmt.Printf("debug    : %v\n", deployment.Debug())
 	},
 }
 
