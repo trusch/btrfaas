@@ -46,30 +46,7 @@ func (ptr *BtrFaaS) Init(ctx context.Context, options *faas.InitOptions) error {
 	if err = pkiManager.IssueClient(ctx, "client"); err != nil {
 		return err
 	}
-	cmd := []string{}
-	if deployment.Debug() {
-		cmd = append(cmd, "--log-level", "debug")
-	}
-	return ptr.platform.DeployService(ctx, &deployment.DeployServiceOptions{
-		EnvironmentID: options.PrepareEnvironmentOptions.ID,
-		ID:            "fgateway",
-		Image:         "btrfaas/fgateway",
-		Ports: []*deployment.PortConfig{
-			{
-				Type:          "host",
-				ContainerPort: 2424,
-				HostPort:      2424,
-			},
-		},
-		Cmd: cmd,
-		Secrets: deployment.LabelSet{
-			"btrfaas-ca-cert": "/run/secrets/btrfaas-ca-cert.pem",
-			"fgateway-cert":   "/run/secrets/fgateway-cert.pem",
-			"fgateway-key":    "/run/secrets/fgateway-key.pem",
-			"client-cert":     "/run/secrets/client-cert.pem",
-			"client-key":      "/run/secrets/client-key.pem",
-		},
-	})
+	return ptr.deployFgateway(ctx, options.PrepareEnvironmentOptions.ID)
 }
 
 // Teardown cleans the FaaS completely
@@ -229,4 +206,38 @@ func createCallRequest(expr string) (chain []string, opts [][]string, err error)
 		}
 	}
 	return chain, opts, nil
+}
+
+func (ptr *BtrFaaS) deployFgateway(ctx context.Context, env string) error {
+	cmd := []string{"fgateway"}
+	if deployment.Debug() {
+		cmd = append(cmd, "--log-level", "debug")
+	}
+	cfg := &deployment.DeployServiceOptions{
+		EnvironmentID: env,
+		ID:            "fgateway",
+		Image:         "btrfaas/fgateway",
+		Ports: []*deployment.PortConfig{
+			{
+				Type:          "host",
+				ContainerPort: 2424,
+				HostPort:      2424,
+			},
+		},
+		Cmd: cmd,
+		Secrets: deployment.LabelSet{
+			"btrfaas-ca-cert": "/run/secrets/btrfaas-ca-cert.pem",
+			"fgateway-cert":   "/run/secrets/fgateway-cert.pem",
+			"fgateway-key":    "/run/secrets/fgateway-key.pem",
+			"client-cert":     "/run/secrets/client-cert.pem",
+			"client-key":      "/run/secrets/client-key.pem",
+		},
+	}
+	if deployment.Debug() {
+		cfg.Env = map[string]string{
+			"GRPC_GO_LOG_SEVERITY_LEVEL":  "INFO",
+			"GRPC_GO_LOG_VERBOSITY_LEVEL": "99",
+		}
+	}
+	return ptr.platform.DeployService(ctx, cfg)
 }
