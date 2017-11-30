@@ -1,0 +1,5 @@
+---
+id: hostname
+image: btrfaas/frunner
+env:
+  FRUNNER_PROCESS: "hostname"
