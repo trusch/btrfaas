@@ -15,6 +15,8 @@ import (
 	"github.com/trusch/btrfaas/frunner/runnable"
 	"github.com/trusch/btrfaas/frunner/runnable/chain"
 	g "google.golang.org/grpc"
+	"google.golang.org/grpc/balancer"
+	_ "google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/credentials"
 )
 
@@ -59,7 +61,7 @@ func Forward(ctx context.Context, options *Options) (err error) {
 		switch host.Transport {
 		case GRPC:
 			{
-				uri := fmt.Sprintf("%v:%v", host.Host, host.Port)
+				uri := fmt.Sprintf("dns:///%v:%v", host.Host, host.Port)
 				var fn *grpc.Client
 				if cli, ok := clients[uri]; ok {
 					fn = cli
@@ -69,7 +71,8 @@ func Forward(ctx context.Context, options *Options) (err error) {
 						log.Errorf("failed to get credentials for %v: %v", host.Host, err)
 						return err
 					}
-					fn, err = grpc.NewClient(uri, creds)
+					rr := balancer.Get("round_robin")
+					fn, err = grpc.NewClient(uri, creds, g.WithBalancerBuilder(rr))
 					if err != nil {
 						log.Errorf("failed to get gRPC client for %v: %v", host.Host, err)
 						return err
@@ -138,7 +141,7 @@ func getTransportCredentials(target string) (g.DialOption, error) {
 func cleanupClients(options *Options) {
 	for _, host := range options.Hosts {
 		if host.Transport == GRPC {
-			key := fmt.Sprintf("%v:%v", host.Host, host.Port)
+			key := fmt.Sprintf("dns:///%v:%v", host.Host, host.Port)
 			if _, ok := clients[key]; ok {
 				delete(clients, key)
 			}
