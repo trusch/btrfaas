@@ -75,7 +75,7 @@ func (p *swarmPlatform) DeployService(ctx context.Context, options *deployment.D
 			},
 		},
 		EndpointSpec: &swarm.EndpointSpec{
-			Mode:  swarm.ResolutionModeVIP,
+			Mode:  swarm.ResolutionModeDNSRR,
 			Ports: createPortConfigs(options.Ports),
 		},
 	}
@@ -118,8 +118,8 @@ func (p *swarmPlatform) ListServices(ctx context.Context, options *deployment.Li
 			Env:       envToLabelSet(val.Spec.TaskTemplate.ContainerSpec.Env),
 			Secrets:   secretListToLabelSet(val.Spec.TaskTemplate.ContainerSpec.Secrets),
 			CreatedAt: val.CreatedAt,
-			Endpoint:  val.Endpoint.VirtualIPs[0].Addr,
-			Scale:     *val.Spec.Mode.Replicated.Replicas,
+			// Endpoint:  val.Endpoint.VirtualIPs[0].Addr,
+			Scale: *val.Spec.Mode.Replicated.Replicas,
 		}
 	}
 	return result, nil
@@ -295,7 +295,7 @@ func createPortConfigs(configs []*deployment.PortConfig) []swarm.PortConfig {
 				Protocol:      swarm.PortConfigProtocolTCP,
 				TargetPort:    uint32(cfg.ContainerPort),
 				PublishedPort: uint32(cfg.HostPort),
-				PublishMode:   swarm.PortConfigPublishModeIngress,
+				PublishMode:   swarm.PortConfigPublishModeHost,
 			}
 			i++
 		}
