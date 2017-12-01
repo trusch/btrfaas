@@ -186,7 +186,44 @@ docker: .docker/fgateway/amd64 \
 	.docker/frunner/arm64 \
 	.docker/fui/amd64 \
 	.docker/fui/arm \
-	.docker/fui/arm64
+	.docker/fui/arm64 \
+	.docker/prometheus/amd64
+
+GIT_VERSION=$(shell git describe)
+docker-tag: docker
+	docker tag btrfaas/fgateway:latest btrfaas/fgateway:$(GIT_VERSION)
+	docker tag btrfaas/fgateway:latest-arm btrfaas/fgateway:$(GIT_VERSION)-arm
+	docker tag btrfaas/fgateway:latest-arm64 btrfaas/fgateway:$(GIT_VERSION)-arm64
+	docker tag btrfaas/frunner:latest btrfaas/frunner:$(GIT_VERSION)
+	docker tag btrfaas/frunner:latest-arm btrfaas/frunner:$(GIT_VERSION)-arm
+	docker tag btrfaas/frunner:latest-arm64 btrfaas/frunner:$(GIT_VERSION)-arm64
+	docker tag btrfaas/fui:latest btrfaas/fui:$(GIT_VERSION)
+	docker tag btrfaas/fui:latest-arm btrfaas/fui:$(GIT_VERSION)-arm
+	docker tag btrfaas/fui:latest-arm64 btrfaas/fui:$(GIT_VERSION)-arm64
+	docker tag btrfaas/prometheus:latest btrfaas/prometheus:$(GIT_VERSION)
+
+docker-push: docker-tag
+	docker push btrfaas/fgateway:latest
+	docker push btrfaas/fgateway:latest-arm
+	docker push btrfaas/fgateway:latest-arm64
+	docker push btrfaas/frunner:latest
+	docker push btrfaas/frunner:latest-arm
+	docker push btrfaas/frunner:latest-arm64
+	docker push btrfaas/fui:latest
+	docker push btrfaas/fui:latest-arm
+	docker push btrfaas/fui:latest-arm64
+	docker push btrfaas/prometheus:latest
+	docker push btrfaas/fgateway:$(GIT_VERSION)
+	docker push btrfaas/fgateway:$(GIT_VERSION)-arm
+	docker push btrfaas/fgateway:$(GIT_VERSION)-arm64
+	docker push btrfaas/frunner:$(GIT_VERSION)
+	docker push btrfaas/frunner:$(GIT_VERSION)-arm
+	docker push btrfaas/frunner:$(GIT_VERSION)-arm64
+	docker push btrfaas/fui:$(GIT_VERSION)
+	docker push btrfaas/fui:$(GIT_VERSION)-arm
+	docker push btrfaas/fui:$(GIT_VERSION)-arm64
+	docker push btrfaas/prometheus:$(GIT_VERSION)
+
 
 .docker/fgateway/amd64: gopath/bin/fgateway
 	cp gopath/bin/fgateway fgateway/
@@ -231,6 +268,10 @@ docker: .docker/fgateway/amd64 \
 .docker/fui/arm64: gopath/bin/linux_arm64/fui
 	cp gopath/bin/linux_arm64/fui fui/
 	cd fui && docker build -t btrfaas/fui:latest-arm64 -f Dockerfile.arm64 .
+	mkdir -p $(shell dirname $@) && touch $(shell basename $@)
+
+.docker/prometheus/amd64: $(shell ls core-services/prometheus/*)
+	cd core-services/prometheus && docker build -t btrfaas/prometheus:latest .
 	mkdir -p $(shell dirname $@) && touch $(shell basename $@)
 
 ####################################
