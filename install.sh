@@ -4,7 +4,7 @@ set -e
 echo "###################################"
 echo "##     DOWNLOADING BTRFAASCTL    ##"
 echo "###################################"
-curl -L https://github.com/trusch/btrfaas/releases/download/v0.3.1/btrfaasctl > /tmp/btrfaasctl
+curl -L https://github.com/trusch/btrfaas/releases/download/v0.3.1/btrfaasctl.amd64 > /tmp/btrfaasctl
 chmod +x /tmp/btrfaasctl
 sudo mv /tmp/btrfaasctl /usr/bin/
 
