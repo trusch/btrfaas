@@ -210,7 +210,7 @@ func createCallRequest(expr string) (chain []string, opts [][]string, err error)
 
 func (ptr *BtrFaaS) deployFgateway(ctx context.Context, env string, image string) error {
 	if image == "" {
-		image = "btrfaas/gateway:latest"
+		image = "btrfaas/fgateway:latest"
 	}
 	cmd := []string{"fgateway"}
 	if deployment.Debug() {

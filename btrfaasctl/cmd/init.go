@@ -40,10 +40,12 @@ var initCmd = &cobra.Command{
 		cli := getFaaS(cmd)
 		env := viper.GetString("env")
 		ctx := context.Background()
+		gatewayImage, _ := cmd.Flags().GetString("gateway-image")
 		err := cli.Init(ctx, &faas.InitOptions{
 			PrepareEnvironmentOptions: deployment.PrepareEnvironmentOptions{
 				ID: env,
 			},
+			GatewayImage: gatewayImage,
 		})
 		if err != nil {
 			log.Fatal(err)
