@@ -11,7 +11,7 @@ This is heavily inspired by the architecture of [OpenFaaS](https://github.com/op
 
 ## Features
 
-* swappable deployment platforms (currently docker and swarm, k8s in progress ;))
+* swappable deployment platforms (plain docker, swarm and k8s)
 * encrypted gRPC communication
 * simple command line client
 * support for function secrets
@@ -28,7 +28,7 @@ This is heavily inspired by the architecture of [OpenFaaS](https://github.com/op
 ## Getting Started
 ```bash
 # install
-> curl -sL https://raw.githubusercontent.com/trusch/btrfaas/master/install.sh | sh
+> curl -sL https://raw.githubusercontent.com/trusch/btrfaas/v0.3.2/install.sh | sh
 
 # init deployment
 > btrfaasctl init
@@ -76,15 +76,15 @@ This includes:
 
 ```bash
 # install
-> curl -sL https://raw.githubusercontent.com/trusch/btrfaas/master/install.sh | sh
+> curl -sL https://raw.githubusercontent.com/trusch/btrfaas/v0.3.2/install.sh | sh
 
 # init deployment
 > btrfaasctl init
 
 # deploy fui, prometheus and grafana
-> btrfaasctl service deploy https://raw.githubusercontent.com/trusch/btrfaas/master/core-services/fui/fui.yaml
-> btrfaasctl service deploy https://raw.githubusercontent.com/trusch/btrfaas/master/core-services/prometheus/prometheus.yaml
-> btrfaasctl service deploy https://raw.githubusercontent.com/trusch/btrfaas/master/core-services/prometheus/grafana.yaml
+> btrfaasctl service deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.3.2/core-services/fui/fui.yaml
+> btrfaasctl service deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.3.2/core-services/prometheus/prometheus.yaml
+> btrfaasctl service deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.3.2/core-services/prometheus/grafana.yaml
 
 # configure grafana:
 > while ! curl -s -H "Content-Type: application/json" \
