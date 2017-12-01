@@ -44,6 +44,7 @@ type FaaS interface {
 // InitOptions contain the options for the init call
 type InitOptions struct {
 	deployment.PrepareEnvironmentOptions `yaml:",inline"`
+	GatewayImage                         string
 }
 
 // TeardownOptions contain the options for the teardown call

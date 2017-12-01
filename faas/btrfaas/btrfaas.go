@@ -46,7 +46,7 @@ func (ptr *BtrFaaS) Init(ctx context.Context, options *faas.InitOptions) error {
 	if err = pkiManager.IssueClient(ctx, "client"); err != nil {
 		return err
 	}
-	return ptr.deployFgateway(ctx, options.PrepareEnvironmentOptions.ID)
+	return ptr.deployFgateway(ctx, options.PrepareEnvironmentOptions.ID, options.GatewayImage)
 }
 
 // Teardown cleans the FaaS completely
@@ -208,15 +208,18 @@ func createCallRequest(expr string) (chain []string, opts [][]string, err error)
 	return chain, opts, nil
 }
 
-func (ptr *BtrFaaS) deployFgateway(ctx context.Context, env string) error {
+func (ptr *BtrFaaS) deployFgateway(ctx context.Context, env string, image string) error {
+	if image == "" {
+		image = "btrfaas/gateway:latest"
+	}
 	cmd := []string{"fgateway"}
 	if deployment.Debug() {
 		cmd = append(cmd, "--log-level", "debug")
 	}
 	cfg := &deployment.DeployServiceOptions{
-		EnvironmentID: env,
 		ID:            "fgateway",
-		Image:         "btrfaas/fgateway",
+		EnvironmentID: env,
+		Image:         image,
 		Ports: []*deployment.PortConfig{
 			{
 				Type:          "host",
