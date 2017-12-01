@@ -34,7 +34,7 @@ var infoCmd = &cobra.Command{
 	Short: "infos about your current configuration",
 	Long:  `infos about your current configuration`,
 	Run: func(cmd *cobra.Command, args []string) {
-		version := "v0.3.0"
+		version := "v0.3.1"
 		env := viper.GetString("env")
 		platform := viper.GetString("platform")
 

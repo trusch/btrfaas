@@ -54,5 +54,5 @@ var initCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(initCmd)
-	initCmd.Flags().String("gateway-image", "btrfaas/fgateway:v0.3.0", "gateway image to use")
+	initCmd.Flags().String("gateway-image", "btrfaas/fgateway:v0.3.1", "gateway image to use")
 }
