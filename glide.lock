@@ -1,5 +1,5 @@
-hash: 87ca85df67a7192d7b70c252577131e180b68c7dfec978f8768f36c6cb92d631
-updated: 2017-11-28T09:18:35.353970324Z
+hash: eb35ead270fc25c92f50be7fd38f280581e4e675cafb7f0dcfd1f57db1fafcc6
+updated: 2017-12-01T08:26:43.682292997Z
 imports:
 - name: github.com/beorn7/perks
   version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
@@ -62,9 +62,9 @@ imports:
 - name: github.com/go-openapi/jsonreference
   version: 13c6e3589ad90f49bd3e3bbe2c2cb3d7a4142272
 - name: github.com/go-openapi/spec
-  version: 7abd5745472fff5eb3685386d5fb8bf38683154d
+  version: 6aced65f8501fe1217321abf0749d354824ba2ff
 - name: github.com/go-openapi/swag
-  version: f3f9494671f93fcff853e3c6e9e948b3eb71e590
+  version: 1d0bd113de87027671077d3c71eb3ac5d7dbba72
 - name: github.com/gogo/protobuf
   version: c0656edd0d9eab7c66d1eb0c568f9039345796f7
   subpackages:
@@ -122,7 +122,7 @@ imports:
 - name: github.com/magiconair/properties
   version: 49d762b9817ba1c2e9d0c69183c2b4a8b8f1d934
 - name: github.com/mailru/easyjson
-  version: 2f5df55504ebc322e4d52d34df6a1f5b503bf26d
+  version: d5b7844b561a7bc640052f1b935f7b800330d7e0
   subpackages:
   - buffer
   - jlexer
@@ -262,7 +262,7 @@ imports:
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 5a9f7b402fe85096d2e1d0383435ee1876e863d0
+  version: a62701e4aa1d276bec70311251d62a478404d63f
   subpackages:
   - balancer
   - balancer/roundrobin
@@ -279,6 +279,7 @@ imports:
   - peer
   - resolver
   - resolver/dns
+  - resolver/manual
   - resolver/passthrough
   - stats
   - status
@@ -367,7 +368,7 @@ imports:
   - storage/v1
   - storage/v1beta1
 - name: k8s.io/apimachinery
-  version: 18a564baac720819100827c16fdebcadb05b2d0d
+  version: 019ae5ada31de202164b118aee88ee2d14075c31
   subpackages:
   - pkg/api/equality
   - pkg/api/errors
@@ -454,7 +455,7 @@ imports:
   - util/integer
   - util/retry
 - name: k8s.io/kube-openapi
-  version: 61b46af70dfed79c6d24530cd23b41440a7f22a5
+  version: 868f2f29720b192240e18284659231b440f9cda5
   subpackages:
   - pkg/common
 testImports:

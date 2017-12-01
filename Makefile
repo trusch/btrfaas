@@ -191,47 +191,47 @@ docker: .docker/fgateway/amd64 \
 .docker/fgateway/amd64: gopath/bin/fgateway
 	cp gopath/bin/fgateway fgateway/
 	cd fgateway && docker build -t btrfaas/fgateway:latest .
-	mkdir -p $@ && touch $@
+	mkdir -p $(shell dirname $@) && touch $(shell basename $@)
 
 .docker/fgateway/arm: gopath/bin/linux_arm/fgateway
 	cp gopath/bin/linux_arm/fgateway fgateway/
 	cd fgateway && docker build -t btrfaas/fgateway:latest-arm -f Dockerfile.arm .
-	mkdir -p $@ && touch $@
+	mkdir -p $(shell dirname $@) && touch $(shell basename $@)
 
 .docker/fgateway/arm64: gopath/bin/linux_arm64/fgateway
 	cp gopath/bin/linux_arm64/fgateway fgateway/
 	cd fgateway && docker build -t btrfaas/fgateway:latest-arm64 -f Dockerfile.arm64 .
-	mkdir -p $@ && touch $@
+	mkdir -p $(shell dirname $@) && touch $(shell basename $@)
 
 .docker/frunner/amd64: gopath/bin/frunner
 	cp gopath/bin/frunner frunner/
 	cd frunner && docker build -t btrfaas/frunner:latest .
-	mkdir -p $@ && touch $@
+	mkdir -p $(shell dirname $@) && touch $(shell basename $@)
 
 .docker/frunner/arm: gopath/bin/linux_arm/frunner
 	cp gopath/bin/linux_arm/frunner frunner/
 	cd frunner && docker build -t btrfaas/frunner:latest-arm -f Dockerfile.arm .
-	mkdir -p $@ && touch $@
+	mkdir -p $(shell dirname $@) && touch $(shell basename $@)
 
 .docker/frunner/arm64: gopath/bin/linux_arm64/frunner
 	cp gopath/bin/linux_arm64/frunner frunner/
 	cd frunner && docker build -t btrfaas/frunner:latest-arm64 -f Dockerfile.arm64 .
-	mkdir -p $@ && touch $@
+	mkdir -p $(shell dirname $@) && touch $(shell basename $@)
 
 .docker/fui/amd64: gopath/bin/fui
 	cp gopath/bin/fui fui/
 	cd fui && docker build -t btrfaas/fui:latest .
-	mkdir -p $@ && touch $@
+	mkdir -p $(shell dirname $@) && touch $(shell basename $@)
 
 .docker/fui/arm: gopath/bin/linux_arm/fui
 	cp gopath/bin/linux_arm/fui fui/
 	cd fui && docker build -t btrfaas/fui:latest-arm -f Dockerfile.arm .
-	mkdir -p $@ && touch $@
+	mkdir -p $(shell dirname $@) && touch $(shell basename $@)
 
 .docker/fui/arm64: gopath/bin/linux_arm64/fui
 	cp gopath/bin/linux_arm64/fui fui/
 	cd fui && docker build -t btrfaas/fui:latest-arm64 -f Dockerfile.arm64 .
-	mkdir -p $@ && touch $@
+	mkdir -p $(shell dirname $@) && touch $(shell basename $@)
 
 ####################################
 #           LINTING                #

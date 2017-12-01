@@ -25,6 +25,16 @@ func NewClient(target string, opts ...grpc.DialOption) (*Client, error) {
 	return &Client{conn, client}, nil
 }
 
+// NewClientWithContext returns a new client instance
+func NewClientWithContext(ctx context.Context, target string, opts ...grpc.DialOption) (*Client, error) {
+	conn, err := grpc.DialContext(ctx, target, opts...)
+	if err != nil {
+		return nil, err
+	}
+	client := btrfaasgrpc.NewFunctionRunnerClient(conn)
+	return &Client{conn, client}, nil
+}
+
 // Close closes the client connection
 func (c *Client) Close() error {
 	return c.conn.Close()

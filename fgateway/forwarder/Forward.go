@@ -72,7 +72,7 @@ func Forward(ctx context.Context, options *Options) (err error) {
 						return err
 					}
 					rr := balancer.Get("round_robin")
-					fn, err = grpc.NewClient(uri, creds, g.WithBalancerBuilder(rr))
+					fn, err = grpc.NewClientWithContext(ctx, uri, creds, g.WithBalancerBuilder(rr))
 					if err != nil {
 						log.Errorf("failed to get gRPC client for %v: %v", host.Host, err)
 						return err

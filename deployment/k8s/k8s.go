@@ -95,6 +95,9 @@ func (p *k8sPlatform) DeployService(ctx context.Context, options *deployment.Dep
 			Type:     getServiceType(options.Ports),
 		},
 	}
+	if service.Spec.Type == apiv1.ServiceTypeClusterIP {
+		service.Spec.ClusterIP = "None"
+	}
 	_, err := serviceClient.Create(service)
 	return err
 }

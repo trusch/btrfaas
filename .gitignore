@@ -15,3 +15,4 @@ examples/echo-node
 dev/echo-demo/bench
 frunner/frunner
 gopath
+amd64

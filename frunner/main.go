@@ -5,12 +5,15 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/trusch/btrfaas/frunner/config"
 	"github.com/trusch/btrfaas/frunner/env"
 	"github.com/trusch/btrfaas/frunner/grpc"
 	"github.com/trusch/btrfaas/frunner/http"
 	"github.com/trusch/btrfaas/frunner/runnable/exec"
+	g "google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 )
 
 var (
@@ -40,7 +43,10 @@ func main() {
 		log.Fatal(httpServer.ListenAndServe())
 	}()
 
-	grpcServer := grpc.NewServer(cmd, cfg)
+	grpcServer := grpc.NewServer(cmd, cfg, g.KeepaliveParams(keepalive.ServerParameters{
+		MaxConnectionAge:      2 * time.Minute,
+		MaxConnectionAgeGrace: 10 * time.Second,
+	}))
 	log.Print("start listening for requests via grpc on ", *cfg.GRPCAddr)
 	go func() {
 		log.Fatal(grpcServer.ListenAndServe())
