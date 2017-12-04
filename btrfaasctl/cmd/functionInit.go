@@ -49,7 +49,7 @@ var functionInitCmd = &cobra.Command{
 func init() {
 	functionCmd.AddCommand(functionInitCmd)
 	functionInitCmd.Flags().String("template", "go", "function template to use")
-	functionInitCmd.Flags().String("ref", "v0.3.2", "repo reference to fetch")
+	functionInitCmd.Flags().String("ref", "refs/tags/v0.3.2", "repo reference to fetch")
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
