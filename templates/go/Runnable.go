@@ -10,7 +10,7 @@ type Runnable struct{}
 
 // Run implements the runnable.Runnable interface
 func (r *Runnable) Run(ctx context.Context, options []string, input io.Reader, output io.Writer) (err error) {
-	buf := make([]byte, 1<<10)
+	buf := make([]byte, 1<<12)
 	for {
 		select {
 		case <-ctx.Done():
