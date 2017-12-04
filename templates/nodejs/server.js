@@ -1,4 +1,3 @@
-
 /*
  *
  * Copyright 2015 gRPC authors.
@@ -16,8 +15,6 @@
  * limitations under the License.
  *
  */
-
-var PROTO_PATH = __dirname + '/../../../protos/route_guide.proto';
 
 var grpc = require('grpc');
 var fs = require('fs');
