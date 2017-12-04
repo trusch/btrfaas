@@ -11,10 +11,11 @@ import (
 	"strings"
 
 	"gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
 // Load clones a template into a directory
-func Load(uri, targetFolder string) error {
+func Load(uri, ref, targetFolder string) error {
 	if !strings.HasPrefix(uri, "http") && !strings.HasPrefix(uri, "git") {
 		// no valid url, try prefixing with default btrfaas template url
 		uri = "https://github.com/trusch/btrfaas.git/templates/" + uri
@@ -31,9 +32,11 @@ func Load(uri, targetFolder string) error {
 		return err
 	}
 	_, err := git.PlainClone(tmpDir, false, &git.CloneOptions{
-		URL:      repo,
-		Depth:    1,
-		Progress: os.Stdout,
+		URL:           repo,
+		Depth:         1,
+		SingleBranch:  true,
+		Progress:      os.Stdout,
+		ReferenceName: plumbing.ReferenceName(ref),
 	})
 	if err != nil {
 		return err

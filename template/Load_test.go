@@ -11,7 +11,7 @@ import (
 
 var _ = Describe("Load", func() {
 	It("should be possible to load a subfolder in a git repo", func() {
-		Expect(Load("https://github.com/trusch/btrfaas.git/examples/btrfaas/native-functions/echo-go", "/tmp/btrfaas")).To(Succeed())
+		Expect(Load("https://github.com/trusch/btrfaas.git/examples/btrfaas/native-functions/echo-go", "master", "/tmp/btrfaas")).To(Succeed())
 		os.RemoveAll("/tmp/btrfaas")
 	})
 })

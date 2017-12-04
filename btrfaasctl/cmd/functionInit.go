@@ -39,7 +39,8 @@ var functionInitCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		tmplID, _ := cmd.Flags().GetString("template")
-		if err := template.Load(tmplID, args[0]); err != nil {
+		ref, _ := cmd.Flags().GetString("ref")
+		if err := template.Load(tmplID, ref, args[0]); err != nil {
 			log.Fatal(err)
 		}
 	},
@@ -48,6 +49,7 @@ var functionInitCmd = &cobra.Command{
 func init() {
 	functionCmd.AddCommand(functionInitCmd)
 	functionInitCmd.Flags().String("template", "go", "function template to use")
+	functionInitCmd.Flags().String("ref", "v0.3.2", "repo reference to fetch")
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
