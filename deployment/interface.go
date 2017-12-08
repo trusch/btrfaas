@@ -86,9 +86,9 @@ type VolumeConfig struct {
 // if Type == "cluster" HostPort is ignored
 // if Type == "host" HostPort is used
 type PortConfig struct {
-	Type          string
-	ContainerPort uint16
-	HostPort      uint16
+	Type      string
+	Container uint16
+	Host      uint16
 }
 
 // UndeployServiceOptions contains the options for the UndeployService call

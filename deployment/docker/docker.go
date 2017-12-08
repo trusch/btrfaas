@@ -252,7 +252,7 @@ func constructPortMap(ports []*deployment.PortConfig) (nat.PortMap, error) {
 	specs := make([]string, len(ports))
 	i := 0
 	for _, portConfig := range ports {
-		specs[i] = fmt.Sprintf("0.0.0.0:%v:%v", portConfig.HostPort, portConfig.ContainerPort)
+		specs[i] = fmt.Sprintf("0.0.0.0:%v:%v", portConfig.Host, portConfig.Container)
 		i++
 	}
 	_, res, err := nat.ParsePortSpecs(specs)
@@ -266,7 +266,7 @@ func constructExposedPorts(ports []*deployment.PortConfig) nat.PortSet {
 	res := make(nat.PortSet)
 	for _, portConfig := range ports {
 		if portConfig.Type == "host" {
-			res[nat.Port(fmt.Sprintf("%v/tcp", portConfig.ContainerPort))] = struct{}{}
+			res[nat.Port(fmt.Sprintf("%v/tcp", portConfig.Container))] = struct{}{}
 		}
 	}
 	return res

@@ -84,14 +84,14 @@ func (ptr *BtrFaaS) DeployFunction(ctx context.Context, options *faas.DeployFunc
 		options.Ports = make([]*deployment.PortConfig, 0)
 	}
 	options.Ports = append(options.Ports, &deployment.PortConfig{
-		Type:          "cluster",
-		ContainerPort: 2424,
-		HostPort:      2424,
+		Type:      "cluster",
+		Container: 2424,
+		Host:      2424,
 	})
 	options.Ports = append(options.Ports, &deployment.PortConfig{
-		Type:          "cluster",
-		ContainerPort: 8080,
-		HostPort:      8080,
+		Type:      "cluster",
+		Container: 8080,
+		Host:      8080,
 	})
 	return ptr.platform.DeployService(ctx, &options.DeployServiceOptions)
 }
@@ -222,9 +222,9 @@ func (ptr *BtrFaaS) deployFgateway(ctx context.Context, env string, image string
 		Image:         image,
 		Ports: []*deployment.PortConfig{
 			{
-				Type:          "host",
-				ContainerPort: 2424,
-				HostPort:      2424,
+				Type:      "host",
+				Container: 2424,
+				Host:      2424,
 			},
 		},
 		Cmd: cmd,

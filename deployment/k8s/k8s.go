@@ -207,7 +207,7 @@ func constructContainerPorts(ports []*deployment.PortConfig) []apiv1.ContainerPo
 	res := make([]apiv1.ContainerPort, 0)
 	for _, cfg := range ports {
 		res = append(res, apiv1.ContainerPort{
-			ContainerPort: int32(cfg.ContainerPort),
+			ContainerPort: int32(cfg.Container),
 		})
 	}
 	if len(res) == 0 {
@@ -220,11 +220,11 @@ func constructServicePorts(ports []*deployment.PortConfig) []apiv1.ServicePort {
 	res := make([]apiv1.ServicePort, 0)
 	for _, cfg := range ports {
 		res = append(res, apiv1.ServicePort{
-			Name: fmt.Sprintf("port-%v", cfg.ContainerPort),
-			Port: int32(cfg.HostPort),
+			Name: fmt.Sprintf("port-%v", cfg.Container),
+			Port: int32(cfg.Host),
 			TargetPort: intstr.IntOrString{
 				Type:   intstr.Int,
-				IntVal: int32(cfg.ContainerPort),
+				IntVal: int32(cfg.Container),
 			},
 		})
 	}

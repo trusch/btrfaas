@@ -33,9 +33,9 @@ func (ptr *OpenFaaS) Init(ctx context.Context, options *faas.InitOptions) error 
 		Image:         "functions/gateway",
 		Ports: []*deployment.PortConfig{
 			{
-				Type:          "host",
-				ContainerPort: 8080,
-				HostPort:      8080,
+				Type:      "host",
+				Container: 8080,
+				Host:      8080,
 			},
 		},
 		Volumes: []*deployment.VolumeConfig{
@@ -64,9 +64,9 @@ func (ptr *OpenFaaS) DeployFunction(ctx context.Context, options *faas.DeployFun
 		options.Ports = make([]*deployment.PortConfig, 0)
 	}
 	options.Ports = append(options.Ports, &deployment.PortConfig{
-		Type:          "cluster",
-		ContainerPort: 8080,
-		HostPort:      8080,
+		Type:      "cluster",
+		Container: 8080,
+		Host:      8080,
 	})
 	return ptr.platform.DeployService(ctx, &options.DeployServiceOptions)
 }

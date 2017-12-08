@@ -293,8 +293,8 @@ func createPortConfigs(configs []*deployment.PortConfig) []swarm.PortConfig {
 		if cfg.Type == "host" {
 			res[i] = swarm.PortConfig{
 				Protocol:      swarm.PortConfigProtocolTCP,
-				TargetPort:    uint32(cfg.ContainerPort),
-				PublishedPort: uint32(cfg.HostPort),
+				TargetPort:    uint32(cfg.Container),
+				PublishedPort: uint32(cfg.Host),
 				PublishMode:   swarm.PortConfigPublishModeHost,
 			}
 			i++
