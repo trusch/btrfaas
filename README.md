@@ -58,14 +58,14 @@ All I wanted was a version of openfaas which solves the problems above, and I ho
 ## Getting Started
 ```bash
 # install
-curl -sL https://raw.githubusercontent.com/trusch/btrfaas/v0.3.2/install.sh | sh
+curl -sL https://raw.githubusercontent.com/trusch/btrfaas/v0.3.3/install.sh | sh
 
 # init deployment
 btrfaasctl init
 
 # deploy sample functions
-btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.3.2/examples/sed.yaml
-btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.3.2/examples/to-upper.yaml
+btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.3.3/examples/sed.yaml
+btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.3.3/examples/to-upper.yaml
 
 # test it
 echo "I hate this" | btrfaasctl function invoke "sed -e s/hate/love/ | to-upper"
@@ -106,9 +106,9 @@ This includes:
 btrfaasctl init
 
 # deploy fui, prometheus and grafana
-btrfaasctl service deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.3.2/core-services/fui/fui.yaml
-btrfaasctl service deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.3.2/core-services/prometheus/prometheus.yaml
-btrfaasctl service deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.3.2/core-services/prometheus/grafana.yaml
+btrfaasctl service deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.3.3/core-services/fui/fui.yaml
+btrfaasctl service deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.3.3/core-services/prometheus/prometheus.yaml
+btrfaasctl service deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.3.3/core-services/prometheus/grafana.yaml
 
 # configure grafana:
 while ! curl -s -H "Content-Type: application/json" \
@@ -125,8 +125,8 @@ EOF
 do sleep 1; done
 
 # deploy sample functions
-btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.3.2/examples/sed.yaml
-btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.3.2/examples/to-upper.yaml
+btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.3.3/examples/sed.yaml
+btrfaasctl function deploy https://raw.githubusercontent.com/trusch/btrfaas/v0.3.3/examples/to-upper.yaml
 ```
 
 You can now visit:
